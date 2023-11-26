@@ -8,13 +8,17 @@ copy of the entire visualization stack. This requires the following dependencies
 - [docker](https://docs.docker.com/get-docker/)
 - [devcontainers for vscode](https://code.visualstudio.com/docs/devcontainers/containers)
 
+Once Docker is installed, use the "Dev Containers: Open Folder in Container" command in
+vscode.
+
 Starting the dev container extension, or running `docker compose up` from `.devcontainer`,
 will start 3 containers. Note that the configuration is not secure, and these should only be
 run from a local workstation with a firewall.
 
 1. A Debian-based Python container for development work. This contains all of the dependencies for our code.
-2. InfluxDB with some example data.
-3. Grafana with some pre-configured dashboards.
+Port 4000 is exposed to localhost so you can access Flask.
+2. InfluxDB with some example data, on port 8086.
+3. Grafana with some pre-configured dashboards, on port 3000.
 
 The InfluxDB seed data can be found in `.devcontainer/influx/example-data.csv`. At this time,
 it is based on the 081523 example spreadsheet. It has been [formatted](https://docs.influxdata.com/influxdb/cloud/reference/syntax/annotated-csv/#annotated-csv-in-flux)
