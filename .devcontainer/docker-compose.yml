@@ -1,0 +1,29 @@
+version: '3'
+services:
+  devcontainer:
+    image: python:3.11-bookworm
+    command: "sleep 9999999"
+  influxdb:
+    build: ./influx
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=zatan
+      - DOCKER_INFLUXDB_INIT_PASSWORD=Zatan123!
+      - DOCKER_INFLUXDB_INIT_ORG=zatan
+      - DOCKER_INFLUXDB_INIT_BUCKET=main
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+volumes:
+  influxdb_data:
+  grafana-storage:
