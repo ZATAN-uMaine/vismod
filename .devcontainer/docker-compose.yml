@@ -3,27 +3,46 @@ services:
   devcontainer:
     image: python:3.11-bookworm
     command: "sleep 9999999"
+    volumes:
+      - "workspace:/workspace"
   influxdb:
     build: ./influx
     container_name: influxdb
     ports:
       - "8086:8086"
     environment:
+      # see https://github.com/docker-library/docs/blob/master/influxdb/README.md#automated-setup
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=zatan
       - DOCKER_INFLUXDB_INIT_PASSWORD=Zatan123!
       - DOCKER_INFLUXDB_INIT_ORG=zatan
       - DOCKER_INFLUXDB_INIT_BUCKET=main
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
+      # just a random token. Grafana needs this
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=OHoaJ4ye-oO7nfg2AMbG5GdadRdlXI-KeVvtv6632cUCfVMF534w47AfMD9MfzAun_xj53zi67ATPU3kZr5a5g==
     volumes:
+      # the config volume exists because the admin token is written there on first use
+      - influxdb_config:/etc/influxdb2
       - influxdb_data:/var/lib/influxdb
   grafana:
     image: grafana/grafana-oss
     container_name: grafana
+    depends_on:
+      - influxdb
     ports:
       - '3000:3000'
+    environment:
+      - INFLUX_TOKEN=OHoaJ4ye-oO7nfg2AMbG5GdadRdlXI-KeVvtv6632cUCfVMF534w47AfMD9MfzAun_xj53zi67ATPU3kZr5a5g==
+      - INFLUX_PASS=Zatan123!
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - grafana_storage:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+      # the provisioning directory holds YAML templates for data sources and dashboard that will be loaded on the first run
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      # the dashboard directory saves reuseable dashboard
+      # note: you maybe have to chmod it
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
 volumes:
+  influxdb_config:
   influxdb_data:
-  grafana-storage:
+  grafana_storage:
+  workspace:
