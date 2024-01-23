@@ -7,29 +7,30 @@ services:
       - "..:/workspace:cached"
     ports:
       - "4000:4000"
-  influxdb:
-    build: ./influx
-    container_name: influxdb
+
+  influx:
+    image: influxdb:latest
+    container_name: influx
     ports:
-      - "8086:8086"
+    - "8086:8086"
     environment:
-      # see https://github.com/docker-library/docs/blob/master/influxdb/README.md#automated-setup
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=zatan
       - DOCKER_INFLUXDB_INIT_PASSWORD=Zatan123!
       - DOCKER_INFLUXDB_INIT_ORG=zatan
       - DOCKER_INFLUXDB_INIT_BUCKET=main
-      # just a random token. Grafana needs this
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=OHoaJ4ye-oO7nfg2AMbG5GdadRdlXI-KeVvtv6632cUCfVMF534w47AfMD9MfzAun_xj53zi67ATPU3kZr5a5g==
     volumes:
-      # the config volume exists because the admin token is written there on first use
-      - influxdb_config:/etc/influxdb2
-      - influxdb_data:/var/lib/influxdb
+     # the config volume exists because the admin token is written there on first use
+      - influx_config:/etc/influxdb2
+      - influx_storage:/var/lib/influxdb2
+      # startup script
+      - ./influx/influx-setup.sh:/docker-entrypoint-initdb.d/influx-setup.sh:ro
+      # seed data
+      - ./influx/example-data.csv:/example-data.csv
+
   grafana:
     image: grafana/grafana-oss
     container_name: grafana
-    depends_on:
-      - influxdb
     ports:
       - '3000:3000'
     environment:
@@ -44,7 +45,7 @@ services:
       # note: you maybe have to chmod it
       - ./grafana/dashboards:/var/lib/grafana/dashboards
 volumes:
-  influxdb_config:
-  influxdb_data:
+  influx_storage:
+  influx_config:
   grafana_storage:
   workspace:

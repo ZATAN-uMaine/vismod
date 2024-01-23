@@ -8,7 +8,7 @@ datasources:
     type: influxdb
     access: proxy
     uid: 4c8d5e49-fa48-4977-bd55-8ff2fec87f36
-    url: http://influxdb:8086
+    url: http://influx:8086
     isDefault: true
     basicAuth: true
     basicAuthUser: "zatan"
