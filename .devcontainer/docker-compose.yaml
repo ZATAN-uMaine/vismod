@@ -9,6 +9,7 @@ services:
       - "..:/workspace:cached"
     ports:
       - "4000:4000"
+      - "5000:5000"
 
   influx:
     image: influxdb:latest

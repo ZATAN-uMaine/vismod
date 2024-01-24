@@ -5,3 +5,4 @@ all:
       ansible_user: "ubuntu"
   vars:
     www_location: "pnbpreview.dieff.dev"
+    get_https_cert: true
