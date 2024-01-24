@@ -1,8 +1,10 @@
 version: '3'
 services:
   devcontainer:
-    image: python:3.11-bookworm
+    build: ./python-dev
     command: "sleep 9999999"
+    # may need to be changed for different users
+    user: "1000:1000"
     volumes:
       - "..:/workspace:cached"
     ports:
