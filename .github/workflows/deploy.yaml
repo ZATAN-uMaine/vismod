@@ -9,5 +9,16 @@ on:
     branches:
       - main
 jobs:
-  build-and-deploy:
+  deploy_ansible:
     runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: "infrastructure/deploy-prod.yaml"
+          directory: "infrastructure"
+          key: ${{secrets.PROD_SERVER_KEY}}
+          options: |
+            --extra-vars www_location = ${{secrets.PROD_SERVER_HOSTNAME}}
