@@ -1,0 +1,10 @@
+FROM python:3.11-bookworm
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install dependencies:
+RUN apt-get update
+RUN pip install pandas[openpyxl]
+RUN pip install npTDMS[pandas]

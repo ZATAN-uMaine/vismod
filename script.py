@@ -16,7 +16,6 @@ def get_calibs_from_xlsx(column_names):
     table = table.iloc[2:26:2, :]
     indices = table.index.tolist()
     indices = list(map(lambda x: x.split()[0] + x.split()[1], indices))
-    print(indices)
     table.index  = indices # I hate that this is the best I could come up with
 
     #Rename columns to something actually sensible
@@ -38,8 +37,6 @@ def get_calibrated_data(path, calib_table):
             indices.append(group.name)
             dic = dic | {group.name:group.as_dataframe()}
     
-
-    print(dic['45617']['TEMP'])
 
     for sensor in dic:
         # Don't know if we need to process these, but they're shaped diff.
@@ -76,12 +73,9 @@ def get_calibrated_data(path, calib_table):
 
 def main():
     #tdms_file = TdmsFile.read("../raw-DAQ-files/100123.tdms")
-    calib_table = get_calibs_with_pd('L,H,R')
-    print(calib_table)
-
-    dic = get_calibrated_data("../raw-DAQ-files/100123.tdms", calib_table)
-    print(dic)
-    print(dic['45617']['TEMP'])
+    #calib_table = get_calibs_from_xlsx('L,H,R')
+    #dic = get_calibrated_data("../raw-DAQ-files/100123.tdms", calib_table)
+    print("Hello World")
 
 if __name__ == '__main__':
     main()
