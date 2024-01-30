@@ -8,6 +8,7 @@ services:
     command: "sleep infinity"
     volumes:
       - "..:/workspace:cached"
+    working_dir: /workspace
     ports:
       - "4000:4000"
   influx:
