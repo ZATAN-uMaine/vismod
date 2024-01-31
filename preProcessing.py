@@ -2,21 +2,20 @@ from nptdms import TdmsFile, ChannelObject
 import pandas as pd
 
 class CalibrationManager:
-    def __init__(self):
-        self.calibration_file_path = ''
-        self.parameter_columns = ''
-        self.calib_tables = []
-        #self.calib_tables.append(self.get_calibs_from_local_xlsx(self.parameter_columns))
-        self.channel_num = {}
+    def __init__(self, calibration_file_path, select_cols=None, select_index=None):
+        self.calibration_file_path = calibration_file_path
+        self.parameter_columns = select_cols
+        self.calib_table = self.get_calibs_from_local_xlsx(select_cols, select_index)
+        
 
-    def rename_cols(new_dict, table_number):
+    def rename_cols(self, new_dict):
         """
         Takes a dictionary mapping column names to new names
         Replaces column names of calib table
         """
         if type(new_dict) != dict():
             return
-        self.calib_tables[table_number].rename(
+        self.calib_table.rename(
             columns = new_dict, 
             inplace=True
         )
@@ -51,8 +50,8 @@ class CalibrationManager:
         for parameter in self.calib_table.columns:
             sensor = parameter.split('/')[0]
             channel = int(parameter.split('/')[1])
-            tdms_dict[sensor][channel] = dic[sensor][channel].map(
-                lambda f: f*calib_table[parameter][sensor+f'/{channel}']
+            tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
+                lambda f: f*self.calib_table[parameter][sensor+f'/{channel}']
             )
         return tdms_dict
 
@@ -60,6 +59,10 @@ class CalibrationManager:
 class PreProcessor:
     def __init__(self, calibration_manager):
         self.calibration_manager = calibration_manager
+
+    def set_manager(self, manager):
+        self.calibration_manager = manager
+        return
 
     def averageData(self, tdms_dict):
         return tdms_dict
@@ -76,15 +79,16 @@ class PreProcessor:
                 pass
             else:
                 #Apply Calibration values to temperature values
+                table = self.calibration_manager.calib_table
                 tdms_dict[sensor]['TEMP'] = tdms_dict[sensor]['TEMP'].map(
-                    lambda f: f*calib_table['Temp Sensor'][sensor+'/1']
+                    lambda f: f*table['Temp Sensor'][sensor+'/1']
                 )
                 # Apply loadcell calibs
                 tdms_dict[sensor]['ch1'] = tdms_dict[sensor]['ch1'].map(
-                    lambda f: f*calib_table['Load Cell'][sensor+'/1']
+                    lambda f: f*table['Load Cell'][sensor+'/1']
                 )
                 tdms_dict[sensor]['ch2'] = tdms_dict[sensor]['ch2'].map(
-                    lambda f: f*calib_table['Load Cell'][sensor+'/2']
+                    lambda f: f*table['Load Cell'][sensor+'/2']
                 )
 
         return tdms_dict
@@ -102,12 +106,3 @@ class PreProcessor:
                 tdms_dict = tdms_dict | {group.name:group.as_dataframe()}
         return tdms_dict
 
-            
-
-def main():
-    calibMan = CalibrationManager()
-    preProcessor = PreProcessor(calibMan)
-
-
-if __name__ == '__main__':
-    main()
