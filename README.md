@@ -15,8 +15,8 @@ Starting the dev container extension, or running `docker compose up` from `.devc
 will start 3 containers. Note that the configuration is not secure, and these should only be
 run from a local workstation with a firewall.
 
-1. A Debian-based Python container for development work. This contains all of the dependencies for our code.
-Port 4000 is exposed to localhost so you can access Flask.
+1. A Debian-based Python container for development work. This contains all of the dependencies for our code. VSCode is running as user `work` within the container.
+Port 4000 + 5000 are exposed to localhost so you can access Flask and Python debugging.
 2. InfluxDB with some example data, on port 8086.
 3. Grafana with some pre-configured dashboards, on port 3000.
 
@@ -53,3 +53,21 @@ To use Grafana
 
 1. Visit http://localhost:3000
 2. Credentials are admin / admin
+
+
+## Deployment
+
+The visualization project can be entirely deployed to a live server
+using only the provided Github Actions and Ansible Playbooks. The `DeployProject`
+job runs on Actions after a push to the `main` branch (such as after a PR).
+The job target can be controlled via a Github Secret.
+
+The Ansible Playbooks are found in `/infrastructure`. Running them requires
+Ansible to be installed.
+
+To run Ansible manually, add the correct SSH private key to your agent,
+and then try
+
+```
+ansible-playbook -i inventory.yaml deploy-prod.yaml
+```

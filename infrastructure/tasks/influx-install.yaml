@@ -1,0 +1,42 @@
+- name: "Download influx apt key"
+  get_url:
+    url: "https://repos.influxdata.com/influxdata-archive_compat.key"
+    dest: /etc/apt/keyrings/influx.asc
+- name: "Add influx apt repository"
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/influx.asc] https://repos.influxdata.com/debian stable main"
+    state: present
+- name: "Install influx packages"
+  apt:
+    update_cache: true
+    state: present
+    name:
+      - influxdb2
+      - influxdb2-cli
+      - telegraf
+- name: "Copy influxdb config file"
+  copy:
+    src: "influx-config.toml"
+    dest: "/etc/influxdb/config.toml"
+  register: "influx_config_copy_res"
+- name: "Restart Influx if necessary"
+  systemd:
+    name: "influxdb"
+    state: "restarted"
+  when: "influx_config_copy_res.changed"
+- name: "Make sure Influx is running"
+  systemd:
+    name: "influxdb"
+    state: "started"
+    enabled: true
+  # zatan / Zatan123#
+  # setup only runs once. After the initial run, it will return an error
+- name: "Influx initial setup"
+  shell: >-
+    influx setup 
+    --username zatan
+    --password Zatan123!
+    --org zatan
+    --bucket pnb
+    --force
+  ignore_errors: true

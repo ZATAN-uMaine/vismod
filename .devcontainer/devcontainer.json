@@ -3,5 +3,13 @@
 {
   "dockerComposeFile": "docker-compose.yaml",
   "service": "devcontainer",
-  "workspaceFolder": "/workspace"
+  "workspaceFolder": "/workspace",
+  "remoteUser": "work",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "redhat.ansible"
+      ]
+    }
+  }
 }

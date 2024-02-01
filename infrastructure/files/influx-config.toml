@@ -1,0 +1,5 @@
+bolt-path = "/var/lib/influxdb/influxd.bolt"
+engine-path = "/var/lib/influxdb/engine"
+http-bind-address = "localhost:8086"
+
+metrics-disabled = true

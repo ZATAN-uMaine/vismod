@@ -1,0 +1,16 @@
+  # certbot (needs more testing?)
+- name: "Check if certificate has been requested"
+  shell: "certbot certificates"
+  changed_when: false
+  register: certbot_cert_list
+- name: "Find name of issued certs"
+  set_fact:
+    cur_certs: >
+      {{ certbot_cert_list.stdout_lines | replace(",", "") | replace("'", "") | regex_search("(Certificate Name: ).*") }}
+- name: "Issue Cert"
+  shell: >-
+    certbot --nginx -d {{ www_location }} -n -m test@maine.edu --agree-tos
+  when:  "not cur_certs is contains(www_location)"
+- name: "Add TLS config to Nginx"
+  shell: "certbot install --cert-name {{ www_location }}"
+  when: "nginx_copy_res.changed"
