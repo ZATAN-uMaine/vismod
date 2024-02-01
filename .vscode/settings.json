@@ -1,3 +1,6 @@
 {
-  "python.testing.debugPort": 4000
+  "python.testing.debugPort": 4000,
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "file:///workspace/.github/workflows/deploy.yaml"
+  },
 }
