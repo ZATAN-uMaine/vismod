@@ -2,6 +2,7 @@ version: '3'
 services:
   devcontainer:
     build: ./python-dev
+    container_name: vismod-dev
     command: "sleep infinity"
     # may need to be changed for different users
     user: "1000:1000"
