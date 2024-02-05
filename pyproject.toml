@@ -1,0 +1,93 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vismod"
+version = "0.0.1"
+description = 'PNB Visualization by Team Zatan'
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+]
+### RUNTIME DEPENDENCIES HERE ###
+dependencies = [
+  "pandas",
+  "npTDMS[pandas]"
+]
+
+[project.scripts]
+pre-proc = "vismod_processing.oop_pre_processing"
+
+[tool.hatch.envs.default]
+### DEVELOPMENT DEPENDENCIES HERE ###
+dependencies = [
+  "coverage[toml]>=6.5",
+  "pytest",
+  "black",
+  "flake8",
+  "flake8-bugbear",
+  "Flake8-pyproject"
+]
+
+# scripts that you can run with `hatch run <script>`
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+format = "black src"
+lint = "flake8"
+
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.11", "3.12"]
+
+
+[tool.hatch.envs.types]
+dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/vismod tests}"
+
+[tool.coverage.run]
+source_pkgs = ["vismod", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/vismod/__about__.py",
+]
+
+[tool.coverage.paths]
+vismod = ["src/vismod", "*/vismod/src/vismod"]
+tests = ["tests", "*/vismod/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+### AUTO FORMATTER CONFIG ###
+[tool.black]
+line-length = 80
+
+### LINTER CONFIG ###
+[tool.flake8]
+exclude = [
+  ".git",
+  "__pycache__",
+  ".hatch",
+]
+# Flake lints that will be turned off
+extend-ignore = [
+  "B023"
+]

@@ -2,6 +2,12 @@
 
 ## Development
 
+The project is primarily developed in Python, and follows the 
+[Python Packaging User Guide](https://packaging.python.org/en/latest/overview/),
+with [`hatch`](https://hatch.pypa.io/latest/) used as a build and packaging tool.
+
+### Getting Started
+
 Local development uses Docker and a devcontainer-compatible IDE to run a local
 copy of the entire visualization stack. This requires the following dependencies:
 
@@ -9,7 +15,8 @@ copy of the entire visualization stack. This requires the following dependencies
 - [devcontainers for vscode](https://code.visualstudio.com/docs/devcontainers/containers)
 
 Once Docker is installed, use the "Dev Containers: Open Folder in Container" command in
-vscode.
+vscode. If you are on Windows, make sure that Git is not changing the line endings
+for files inside your container.
 
 Starting the dev container extension, or running `docker compose up` from `.devcontainer`,
 will start 3 containers. Note that the configuration is not secure, and these should only be
@@ -20,20 +27,37 @@ Port 4000 + 5000 are exposed to localhost so you can access Flask and Python deb
 2. InfluxDB with some example data, on port 8086.
 3. Grafana with some pre-configured dashboards, on port 3000.
 
-The InfluxDB seed data can be found in `.devcontainer/influx/example-data.csv`. At this time,
-it is based on the 081523 example spreadsheet. It has been [formatted](https://docs.influxdata.com/influxdb/cloud/reference/syntax/annotated-csv/#annotated-csv-in-flux)
-so that it can be imported into Influx.
-Import is performed with the `.devcontainer/influx/influx-setup.sh` script.
+Once your dev container is running, you can use `hatch` to run your code.
 
-### How To
+Run a single script:
+```
+hatch run <script>
+```
 
-To reset Influx/Grafana databases or use different seed data:
+Grab a shell
+```
+hatch shell
+```
+
+
+### Developer How To
+
+To manually reset Influx/Grafana databases:
 
 ```
 cd .devcontainer
 docker compose down -v
 docker compose build
 ```
+Or you can run the "Dev Containers: Rebuild Container" command from inside Vscode.
+
+
+To run a shell inside the dev container:
+
+```
+docker exec -it vismod-dev bash
+```
+
 
 To use the Influx Web GUI with the dev container stack running:
 
@@ -49,13 +73,34 @@ To use the Influx CLI (this is mostly good for database admin, not querying):
 1. From the `.devcontainer` directory...
 2. Run `docker compose exec influxdb <YOUR COMMAND HERE>`
 
+
 To use Grafana
 
 1. Visit http://localhost:3000
 2. Credentials are admin / admin
 
 
+Add new Pip Dependencies
+
+Find the `dependencies` section in `pyproject.toml` and add it to the list.
+`hatch` will automatically install the next time you start a shell or run
+a command. If you currently have a shell open, restart it.
+
+Run Tests using `pytest`
+
+```
+hatch run test
+```
+
 ## Deployment
+
+### Packages
+
+```
+python3 -m build --wheel
+```
+
+### Server
 
 The visualization project can be entirely deployed to a live server
 using only the provided Github Actions and Ansible Playbooks. The `DeployProject`
