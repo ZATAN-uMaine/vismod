@@ -45,6 +45,8 @@ cov = [
 format = "black src"
 lint = "flake8"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/vismod_processing"]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.11", "3.12"]
