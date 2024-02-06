@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-pre-proc = "vismod_processing.oop_pre_processing"
+pre-proc = "vismod_processing.oop_pre_processing:main"
 
 [tool.hatch.envs.default]
 ### DEVELOPMENT DEPENDENCIES HERE ###
