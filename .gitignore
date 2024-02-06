@@ -1,3 +1,11 @@
 .direnv
 .envrc
 *.pem
+
+
+# Created by various Python tools
+__pycache__
+dist
+**/*.egg-info
+.hatch
+.pytest_cache

@@ -2,15 +2,17 @@ version: '3'
 services:
   devcontainer:
     build: ./python-dev
-    command: "sleep 9999999"
+    container_name: vismod-dev
+    command: "sleep infinity"
     # may need to be changed for different users
     user: "1000:1000"
     volumes:
       - "..:/workspace:cached"
+    working_dir: /workspace
     ports:
       - "4000:4000"
       - "5000:5000"
-
+      
   influx:
     image: influxdb:latest
     container_name: influx

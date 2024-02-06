@@ -1,6 +1,12 @@
 {
-  "python.testing.debugPort": 4000,
   "yaml.schemas": {
     "https://json.schemastore.org/github-workflow.json": "file:///workspace/.github/workflows/deploy.yaml"
   },
+
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.debugPort": 4000
 }
