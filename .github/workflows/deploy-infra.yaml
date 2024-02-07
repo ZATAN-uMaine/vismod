@@ -28,4 +28,5 @@ jobs:
             ${{secrets.PROD_SERVER_HOSTNAME}} ansible_user=ubuntu
           key: ${{secrets.PROD_SERVER_KEY}}
           options: |
-            --extra-vars www_location=${{secrets.PROD_SERVER_HOSTNAME}}
+            --extra-vars www_location=${{secrets.PROD_SERVER_HOSTNAME}} 
+            --extra-vars get_https_cert=false
