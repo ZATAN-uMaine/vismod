@@ -116,3 +116,21 @@ and then try
 ```
 ansible-playbook -i inventory.yaml deploy-prod.yaml
 ```
+TSP Release Schedule
+Team Zatan
+Zach Scott, Andres Vargas, Tyler Harwood,	Alex Bourgoin, Nick Dieffenbacher-Krall
+Set a Feature freeze date - what is the date.
+Feb 26th 2024
+Set a CODE freeze date - what is the date.
+March 27, 2024
+Decide on a Release candidate name. This will be the code version from which all defects will be removed ( i.e v0.1a, red, blackbird, etc.)
+	Verona
+Fix (a) release date(s)  (Note:  If you are beta testing your code, you will have more than one release date.) Also keep in mind any presentations you'll be presenting.
+v0.1 to be released on the 26th of February.
+The PNB Portal will be deployed continuously upon a successful push to the main branch in Github.
+Fix release dates for your User Guide and Administrator Manuals  (Note:  Plan to do a feature freeze before the date(s).)
+	March 25, 2024 - AM v0.1
+	April 13, 2024 - AM v1.0
+	April 6, 2024 - UG v0.1
+	April 22, 2024 - UG v1.0
+
