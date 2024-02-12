@@ -12,6 +12,8 @@ authors = [
 ]
 ### RUNTIME DEPENDENCIES HERE ###
 dependencies = [
+  "python-dotenv",
+  "flask",
   "pandas",
   "npTDMS[pandas]"
 ]
@@ -44,6 +46,8 @@ cov = [
 ]
 format = "black src"
 lint = "flake8"
+web = "flask run"
+process = "python src/vismod_processing/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vismod_processing"]
