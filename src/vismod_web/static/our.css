@@ -1,0 +1,87 @@
+#dateRangeBox {
+    float: right;
+    display: flex;
+    /* flex-direction: column; */
+    height: 100%;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.dateSelectorBox {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.select-hour {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    height: 2em;
+    font-size: 1em;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+#bridge-svg {
+    background-color: aliceblue;
+}
+
+#bridge-svg circle, #bridge-svg .triangle {
+    cursor: pointer;
+}
+
+mark {
+    background-color: darkslateblue;
+    color: aliceblue;
+}
+
+#overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: #999;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+    z-index: 100;
+}
+
+#popup {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background: #fff;
+    width: 500px;
+    height: 500px;
+    margin-left: -250px; /*Half the value of width to center div*/
+    margin-top: -250px; /*Half the value of height to center div*/
+    z-index: 200;
+}
+
+#popupclose {
+    float: right;
+    padding: 10px;
+    cursor: pointer;
+    color: black;
+}
+
+.popupcontent {
+    padding: 10px;
+    color: darkslateblue;
+}
