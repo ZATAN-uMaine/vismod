@@ -50,7 +50,7 @@ web = "flask run"
 process = "python src/vismod_processing/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/vismod_processing"]
+packages = ["src/vismod_processing", "src/vismod_web"]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.11", "3.12"]
@@ -72,7 +72,7 @@ omit = [
 ]
 
 [tool.coverage.paths]
-vismod = ["src/vismod", "*/vismod/src/vismod"]
+vismod = ["src/vismod_*", "*/vismod/src/vismod_*"]
 tests = ["tests", "*/vismod/tests"]
 
 [tool.coverage.report]
