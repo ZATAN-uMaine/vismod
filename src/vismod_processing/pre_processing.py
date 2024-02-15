@@ -1,8 +1,11 @@
 from nptdms import TdmsFile
 import pandas as pd
+
 """
 
 """
+
+
 class Pre_Processor:
     def __init__(self, calibration_file_path):
         """
@@ -12,19 +15,22 @@ class Pre_Processor:
         self.calib_file_path = calibration_file_path
         self.calib_table = pd.DataFrame()
 
-    def get_calibs_from_local_csv(self, csv_path, index_column='WDAQ'):
+    def get_calibs_from_local_csv(self, csv_path, index_column="WDAQ"):
         table = pd.read_csv(csv_path, index_col=index_column)
 
-        #Parse the weird    space character out of the indices
+        # Parse the weird    space character out of the indices
         indices = table.index.tolist()
-        indices = list(map(lambda label: label.split()[0] + label.split()[1], indices))
+        indices = list(
+            map(lambda label: label.split()[0] + label.split()[1], indices)
+        )
         table.index = indices
 
-        #Union with existing calb table
+        # Union with existing calb table
         self.calib_table = pd.concat([self.calib_table, table])
 
-
-    def get_calibs_from_local_xlsx(self, calib_table_path, calib_table_columns,index_column="WDAQ"):
+    def get_calibs_from_local_xlsx(
+        self, calib_table_path, calib_table_columns, index_column="WDAQ"
+    ):
         """
         Takes a pair of excel-style string of column names (ex. 'L,H')
         One column is the calibration factors, the other is the index we'll use
@@ -37,20 +43,24 @@ class Pre_Processor:
             nrows=30,
             index_col=index_column,
         )
-        
 
         # Get every other row
         table = table.iloc[2::2, :]
 
-        #Parse the weird    space character out of the indices
+        # Parse the weird    space character out of the indices
         indices = table.index.astype(str).tolist()
-        indices = list(map(lambda label: 
-            (label.split()[0] + label.split()[1]) if len(label.split()) >= 2 else label, indices)
+        indices = list(
+            map(
+                lambda label: (label.split()[0] + label.split()[1])
+                if len(label.split()) >= 2
+                else label,
+                indices,
+            )
         )
         table.index = indices
 
-        #Union with existing calb table
-        self.calib_table = pd.concat([self.calib_table, table]) 
+        # Union with existing calb table
+        self.calib_table = pd.concat([self.calib_table, table])
 
         """
         # Rename columns to something actually sensible, not generalizable.
@@ -81,10 +91,12 @@ class Pre_Processor:
                 tdms_dict = tdms_dict | {group.name: group.as_dataframe()}
         return tdms_dict
 
-    def apply_calibration(self, tdms_dict, 
-            fun = lambda item,table,parameter,sensor,channel: 
-                item * table["Cal Factor"][sensor + f"/{channel}"]
-        ):
+    def apply_calibration(
+        self,
+        tdms_dict,
+        fun=lambda item, table, parameter, sensor, channel: item
+        * table["Cal Factor"][sensor + f"/{channel}"],
+    ):
         """
         Just apply given lambda to calib values
         Suggested: fun = lambda i, t, p, s, c: i * t[p][s + f"/{c}"]
@@ -94,6 +106,8 @@ class Pre_Processor:
             sensor = parameter.split("/")[0]
             channel = parameter.split("/")[1]
             tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
-                lambda item: fun(item, self.calib_table, parameter, sensor, channel)
+                lambda item: fun(
+                    item, self.calib_table, parameter, sensor, channel
+                )
             )
         return tdms_dict
