@@ -1,0 +1,88 @@
+# Runs when we push to master (merge PR).
+# Deploys Ansible Playbook to set up server
+# and Python services.
+
+name: Deploy Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_infra:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run server setup playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: "server-setup.yaml"
+          directory: "./infrastructure"
+          configuration: |
+            [defaults]
+            host_key_checking = False
+          inventory: |
+            [prod]
+            ${{secrets.PROD_SERVER_HOSTNAME}} ansible_user=ubuntu
+          key: ${{secrets.PROD_SERVER_KEY}}
+          options: |
+            --extra-vars www_location=${{secrets.PROD_SERVER_HOSTNAME}} 
+            --extra-vars get_https_cert=false
+
+  build_project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Python 
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Install Hatch
+        run: |
+          python -m pip install --upgrade pip 
+          pip install hatch
+      - name: Build package
+        run: hatch build
+      - name: "Set package version variable"
+        run: |
+          "hatch version" >> "$VISMOD_VERSION"
+      # upload the build so that we can use it from other steps
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: vismod-python-package
+          path: "dist/vismod-$VISMOD_VERSION.tar.gz"
+          if-no-files-found: error
+
+  deploy_project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+        # downloads the built package to repo root
+        # it will be named something like "vismod-0.0.1.tar.gz"
+      - name: Retrieve saved vismod Python package
+        uses: actions/download-artifact@v2
+        with:
+          name: vismod-python-package
+          path: "."
+
+        # deployment playbook copies over python package and systemd services
+      - name: Run deployment playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: "deploy.yaml"
+          directory: "./infrastructure"
+          configuration: |
+            [defaults]
+            host_key_checking = False
+          inventory: |
+            [prod]
+            ${{secrets.PROD_SERVER_HOSTNAME}} ansible_user=ubuntu
+          key: ${{secrets.PROD_SERVER_KEY}}
+          options: |
+            --extra-vars www_location=${{secrets.PROD_SERVER_HOSTNAME}} 

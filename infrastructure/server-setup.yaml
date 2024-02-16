@@ -97,10 +97,3 @@
         name: "grafana-server"
         enabled: true
         state: started
-
-- name: "Install Python services"
-  hosts: prod
-  become: true
-  tasks:
-    - debug:
-        msg: "TODO"

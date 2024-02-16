@@ -9,7 +9,7 @@
       {{ certbot_cert_list.stdout_lines | replace(",", "") | replace("'", "") | regex_search("(Certificate Name: ).*") }}
 - name: "Issue Cert"
   shell: >-
-    certbot --nginx -d {{ www_location }} -n -m test@maine.edu --agree-tos
+    certbot certonly --nginx -d {{ www_location }} -n -m test@maine.edu --agree-tos
   when:  "not cur_certs is contains(www_location)"
 - name: "Add TLS config to Nginx"
   shell: "certbot install --cert-name {{ www_location }}"

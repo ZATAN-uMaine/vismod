@@ -1,0 +1,11 @@
+[Unit]
+Description=Run vismod data processing script
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=4hr
+RandomizedDelaySec=1min
+Unit=%i.service
+
+[Install]
+WantedBy=timers.target

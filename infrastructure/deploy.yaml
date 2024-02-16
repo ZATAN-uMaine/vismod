@@ -1,0 +1,67 @@
+- name: "Deploy project"
+  hosts: prod
+  become: true
+  tasks:
+    - name: "Find local package"
+      become: false
+      local_action:
+        module: ansible.builtin.find
+        paths: "{{ playbook_dir }}/../"
+        patterns: "*.tar.gz"
+        use_regex: false
+      register: local_file_path
+    - name: "Assert that package file exists"
+      assert:
+        that:
+          local_file_path.files | length == 1
+    - name: "Copy package to server"
+      copy:
+        src: "{{ local_file_path.files[0].path }}"
+        dest: "/tmp/vismod.tar.gz"
+
+    - name: "Add packages for vismod install"
+      apt:
+        name:
+          - acl
+          - python3-pip
+        state: present
+
+    - name: "Create server user"
+      user:
+        name: "vismod"
+        state: present
+        create_home: true
+
+    - name: "Install vismod package"
+      become: true
+      become_user: vismod
+      pip:
+        name: "/tmp/vismod.tar.gz"
+        state: present
+        extra_args: --user
+
+    - name: "Copy flask service"
+      copy:
+        src: "flask-web.service"
+        dest: "/etc/systemd/system/vismod-web.service"
+    - name: "Start vismod Flask"
+      systemd_service:
+        name: "vismod-web"
+        daemon_reload: true
+        enabled: true
+        state: restarted
+
+    - name: "Copy processing service"
+      copy:
+        src: "vismod-processing.service"
+        dest: "/etc/systemd/system/vismod-processing.service"
+    - name: "Copy processing timer"
+      copy:
+        src: "vismod-processing.timer"
+        dest: "/etc/systemd/system/vismod-processing.timer"
+    - name: "Start vismod Processing"
+      systemd_service:
+        name: "vismod-processing.timer"
+        daemon_reload: true
+        enabled: true
+        state: started

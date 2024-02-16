@@ -7,7 +7,7 @@ name = "vismod"
 version = "0.0.1"
 description = 'PNB Visualization by Team Zatan'
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
 ]
 ### RUNTIME DEPENDENCIES HERE ###
