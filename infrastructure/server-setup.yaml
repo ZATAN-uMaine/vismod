@@ -16,7 +16,7 @@
   tasks:
     - name: "Include influx setup tasks"
       include_tasks:
-        file: "tests/influx-install.yaml"
+        file: "tasks/influx-install.yaml"
 
 - name: "Install nginx"
   hosts: "prod"
@@ -97,10 +97,3 @@
         name: "grafana-server"
         enabled: true
         state: started
-
-- name: "Install Python services"
-  hosts: prod
-  become: true
-  tasks:
-    - debug:
-        msg: "TODO"

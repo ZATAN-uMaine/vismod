@@ -7,18 +7,20 @@ name = "vismod"
 version = "0.0.1"
 description = 'PNB Visualization by Team Zatan'
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
 ]
 ### RUNTIME DEPENDENCIES HERE ###
 dependencies = [
+  "python-dotenv",
+  "flask",
   "pandas",
   "npTDMS[pandas]",
   "influxdb-client"
 ]
 
 [project.scripts]
-pre-proc = "vismod_processing.oop_pre_processing"
+pre-proc = "vismod_processing.oop_pre_processing:main"
 
 [tool.hatch.envs.default]
 ### DEVELOPMENT DEPENDENCIES HERE ###
@@ -45,9 +47,11 @@ cov = [
 ]
 format = "black src"
 lint = "flake8"
+web = "flask run"
+process = "python src/vismod_processing/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/vismod_processing"]
+packages = ["src/vismod_processing", "src/vismod_web"]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.11", "3.12"]
@@ -69,7 +73,7 @@ omit = [
 ]
 
 [tool.coverage.paths]
-vismod = ["src/vismod", "*/vismod/src/vismod"]
+vismod = ["src/vismod_*", "*/vismod/src/vismod_*"]
 tests = ["tests", "*/vismod/tests"]
 
 [tool.coverage.report]
