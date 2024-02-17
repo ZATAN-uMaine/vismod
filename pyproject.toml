@@ -15,7 +15,8 @@ dependencies = [
   "python-dotenv",
   "flask",
   "pandas",
-  "npTDMS[pandas]"
+  "npTDMS[pandas]",
+  "influxdb-client"
 ]
 
 [project.scripts]
@@ -29,7 +30,7 @@ dependencies = [
   "black",
   "flake8",
   "flake8-bugbear",
-  "Flake8-pyproject"
+  "Flake8-pyproject",
 ]
 
 # scripts that you can run with `hatch run <script>`
