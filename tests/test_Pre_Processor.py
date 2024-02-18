@@ -1,5 +1,5 @@
 import unittest
-from src.vismod_processing.pre_processing import Pre_Processor
+from vismod_processing.pre_processing import Pre_Processor
 import pandas as pd
 import csv
 
@@ -109,5 +109,5 @@ class TestPreProcessor(unittest.TestCase):
 if __name__ == "__main__":
     import sys
 
-    sys.path.append("/workspace/src/vismod_processing/pre_processing.py")
+    sys.path.insert(0, "/workspace/src/vismod_processing/")
     unittest.main()
