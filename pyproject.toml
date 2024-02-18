@@ -13,7 +13,7 @@ authors = [
 ### RUNTIME DEPENDENCIES HERE ###
 dependencies = [
   "openpyxl",
-  "pandas[openpyxl]",
+  "pandas",
   "npTDMS[pandas]"
 ]
 
