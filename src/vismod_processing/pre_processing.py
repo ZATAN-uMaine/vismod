@@ -118,8 +118,8 @@ class Pre_Processor:
             if len(parameter.split("/")) == 1:
                 continue
 
-            sensor = parameter.split('/')[0]
-            channel = parameter.split('/')[1]
+            sensor = parameter.split("/")[0]
+            channel = parameter.split("/")[1]
 
             # Temporary try-except, needed to handle the two ways we're importing
             try:
