@@ -107,4 +107,7 @@ class TestPreProcessor(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    import sys
+
+    sys.path.append("/workspace/src/vismod_processing/pre_processing.py")
     unittest.main()
