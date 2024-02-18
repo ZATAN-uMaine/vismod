@@ -118,6 +118,9 @@ class Pre_Processor:
             if len(parameter.split("/")) == 1:
                 continue
 
+            sensor = paramater.split('/')[0]
+            channel = paramater.split('/')[1]
+
             # Temporary try-except, needed to handle the two ways we're importing
             try:
                 tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
