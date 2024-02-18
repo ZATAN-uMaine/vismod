@@ -46,15 +46,12 @@ jobs:
           pip install hatch
       - name: Build package
         run: hatch build
-      - name: "Set package version variable"
-        run: |
-          "hatch version" >> "$VISMOD_VERSION"
       # upload the build so that we can use it from other steps
       - name: Upload package
         uses: actions/upload-artifact@v2
         with:
           name: vismod-python-package
-          path: "dist/vismod-$VISMOD_VERSION.tar.gz"
+          path: "dist/vismod-*.tar.gz"
           if-no-files-found: error
 
   deploy_project:
