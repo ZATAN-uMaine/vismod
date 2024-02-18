@@ -91,23 +91,42 @@ class Pre_Processor:
                 tdms_dict = tdms_dict | {group.name: group.as_dataframe()}
         return tdms_dict
 
+    def get_local_data_as_dataframe(self, path):
+        """
+        Way simpler, just imports the whole file as a dataframe
+        """
+        with TdmsFile.open(path) as tdms_file:
+            return tdms_file.as_dataframe()
+
     def apply_calibration(
         self,
-        tdms_dict,
-        fun=lambda item, table, parameter, sensor, channel: item
-        * table["Cal Factor"][sensor + f"/{channel}"],
+        remote_tdms_dict,
+        fun=lambda item, table, parameter, sensor, channel: 
+        item * table["Cal Factor"][sensor + f"/{channel}"],
     ):
         """
-        Just apply given lambda to calib values
+        Just apply a given function 'fun' to calib values
         Suggested: fun = lambda i, t, p, s, c: i * t[p][s + f"/{c}"]
         """
-
+        tdms_dict = remote_tdms_dict.copy()
+        
         for parameter in self.calib_table.columns:
-            sensor = parameter.split("/")[0]
-            channel = parameter.split("/")[1]
-            tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
-                lambda item: fun(
-                    item, self.calib_table, parameter, sensor, channel
+
+            # For some reason it sometimes counts the colnames as a param.
+            if len(parameter.split('/')) == 1:
+                continue
+
+            # Temporary try-except, needed to handle the two ways we're importing
+            try:
+                tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
+                    lambda item: fun(
+                        item, self.calib_table, parameter, sensor, channel
+                    )
                 )
-            )
+            except KeyError:
+                tdms_dict[f'/{sensor}/{channel}'] = tdms_dict[f'/{sensor}/{channel}'].map(
+                    lambda item: fun(
+                        item, self.calib_table, parameter, sensor, channel
+                    )
+                )
         return tdms_dict
