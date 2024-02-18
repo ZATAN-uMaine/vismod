@@ -1,3 +1,6 @@
+# Runs on any push or PR
+# checks basic tests, lints, and formatting
+
 name: Tests and Static Analysis
 
 on: [push, pull_request]
@@ -16,11 +19,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip 
         pip install hatch
-    - name: Build package
-      run: hatch build
     - name: Check if code has been formatted
       run: hatch run black --check ./src ./tests
-    - name: Check for lints
+    - name: Flake8 lints
       run: hatch run lint
     - name: Run unit tests
       run: hatch run test
+    - name: Check that package can build
+      run: hatch build

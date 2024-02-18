@@ -1,0 +1,10 @@
+[Unit]
+Description=Vismod Data Processing Script
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -m vismod_processing
+User=vismod
+
+[Install]
+Also=vismod-processing.timer

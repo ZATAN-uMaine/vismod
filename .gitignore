@@ -1,7 +1,8 @@
 .direnv
 .envrc
+.env
 *.pem
-
+*.tar.gz
 
 # Created by various Python tools
 __pycache__

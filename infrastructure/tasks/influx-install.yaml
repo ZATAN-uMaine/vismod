@@ -13,7 +13,6 @@
     name:
       - influxdb2
       - influxdb2-cli
-      - telegraf
 - name: "Copy influxdb config file"
   copy:
     src: "influx-config.toml"

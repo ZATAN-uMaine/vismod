@@ -5,6 +5,7 @@
 The project is primarily developed in Python, and follows the 
 [Python Packaging User Guide](https://packaging.python.org/en/latest/overview/),
 with [`hatch`](https://hatch.pypa.io/latest/) used as a build and packaging tool.
+All the vismod packages and development tools are available as hatch scripts.
 
 ### Getting Started
 
@@ -27,6 +28,10 @@ Port 4000 + 5000 are exposed to localhost so you can access Flask and Python deb
 2. InfluxDB with some example data, on port 8086.
 3. Grafana with some pre-configured dashboards, on port 3000.
 
+Development also uses [dotenv](https://dev.to/jakewitcher/using-env-files-for-environment-variables-in-python-applications-55a1)
+for managing environment variables and secrets. You will need to copy the
+`.env.example` file to `.env` before code will run.
+
 Once your dev container is running, you can use `hatch` to run your code.
 
 Run a single script:
@@ -39,8 +44,26 @@ Grab a shell
 hatch shell
 ```
 
+Run `vismod_processing`
+
+```
+hatch run process
+```
+
+Run web server
+
+```
+hatch run web
+```
+
+Run Tests
+```
+hatch run test
+```
 
 ### Developer How To
+
+#### Dev containers
 
 To manually reset Influx/Grafana databases:
 
@@ -58,6 +81,7 @@ To run a shell inside the dev container:
 docker exec -it vismod-dev bash
 ```
 
+#### Influx
 
 To use the Influx Web GUI with the dev container stack running:
 
@@ -74,11 +98,15 @@ To use the Influx CLI (this is mostly good for database admin, not querying):
 2. Run `docker compose exec influxdb <YOUR COMMAND HERE>`
 
 
+#### Grafana
+
 To use Grafana
 
 1. Visit http://localhost:3000
 2. Credentials are admin / admin
 
+
+#### Python
 
 Add new Pip Dependencies
 
@@ -116,18 +144,25 @@ and then try
 ```
 ansible-playbook -i inventory.yaml deploy-prod.yaml
 ```
-TSP Release Schedule
-Team Zatan
+
+
+# TSP Release Schedule
+
 Zach Scott, Andres Vargas, Tyler Harwood,	Alex Bourgoin, Nick Dieffenbacher-Krall
+
 Set a Feature freeze date - what is the date.
 Feb 26th 2024
+
 Set a CODE freeze date - what is the date.
 March 27, 2024
+
 Decide on a Release candidate name. This will be the code version from which all defects will be removed ( i.e v0.1a, red, blackbird, etc.)
 	Verona
+
 Fix (a) release date(s)  (Note:  If you are beta testing your code, you will have more than one release date.) Also keep in mind any presentations you'll be presenting.
 v0.1 to be released on the 26th of February.
 The PNB Portal will be deployed continuously upon a successful push to the main branch in Github.
+
 Fix release dates for your User Guide and Administrator Manuals  (Note:  Plan to do a feature freeze before the date(s).)
 	March 25, 2024 - AM v0.1
 	April 13, 2024 - AM v1.0
