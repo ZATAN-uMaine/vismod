@@ -11,7 +11,7 @@ class TestPreProcessor(unittest.TestCase):
 
         def parse_csv_columnwise(filename):
             result = {}
-            with open(filename, 'r') as csvfile:
+            with open(filename, "r") as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     for key, value in row.items():
@@ -23,8 +23,10 @@ class TestPreProcessor(unittest.TestCase):
                             result[key].append(value)
             csvfile.close()
             return result
-        self.benchmark = parse_csv_columnwise('tests/081523-Post-Processed-Ex.csv')
 
+        self.benchmark = parse_csv_columnwise(
+            "tests/081523-Post-Processed-Ex.csv"
+        )
 
     def test_get_calibs_from_local_csv(self):
         # Test loading calibration data from CSV
@@ -46,9 +48,11 @@ class TestPreProcessor(unittest.TestCase):
     def test_get_local_data_as_dataframe(self):
         # Test that simpler import function works
 
-        tdms_frame = self.pre_processor.get_local_data_as_dataframe("tests/081523.tdms")
+        tdms_frame = self.pre_processor.get_local_data_as_dataframe(
+            "tests/081523.tdms"
+        )
         self.assertEqual(71, len(tdms_frame.columns))
-        #self.assertEqual(self.benchmark['17AL-LC'][1], tdms_frame["/'43641'/'ch1'"].iloc[1])
+        # self.assertEqual(self.benchmark['17AL-LC'][1], tdms_frame["/'43641'/'ch1'"].iloc[1])
 
     def test_apply_calibration(self):
         # Test applying calibration to sensor data
@@ -79,19 +83,25 @@ class TestPreProcessor(unittest.TestCase):
         def multiplier(item, table, parameter, sensor, channel):
             return item * table[sensor + f"/{channel}"]
 
-        tdms_dict = self.pre_processor.apply_calibration(tdms_dict, fun=multiplier)
+        tdms_dict = self.pre_processor.apply_calibration(
+            tdms_dict, fun=multiplier
+        )
 
         # Check if calibration has been applied correctly
         self.assertEqual(tdms_dict["sensor1"]["ch1"].iloc[1].item(), 1.1 * 2)
-        
+
     def test_apply_calibration_integration(self):
         # test with new tdms method
-        tdms_frame = self.pre_processor.get_local_data_as_dataframe('tests/081523.tdms')
-        calib_table = self.pre_processor.get_calibs_from_local_csv('tests/sensorCalib.csv')
+        tdms_frame = self.pre_processor.get_local_data_as_dataframe(
+            "tests/081523.tdms"
+        )
+        calib_table = self.pre_processor.get_calibs_from_local_csv(
+            "tests/sensorCalib.csv"
+        )
 
         tdms_frame = self.pre_processor.apply_calibration(tdms_frame)
         print(tdms_frame)
-        #self.assertEqual(tdms_dict[''], 1.1 * 2)
+        # self.assertEqual(tdms_dict[''], 1.1 * 2)
 
 
 if __name__ == "__main__":

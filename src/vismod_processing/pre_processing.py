@@ -51,9 +51,11 @@ class Pre_Processor:
         indices = table.index.astype(str).tolist()
         indices = list(
             map(
-                lambda label: (label.split()[0] + label.split()[1])
-                if len(label.split()) >= 2
-                else label,
+                lambda label: (
+                    (label.split()[0] + label.split()[1])
+                    if len(label.split()) >= 2
+                    else label
+                ),
                 indices,
             )
         )
@@ -101,19 +103,19 @@ class Pre_Processor:
     def apply_calibration(
         self,
         remote_tdms_dict,
-        fun=lambda item, table, parameter, sensor, channel: 
-        item * table["Cal Factor"][sensor + f"/{channel}"],
+        fun=lambda item, table, parameter, sensor, channel: item
+        * table["Cal Factor"][sensor + f"/{channel}"],
     ):
         """
         Just apply a given function 'fun' to calib values
         Suggested: fun = lambda i, t, p, s, c: i * t[p][s + f"/{c}"]
         """
         tdms_dict = remote_tdms_dict.copy()
-        
+
         for parameter in self.calib_table.columns:
 
             # For some reason it sometimes counts the colnames as a param.
-            if len(parameter.split('/')) == 1:
+            if len(parameter.split("/")) == 1:
                 continue
 
             # Temporary try-except, needed to handle the two ways we're importing
@@ -124,7 +126,9 @@ class Pre_Processor:
                     )
                 )
             except KeyError:
-                tdms_dict[f'/{sensor}/{channel}'] = tdms_dict[f'/{sensor}/{channel}'].map(
+                tdms_dict[f"/{sensor}/{channel}"] = tdms_dict[
+                    f"/{sensor}/{channel}"
+                ].map(
                     lambda item: fun(
                         item, self.calib_table, parameter, sensor, channel
                     )
