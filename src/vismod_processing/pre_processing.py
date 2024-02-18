@@ -9,7 +9,7 @@ import pandas as pd
 class Pre_Processor:
     def __init__(self, calibration_file_path):
         """
-        This is just so we can have one pre_processor for each 
+        This is just so we can have one pre_processor for each
         calibration table if we have multiple that
         need to be applied to the same data channels.
         """
