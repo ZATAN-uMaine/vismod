@@ -9,7 +9,8 @@ import pandas as pd
 class Pre_Processor:
     def __init__(self, calibration_file_path):
         """
-        This is just so we can have one pre_processor for each calibration table if we have multiple that
+        This is just so we can have one pre_processor for each 
+        calibration table if we have multiple that
         need to be applied to the same data channels.
         """
         self.calib_file_path = calibration_file_path
@@ -33,7 +34,7 @@ class Pre_Processor:
     ):
         """
         Takes a pair of excel-style string of column names (ex. 'L,H')
-        One column is the calibration factors, the other is the index we'll use
+        One column is the calibration factors, the other is the index used
         Adds it to the self.calib_table dictionary.
         """
         table = pd.read_excel(
@@ -64,14 +65,6 @@ class Pre_Processor:
         # Union with existing calb table
         self.calib_table = pd.concat([self.calib_table, table])
 
-        """
-        # Rename columns to something actually sensible, not generalizable.
-        
-        table.rename(
-            columns={"Cal Factor": "Load Cell", "Cal Factor.1": "Temp Sensor"},
-            inplace=True,
-        )
-        """
         return table
 
     def averageData(self, tdms_dict):
@@ -121,7 +114,7 @@ class Pre_Processor:
             sensor = parameter.split("/")[0]
             channel = parameter.split("/")[1]
 
-            # Temporary try-except, needed to handle the two ways we're importing
+            # Temporary try-except, needed to handle the two import methods
             try:
                 tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
                     lambda item: fun(
