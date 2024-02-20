@@ -18,6 +18,7 @@ zatanToken = "ulIEuO_JraLqvnMXRf8qraQRoCQXJKiPD7VCvVUp02JOPGIWU9xNnQU_Bd0-dhM40J
 input_file = 'test.csv'
 output_file = 'influxReady.csv'
 
+
 def remove_second_row(input_file, output_file):
     with open(input_file, 'r', newline='') as infile:
         reader = csv.reader(infile)
@@ -35,22 +36,8 @@ remove_second_row(input_file, output_file)
 
 
 def parse_row(row: OrderedDict):
-    """
-    :param row: the row of CSV file
-    :return: Parsed csv row to [Point]
-    """
-
-    """
-    For better performance is sometimes useful directly create a LineProtocol to avoid unnecessary escaping overhead:
-    """
-    # from datetime import timezone
-    # import ciso8601
-    # from influxdb_client.client.write.point import EPOCH
-    #
-    # time = (ciso8601.parse_datetime(row["Date"]).replace(tzinfo=timezone.utc) - EPOCH).total_seconds() * 1e9
-    # return f"financial-analysis,type=vix-daily" \
-    #        f" close={float(row['VIX Close'])},high={float(row['VIX High'])},low={float(row['VIX Low'])},open={float(row['VIX Open'])} " \
-    #        f" {int(time)}"
+    # :param row: the row of CSV file
+    # :return: Parsed csv row to [Point]
 
     return Point("PNB-Reading") \
         .tag("windDirection", float(row['WindDir'])) \
@@ -106,29 +93,15 @@ data = rx \
     .pipe(ops.map(lambda row: parse_row(row)))
 
 with InfluxDBClient(url="http://influx:8086", token=zatanToken, org="zatan", debug=True) as client:
-
-    """
-    Create client that writes data in batches with 50_000 items.
-    """
     with client.write_api(write_options=WriteOptions(batch_size=50_000, flush_interval=10_000)) as write_api:
-
-        """
-        Write data into InfluxDB
-        """
         write_api.write(bucket="dev", record=data)
 
-    """
-    Querying max value of CBOE Volatility Index
-    """
     query = 'from(bucket:"dev")' \
             ' |> range(start: 0, stop: now())' \
             ' |> filter(fn: (r) => r._measurement == "PNB-Reading")' \
             ' |> max()'
     result = client.query_api().query(query=query)
 
-    """
-    Processing results
-    """
     print()
     print("=== results (not working) ===")
     print()
