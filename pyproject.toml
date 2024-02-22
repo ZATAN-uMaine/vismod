@@ -16,7 +16,10 @@ dependencies = [
   "flask",
   "pandas",
   "npTDMS[pandas]",
-  "influxdb-client"
+  "influxdb-client",
+  "google-api-python-client",
+  "google-auth",
+  "google-auth-httplib2"
 ]
 
 [project.scripts]
