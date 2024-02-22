@@ -40,7 +40,7 @@ def process_excel_to_dict(excel_file):
 excel_file_path = 'config.xlsx'
 
 nested_dictionaries = process_excel_to_dict(excel_file_path)
-print(nested_dictionaries)
+# print(nested_dictionaries)
 # Convert dictionaries to JSON
 json_data = json.dumps(nested_dictionaries)
 

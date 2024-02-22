@@ -9,6 +9,9 @@ from nptdms import TdmsFile
 #Import ZATAN's Pre Processor Class
 import pre_processing
 
+#Import ZATAN's Config Sync Script
+import syncConfig
+
 from influxdb_client import Point, InfluxDBClient, WriteOptions  
 
 # from influxdb_client.client.write_api import SYNCHRONOUS
@@ -19,10 +22,12 @@ from influxdb_client import Point, InfluxDBClient, WriteOptions
 #zatanToken =  os.environ.get("INFLUXDB_TOKEN")
 
 zatanToken = "ulIEuO_JraLqvnMXRf8qraQRoCQXJKiPD7VCvVUp02JOPGIWU9xNnQU_Bd0-dhM40Je8UtnetLQgUyePT39J5w=="
-pathToFile = ".//tests//081523.tdms"
+pathToFile = ".//..//tests//081523.tdms"
 processor = pre_processing.Pre_Processor(pathToFile)
 
 
+# InfluxDB URL - if on dev container use "influx:8086", if on host
+# machine running docker use "localhost:8086". ("127.0.0.1:8086")
 
 # with InfluxDBClient(url="http://influx:8086", token="zatanToken", org="my-org") as _client:
 with InfluxDBClient(url="http://localhost:8086", token="zatanToken", org="zatan") as _client:
@@ -56,12 +61,17 @@ with InfluxDBClient(url="http://localhost:8086", token="zatanToken", org="zatan"
         #                            columns=["location", "water_level"])
 
         # 
-        
-        # """
+        #Import calibration table dictionary
+        excel_file_path = 'config.xlsx'
+
+
+
         # Write Dictionary-style object
-        # """
-        # _write_client.write("my-bucket", "my-org", {"measurement": "h2o_feet", "tags": {"location": "coyote_creek"},
-        #                                             "fields": {"water_level": 1.0}, "time": 1})
+
+        # _write_client.write("dev", "zatan",
+        #     {"measurement": "calibrationTable",
+        #      "tags": {"node1": "43641", "node2": "43644","node3": "43642", "node4": "45616", "node5": "43643", "node6": "45617" },
+        #      "fields": {"Cable ID": "17A-Left", }, })
         # _write_client.write("my-bucket", "my-org", [{"measurement": "h2o_feet", "tags": {"location": "coyote_creek"},
         #                                              "fields": {"water_level": 2.0}, "time": 2},
         #                                             {"measurement": "h2o_feet", "tags": {"location": "coyote_creek"},
@@ -70,9 +80,16 @@ with InfluxDBClient(url="http://localhost:8086", token="zatanToken", org="zatan"
 
 def main():
 
+    nested_dictionaries = syncConfig.process_excel_to_dict(excel_file_path)
+    print(" \n Printing the Dictionary: \n ")
+    print(nested_dictionaries)
+    print(" end dictionary \n")
+
     _data_frame = pd.DataFrame()
     importFrameFromFile(_data_frame, pathToFile)
+    print(" \n Printing the Dataframe: \n ")
     print(_data_frame)
+    print(" end dataframe \n")
 
 
     _write_client.write("dev", "zatan", record=_data_frame, data_frame_measurement_name='PNB_Reading')
