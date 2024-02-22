@@ -1,166 +1,135 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>Pure CSS Framework: Homepage Layout Example</title>
+<html lang="en">
+<head>
+<!-- <meta http-equiv="content-type" content="text/html; charset=UTF-8"> -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PNB Portal</title>
 
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, user-scalable=no">
-<meta charset="UTF-8">
-
-
-<link rel="stylesheet" type="text/css" href="static/pure_css/purecssframework.min.css">
-<link rel="stylesheet" type="text/css" href="static/pure_css/theme-dark.css">
-
-<link rel="stylesheet" type="text/css" href="static/pure_css/purecssframework-site.css">
-<link rel="stylesheet" type="text/css" href="static/pure_css/prism.css">
-<link href="static/pure_css/css.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"></link>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css">
 
 <link rel="stylesheet" type="text/css" href="static/our.css">
+<link rel="stylesheet" type="text/css" href="static/theme-dark.css">
 <script type="text/javascript" src="static/our.js"></script>
-
 
 </head>
 
+
 <body class="dark" id="body">
 
-	<header class="main-container header fixed">
+    <div id="navigation-bar" class="pure-g">
+        <div class="pure-u-sm-1-3 pure-u-lg-1-12 navigation-item">
+            <span>PNB Portal</span>
+        </div>
+        <div class="pure-u-sm-1-3 pure-u-lg-1-12 navigation-item">
+            <a href="#">About Us</a>
+        </div>
+		<div class="pure-u-sm-1-3 pure-u-lg-1-12 navigation-item">
+            <a href="#">About PNB</a>
+        </div>
 
-		<!-- Nav Bar with Logo Area -->
-		<div class="flex-grid  navbar">
+        <div class="pure-u-sm-0 pure-u-lg-1-4"></div>
+        <div id="dateRangeBox" class="pure-u-sm-1 pure-u-lg-1-2">
+            <div>
+                <mark>Pick Date Range:</mark>
+            </div>
+            <div class="dateSelectorBox">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="start-date"><br>
+                <label for="startHour" class="visually-hidden">Start Hour:</label>
+                <select id="startHour" name="start-hour"></select><br><br>
+            </div>
 
-			<!-- Mobile Menu -->
-			<input type="checkbox" id="mobileMenu" class="hide">
-			<label id="mobileMenuLabel" class="mobile-menu left-side" for="mobileMenu">
-				<i class="hamburger"></i>
-			</label>
-			<label class="full-screen" for="mobileMenu"></label>
-
-			<div class="col-2 logo">
-				PNB Portal
-			</div>
-
-			<nav class="col-10" id="topMenuNav">
-				<div class="navbar-links">
-					<input type="radio" class="hide" name="navbar-menu" id="navbarDropHide" checked="checked">
-					<a href="#">About Us</a>
-					<a href="#">About PNB</a>
-				</div>
-				<div id="dateRangeBox">
-					<div>
-						<mark>Pick Date Range:</mark>
-					</div>
-					<div class="dateSelectorBox">
-						<label for="startDate">Start Date:</label>
-						<input type="date" id="startDate" name="start-date"><br>
-						<label for="startHour" class="visually-hidden">Start Hour:</label>
-						<select id="startHour" name="start-hour"></select><br><br>
-					</div>
-
-					<div class="dateSelectorBox">
-						<label for="endDate">End Date:</label>
-						<input type="date" id="endDate" name="end-date"><br>
-						<label for="endHour" class="visually-hidden">End Hour:</label>
-						<select id="endHour" name="end-hour"></select><br><br
-					</div>
-				</div>
-			</nav>
-
-		</div>
-		
-	</header>
-	<div class="fixed-nav-space" id="top"></div>
-	
-	
-	<div class="hero-area">
-		<div class="main-container">
-			<div class="flex-grid ">
-				<div class="col-12" id="node-area">
-					<svg viewBox="0 0 320 80" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-						<g id="bridge-group" transform="translate(-160.9305,-42.900499)">
-					
-							<!-- Path bullshit to please the path gods -->
-							<path
-							fill= "none"
-							d="m 162.045,48.812687 a 6.4691321,4.797688 0 0 1 6.46913,-4.797688 h 304.83274 a 6.4691321,4.797688 0 0 1 6.46913,4.797688 v 68.175633 a 6.4691321,4.797688 0 0 1 -6.46913,4.79768 H 168.51413 a 6.4691321,4.797688 0 0 1 -6.46913,-4.79768 z"
-							style="fill:aliceblue;fill-opacity:1;stroke:#000000;stroke-width:2.229;stroke-miterlimit:4;stroke-dasharray:none"
-							id="path4" />
-							
-							<path
-							d="M 175.0705,104.39008 V 89.490078 h 2 c 1.8,0 4.94,-1.94 33.9,-21.06 17.54,-11.59 31.9,-21.25 31.9,-21.47 0,-0.21 1.1,-0.39 2.43,-0.39 1.85,0 2.56,0.2 3,0.86 0.3,0.48 14.63,10.14 31.83,21.47 l 31.28,20.6 h 19.14 l 31.23,-20.59 c 17.17,-11.32 31.48,-20.98 31.79,-21.46 0.84,-1.32 4.51,-1.21 6.16,0.18 0.69,0.59 15.18,10.25 32.2,21.47 27.8,18.33 31.14,20.4 32.9,20.4 h 1.96 v 29.780002 h -5.7 V 97.380078 h -14.24 v 21.900002 h -6.84 V 97.380078 h -14.81 v 21.900002 h -6.84 V 97.380078 h -17.86 l 0.38,10.950002 0.38,10.95 h -9.77 l 0.4,-10.95 0.42,-10.950002 h -142.7 l 0.42,10.950002 0.41,10.95 h -9.8 l 0.35,-10.95 0.35,-10.950002 h -17.84 v 21.900002 h -6.27 V 97.380078 h -15.39 v 21.900002 h -6.83 V 97.380078 h -14.24 v 21.900002 h -5.7 z m 44.06,-33.210002 c 22.4,-17.23 23.82,-18.41 23.64,-19.72 -0.18,-1.37 -0.59,-1.13 -29.53,17.93 -16.13,10.63 -29.58,19.5 -29.88,19.71 -0.32,0.24 1.98,0.4 5.7,0.4 h 6.24 z m 6.45,3.43 c 12.65,-11.46 16.54,-15.26 16.87,-16.5 0.24,-0.88 0.3,-1.7 0.12,-1.84 -0.17,-0.13 -10.11,7.29 -22.08,16.5 l -21.77,16.73 h 10.43 z m 6.1,3.46 10.68,-11.42 -0.17,-2.14 -0.17,-2.14 -14.96,13.56 -14.96,13.57 h 8.89 z m 4.75,3.84 c 5.84,-7.25 5.92,-7.4 5.76,-9.76 l -0.17,-2.4 -8.83,9.51 a 416.74,416.74 0 0 0 -9.04,9.9 c -0.1,0.21 1.28,0.32 3.08,0.25 l 3.28,-0.13 z m 3.64,4.66 c 1.38,-2.37 1.68,-3.41 1.54,-5.46 l -0.16,-2.54 -4.13,5.2 a 74.74,74.74 0 0 0 -4.13,5.46 c 0,0.15 1.16,0.27 2.58,0.27 h 2.6 z m 1.66,2.25 c 0,-0.38 -0.25,-0.57 -0.57,-0.42 -0.31,0.15 -0.57,0.46 -0.57,0.69 0,0.22 0.26,0.4 0.57,0.4 0.32,0 0.57,-0.3 0.57,-0.67 z m 15.58,0.13 -4.3,-5.36 -3.87,-4.8 v 2.78 c 0,2.06 0.39,3.45 1.5,5.35 l 1.5,2.58 h 2.8 c 2.1,0 2.7,-0.14 2.37,-0.55 z m 1.63,-7.88 c -4.32,-4.64 -8.29,-8.92 -8.82,-9.52 -0.97,-1.08 -0.98,-1.06 -0.98,1.55 0,2.56 0.15,2.82 5.5,9.51 l 5.52,6.89 h 6.62 z m 18.31,7.44 c -0.63,-0.54 -6.99,-6.3 -14.14,-12.81 -7.15,-6.5 -13.34,-12.12 -13.77,-12.47 -0.66,-0.54 -0.77,-0.31 -0.77,1.6 0,2.19 0.18,2.42 10.4,13.44 l 10.4,11.2 4.51,0.02 h 4.52 z m 14.62,0.85 c 0,-0.07 -9.76,-7.5 -21.69,-16.49 l -21.68,-16.35 0.17,1.79 c 0.17,1.64 1.56,3.03 16.42,16.48 l 16.24,14.7 h 5.27 c 2.9,0 5.27,-0.05 5.27,-0.13 z m 14.51,-0.67 c -3.88,-2.81 -57.94,-38.23 -58.12,-38.09 -0.12,0.1 -0.07,0.92 0.12,1.82 0.3,1.45 2.94,3.6 23.71,19.36 l 23.37,17.72 h 6.02 c 5.9,0 6,-0.02 4.9,-0.81 z m 63.97,-17.26 c 21.34,-16.4 23.5,-18.2 23.5,-19.5 0,-0.78 -0.12,-1.42 -0.29,-1.42 -0.26,0 -55.38,36.23 -58.09,38.18 -1.1,0.79 -0.98,0.8 5.13,0.8 h 6.25 z m 6.42,3.38 c 15.05,-13.62 16.25,-14.83 16.42,-16.54 l 0.18,-1.84 -18.7,14.2 a 6675.57,6675.57 0 0 1 -21.83,16.54 l -3.13,2.33 h 10.83 z m 6.15,3.5 10.43,-11.2 -0.17,-2.16 -0.18,-2.16 -13.1,11.88 a 7961.2,7961.2 0 0 0 -14.71,13.35 l -1.61,1.48 h 4.46 l 4.45,-0.02 10.43,-11.18 z m 4.24,4.47 c 5,-6.2 5.43,-6.91 5.66,-9.39 0.14,-1.47 0.05,-2.58 -0.2,-2.46 -0.25,0.12 -4.3,4.34 -9,9.4 l -8.54,9.17 h 6.68 z m 4.1,4.26 a 9.11,9.11 0 0 0 1.46,-5.13 c 0,-1.56 -0.2,-2.49 -0.5,-2.25 -0.28,0.23 -2.2,2.54 -4.27,5.13 l -3.76,4.7 h 5.6 z m 10,2.05 c 0,-0.23 -0.25,-0.54 -0.56,-0.69 -0.32,-0.15 -0.57,0.04 -0.57,0.42 0,0.37 0.25,0.68 0.57,0.68 0.31,0 0.57,-0.19 0.57,-0.41 z m 3.52,-5.04 -4.37,-5.44 -0.17,2.5 c -0.13,2.07 0.16,3.04 1.63,5.45 l 1.78,2.94 h 5.51 z m 13,5.2 c 0,-0.29 -16.9,-18.57 -17.79,-19.24 -0.39,-0.3 -0.48,0.45 -0.27,2.29 0.27,2.53 0.73,3.26 6.1,9.96 l 5.8,7.24 h 3.09 c 1.7,0 3.08,-0.11 3.08,-0.25 z m 7.57,-3.8 -14.38,-13.04 a 2006.8,2006.8 0 0 0 -10.64,-9.62 c -0.66,-0.54 -0.77,-0.3 -0.77,1.59 0,2.19 0.17,2.41 10.67,13.67 l 10.67,11.45 h 8.95 z m -3.86,-12.6 -21.65,-16.66 -0.18,1.56 c -0.13,1.17 0.2,1.9 1.36,2.96 l 16.64,15.1 15.11,13.69 h 10.37 z m 37,16.25 c -0.29,-0.22 -13.74,-9.1 -29.88,-19.76 -29.2,-19.27 -29.34,-19.35 -29.52,-17.92 -0.18,1.36 1,2.35 23.64,19.76 l 23.83,18.32 h 6.24 c 3.75,0 6.02,-0.16 5.7,-0.4 z"
-							style="fill:#000000;stroke-width:0.499576"
-							id="path2" />
-
-							<!-- Clickable things -->
-							<circle id="sensor1"
-							cx="178.94" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
-							/>
-
-							<circle id="sensor2" 
-							cx="208.84" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
-							/>
-
-							<circle id="sensor3" 
-							cx="229.06" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
-							/>
-
-							<circle id="sensor4"
-							cx="260.04999" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
-							/>
-
-							<circle id="sensor5"
-							cx="280.42999" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
-							/>
-							
-							<circle id="sensor6"
-							cx="309.26001" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-							/>
-							
-							<path id="sensorwind" class="triangle"
-							d="M 320.92881,88.45174 314.8609,77.940346 h 12.1392 z" style="fill:#00ff00;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
-							/>
-						</g>
-					</svg>
-					
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	
-	<div class="main-container">
-	
-		<div class="flex-grid ">
-
-			<div class="col-12">
-				<div class="flex-grid ">
-					
-				</div>
-
-			</div>
-
-		</div>
-		
-	</div>
-	
-	<footer class="text-center">
-		
-		<div class="line"></div>
-		
-		<small>© ZATAN, All Rights Reserved.</small>
-		
-
-	</footer>
-
-	<div id="overlay"></div>
-	<div id="popup">
-		<div class="popupcontrols">
-			<span id="popupclose">X</span>
-	</div>
-		<div class="popupcontent">
-			<h1>Download/Visualize Data for Node #</h1>
-			<p>YAHAHA, YOU FOUND ME!</p>
+            <div class="dateSelectorBox">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="end-date"><br>
+                <label for="endHour" class="visually-hidden">End Hour:</label>
+                <select id="endHour" name="end-hour"></select><br><br>
+            </div>
+        </div>
     </div>
-</div>
+    <br>
+    <!-- Graphic of the bridge itself (collapsing this is recommended) -->
+    <div class="pure-g bridge-area">
+        <svg viewBox="0 0 320 80" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <g id="bridge-group" transform="translate(-160.9305,-42.900499)">
+        
+                <!-- Path bullshit to please the path gods -->
+                <path
+                fill= "none"
+                d="m 162.045,48.812687 a 6.4691321,4.797688 0 0 1 6.46913,-4.797688 h 304.83274 a 6.4691321,4.797688 0 0 1 6.46913,4.797688 v 68.175633 a 6.4691321,4.797688 0 0 1 -6.46913,4.79768 H 168.51413 a 6.4691321,4.797688 0 0 1 -6.46913,-4.79768 z"
+                style="fill:aliceblue;fill-opacity:1;stroke:#000000;stroke-width:2.229;stroke-miterlimit:4;stroke-dasharray:none"
+                id="path4" />
+                
+                <path
+                d="M 175.0705,104.39008 V 89.490078 h 2 c 1.8,0 4.94,-1.94 33.9,-21.06 17.54,-11.59 31.9,-21.25 31.9,-21.47 0,-0.21 1.1,-0.39 2.43,-0.39 1.85,0 2.56,0.2 3,0.86 0.3,0.48 14.63,10.14 31.83,21.47 l 31.28,20.6 h 19.14 l 31.23,-20.59 c 17.17,-11.32 31.48,-20.98 31.79,-21.46 0.84,-1.32 4.51,-1.21 6.16,0.18 0.69,0.59 15.18,10.25 32.2,21.47 27.8,18.33 31.14,20.4 32.9,20.4 h 1.96 v 29.780002 h -5.7 V 97.380078 h -14.24 v 21.900002 h -6.84 V 97.380078 h -14.81 v 21.900002 h -6.84 V 97.380078 h -17.86 l 0.38,10.950002 0.38,10.95 h -9.77 l 0.4,-10.95 0.42,-10.950002 h -142.7 l 0.42,10.950002 0.41,10.95 h -9.8 l 0.35,-10.95 0.35,-10.950002 h -17.84 v 21.900002 h -6.27 V 97.380078 h -15.39 v 21.900002 h -6.83 V 97.380078 h -14.24 v 21.900002 h -5.7 z m 44.06,-33.210002 c 22.4,-17.23 23.82,-18.41 23.64,-19.72 -0.18,-1.37 -0.59,-1.13 -29.53,17.93 -16.13,10.63 -29.58,19.5 -29.88,19.71 -0.32,0.24 1.98,0.4 5.7,0.4 h 6.24 z m 6.45,3.43 c 12.65,-11.46 16.54,-15.26 16.87,-16.5 0.24,-0.88 0.3,-1.7 0.12,-1.84 -0.17,-0.13 -10.11,7.29 -22.08,16.5 l -21.77,16.73 h 10.43 z m 6.1,3.46 10.68,-11.42 -0.17,-2.14 -0.17,-2.14 -14.96,13.56 -14.96,13.57 h 8.89 z m 4.75,3.84 c 5.84,-7.25 5.92,-7.4 5.76,-9.76 l -0.17,-2.4 -8.83,9.51 a 416.74,416.74 0 0 0 -9.04,9.9 c -0.1,0.21 1.28,0.32 3.08,0.25 l 3.28,-0.13 z m 3.64,4.66 c 1.38,-2.37 1.68,-3.41 1.54,-5.46 l -0.16,-2.54 -4.13,5.2 a 74.74,74.74 0 0 0 -4.13,5.46 c 0,0.15 1.16,0.27 2.58,0.27 h 2.6 z m 1.66,2.25 c 0,-0.38 -0.25,-0.57 -0.57,-0.42 -0.31,0.15 -0.57,0.46 -0.57,0.69 0,0.22 0.26,0.4 0.57,0.4 0.32,0 0.57,-0.3 0.57,-0.67 z m 15.58,0.13 -4.3,-5.36 -3.87,-4.8 v 2.78 c 0,2.06 0.39,3.45 1.5,5.35 l 1.5,2.58 h 2.8 c 2.1,0 2.7,-0.14 2.37,-0.55 z m 1.63,-7.88 c -4.32,-4.64 -8.29,-8.92 -8.82,-9.52 -0.97,-1.08 -0.98,-1.06 -0.98,1.55 0,2.56 0.15,2.82 5.5,9.51 l 5.52,6.89 h 6.62 z m 18.31,7.44 c -0.63,-0.54 -6.99,-6.3 -14.14,-12.81 -7.15,-6.5 -13.34,-12.12 -13.77,-12.47 -0.66,-0.54 -0.77,-0.31 -0.77,1.6 0,2.19 0.18,2.42 10.4,13.44 l 10.4,11.2 4.51,0.02 h 4.52 z m 14.62,0.85 c 0,-0.07 -9.76,-7.5 -21.69,-16.49 l -21.68,-16.35 0.17,1.79 c 0.17,1.64 1.56,3.03 16.42,16.48 l 16.24,14.7 h 5.27 c 2.9,0 5.27,-0.05 5.27,-0.13 z m 14.51,-0.67 c -3.88,-2.81 -57.94,-38.23 -58.12,-38.09 -0.12,0.1 -0.07,0.92 0.12,1.82 0.3,1.45 2.94,3.6 23.71,19.36 l 23.37,17.72 h 6.02 c 5.9,0 6,-0.02 4.9,-0.81 z m 63.97,-17.26 c 21.34,-16.4 23.5,-18.2 23.5,-19.5 0,-0.78 -0.12,-1.42 -0.29,-1.42 -0.26,0 -55.38,36.23 -58.09,38.18 -1.1,0.79 -0.98,0.8 5.13,0.8 h 6.25 z m 6.42,3.38 c 15.05,-13.62 16.25,-14.83 16.42,-16.54 l 0.18,-1.84 -18.7,14.2 a 6675.57,6675.57 0 0 1 -21.83,16.54 l -3.13,2.33 h 10.83 z m 6.15,3.5 10.43,-11.2 -0.17,-2.16 -0.18,-2.16 -13.1,11.88 a 7961.2,7961.2 0 0 0 -14.71,13.35 l -1.61,1.48 h 4.46 l 4.45,-0.02 10.43,-11.18 z m 4.24,4.47 c 5,-6.2 5.43,-6.91 5.66,-9.39 0.14,-1.47 0.05,-2.58 -0.2,-2.46 -0.25,0.12 -4.3,4.34 -9,9.4 l -8.54,9.17 h 6.68 z m 4.1,4.26 a 9.11,9.11 0 0 0 1.46,-5.13 c 0,-1.56 -0.2,-2.49 -0.5,-2.25 -0.28,0.23 -2.2,2.54 -4.27,5.13 l -3.76,4.7 h 5.6 z m 10,2.05 c 0,-0.23 -0.25,-0.54 -0.56,-0.69 -0.32,-0.15 -0.57,0.04 -0.57,0.42 0,0.37 0.25,0.68 0.57,0.68 0.31,0 0.57,-0.19 0.57,-0.41 z m 3.52,-5.04 -4.37,-5.44 -0.17,2.5 c -0.13,2.07 0.16,3.04 1.63,5.45 l 1.78,2.94 h 5.51 z m 13,5.2 c 0,-0.29 -16.9,-18.57 -17.79,-19.24 -0.39,-0.3 -0.48,0.45 -0.27,2.29 0.27,2.53 0.73,3.26 6.1,9.96 l 5.8,7.24 h 3.09 c 1.7,0 3.08,-0.11 3.08,-0.25 z m 7.57,-3.8 -14.38,-13.04 a 2006.8,2006.8 0 0 0 -10.64,-9.62 c -0.66,-0.54 -0.77,-0.3 -0.77,1.59 0,2.19 0.17,2.41 10.67,13.67 l 10.67,11.45 h 8.95 z m -3.86,-12.6 -21.65,-16.66 -0.18,1.56 c -0.13,1.17 0.2,1.9 1.36,2.96 l 16.64,15.1 15.11,13.69 h 10.37 z m 37,16.25 c -0.29,-0.22 -13.74,-9.1 -29.88,-19.76 -29.2,-19.27 -29.34,-19.35 -29.52,-17.92 -0.18,1.36 1,2.35 23.64,19.76 l 23.83,18.32 h 6.24 c 3.75,0 6.02,-0.16 5.7,-0.4 z"
+                style="fill:#000000;stroke-width:0.499576"
+                id="path2" />
+
+                <!-- Clickable things -->
+                <circle id="sensor1"
+                cx="178.94" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
+                />
+
+                <circle id="sensor2" 
+                cx="208.84" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
+                />
+
+                <circle id="sensor3" 
+                cx="229.06" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
+                />
+
+                <circle id="sensor4"
+                cx="260.04999" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
+                />
+
+                <circle id="sensor5"
+                cx="280.42999" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
+                />
+                
+                <circle id="sensor6"
+                cx="309.26001" cy="92.199997" r="4.7600002" style="fill:#ff6600;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                />
+                
+                <path id="sensorwind" class="triangle"
+                d="M 320.92881,88.45174 314.8609,77.940346 h 12.1392 z" style="fill:#00ff00;stroke:#000eff;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" 
+                />
+            </g>
+        </svg>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content pure-g">
+            <div id="dataInfo" class="pure-u-3-8">
+                <div>
+                    <p>SENSOR: <span id="which-sensor"></span></p>
+                </div>
+                <div>
+                    <p>DATE: <span id="which-range"></span></p>
+                </div>
+            </div>
+            <div class="pure-u-1-4">
+                <button id="plotNodeData" class="pure-button">
+                    PLOT
+                </button>
+            </div>
+            <div class="pure-u-1-4">
+                <button id="downloadNodeData" class="pure-button">
+                    DOWNLOAD
+                </button>
+            </div>  
+            <div class="pure-u-1/8">
+                <span class="close">&times;</span>
+            </div>
+        </div>
+  
+    </div>
+
+</body>
 
 
-</body></html>
+
+</html>

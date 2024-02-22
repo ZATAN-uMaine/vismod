@@ -1,3 +1,42 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100vh;
+}
+
+body *{
+    font-family: "open sans",Helvetica,sans-serif;
+}
+
+#navigation-bar {
+    display: flex;
+    align-items: center;
+    border-bottom: thick double #202020;
+    font-size: large;
+}
+
+.navigation-item {
+    display: table;
+}
+
+.navigation-item * {
+    display: table-cell;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.navigation-item a {
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+    margin: 0 auto;
+}
+.navigation-item a:hover {
+    background-color: #202020;
+}
+
 #dateRangeBox {
     float: right;
     display: flex;
@@ -6,7 +45,8 @@
     flex: 1;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
+    font-size: medium;
 }
 
 .dateSelectorBox {
@@ -17,14 +57,12 @@
     gap: 3px;
 }
 
-.select-hour {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    height: 2em;
-    font-size: 1em;
+mark {
+    background-color: darkslateblue;
+    color: aliceblue;
 }
 
+/* For hiding labels */
 .visually-hidden {
     position: absolute;
     width: 1px;
@@ -35,53 +73,62 @@
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
-
-#bridge-svg {
-    /* background-color: aliceblue; */
-}
-
-#bridge-svg circle, #bridge-svg .triangle {
+ /* Indicates that circle and trianlges on the bridge graphic are clickable */
+circle, .triangle {
     cursor: pointer;
 }
 
-mark {
-    background-color: darkslateblue;
-    color: aliceblue;
+.bridge-area {
+    padding: 30px 30px;
+    background-color: #1e1e1e;
 }
 
-#overlay {
-    display: none;
-    position: absolute;
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
     top: 0;
-    bottom: 0;
-    background: #999;
-    width: 100%;
-    height: 100%;
-    opacity: 0.8;
-    z-index: 100;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-#popup {
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    background: #fff;
-    width: 500px;
-    height: 500px;
-    margin-left: -250px; /*Half the value of width to center div*/
-    margin-top: -250px; /*Half the value of height to center div*/
-    z-index: 200;
-}
-
-#popupclose {
-    float: right;
-    padding: 10px;
-    cursor: pointer;
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
     color: black;
 }
 
-.popupcontent {
-    padding: 10px;
-    color: darkslateblue;
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+} 
+
+.modal-content > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#dataInfo {
+    display: table;
+    
 }

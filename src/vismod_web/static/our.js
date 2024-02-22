@@ -1,19 +1,27 @@
-// Function to show and hide the popup 
-function showPopup() {
-    var overlay = document.getElementById("overlay");
-    var popup = document.getElementById("popup");
-    overlay.style.display = 'block';
-    popup.style.display = 'block';
+var current_sensor = "sensor1";
+
+function updateSensor(sensorId, modal) {
+    current_sensor = sensorId;
+
+    which_sensor = document.getElementById("which-sensor");
+    which_sensor.textContent = `${current_sensor}`;
+
+    which_range = document.getElementById("which-range");
+    
+
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const startHourSelect = document.getElementById('startHour');
+    const endHourSelect = document.getElementById('endHour');
+
+    which_range.textContent = `(${startDateInput.value}, ${startHourSelect.value}:00) to (${endDateInput.value}, ${endHourSelect.value}:00)`;
+
+    modal.style.display = "block";
 }
 
-function hidePopup(){
-    var overlay = document.getElementById("overlay");
-    var popup = document.getElementById("popup");
-    overlay.style.display = 'none';
-    popup.style.display = 'none';
-}
 
-document.addEventListener('DOMContentLoaded', (event) => {
+// because of the way JS works, all of these vars are available out of scope. lol how did i not know that.
+document.addEventListener('DOMContentLoaded', (event) => { 
     // Set default dates
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
@@ -83,11 +91,27 @@ document.addEventListener('DOMContentLoaded', (event) => {
         enforceTimeConstraints();
     });
 
+
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
     const circles = document.querySelectorAll('[id^="sensor"]');
     circles.forEach(circle => {
-        circle.addEventListener('click', () => showPopup());
+        circle.addEventListener('click', () => updateSensor(circle.id, modal))
     });
 
-    const closePopup = document.getElementById("popupclose")
-    closePopup.addEventListener('click', () => hidePopup());
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+    modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    }
 });
