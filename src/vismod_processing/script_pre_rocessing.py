@@ -1,76 +1,113 @@
 from nptdms import TdmsFile
 import pandas as pd
 
-
-def get_calibs_from_xlsx(column_names):
-    """
-    Takes an excel-style string of column names (ex. 'A,H,R')
-    => pandas data frame
-    """
-    table = pd.read_excel(
-        "../raw-DAQ-files/sensorCalib.xlsx",
-        usecols=column_names,
-        skiprows=4,
-        nrows=30,
-        index_col="WDAQ",
-    )
-    table = table.iloc[2:26:2, :]
-    indices = table.index.tolist()
-    indices = list(map(lambda x: x.split()[0] + x.split()[1], indices))
-    print(indices)
-    table.index = indices  # I hate that this is the best I could come up with
-
-    # Rename columns to something actually sensible
-    table.rename(columns={"Cal Factor": "Load Cell"}, inplace=True)
-    table.rename(columns={"Cal Factor.1": "Temp Sensor"}, inplace=True)
-
-    return table
+"""
+"""
 
 
-def get_calibrated_data(path, calib_table):
-    """
-    Takes an npTDMS object and the calib table
-    => dictionary of pandas data frames
-    """
-    dic = {}
-    indices = []
-    with TdmsFile.open(path) as tdms_file:
-        for group in tdms_file.groups():
-            indices.append(group.name)
-            dic = dic | {group.name: group.as_dataframe()}
+class Pre_Processor:
+    def __init__(self, calibration_file_path):
+        """
+        This is just so we can have one pre_processor for each calibration table if we have multiple that
+        need to be applied to the same data channels.
+        """
+        self.calib_file_path = calibration_file_path
+        self.calib_table = pd.DataFrame()
 
-    print(dic["45617"]["TEMP"])
+    def get_calibs_from_local_csv(self, csv_path, index_column="WDAQ"):
+        table = pd.read_csv(csv_path, index_col=index_column)
 
-    for sensor in dic:
-        # Don't know if we need to process these, but they're shaped diff.
-        # from the other load cells, so need to be processed seperately
-        if sensor == "FOS" or sensor == "14441":
-            pass
-        else:
-            # Apply Calibration values to temperature values
-            dic[sensor]["TEMP"] = dic[sensor]["TEMP"].map(
-                lambda f: f * calib_table["Temp Sensor"][sensor + "/1"]
+        # Parse the weird    space character out of the indices
+        indices = table.index.tolist()
+        indices = list(
+            map(lambda label: label.split()[0] + label.split()[1], indices)
+        )
+        table.index = indices
+
+        # Union with existing calb table
+        self.calib_table = pd.concat([self.calib_table, table])
+
+    def get_calibs_from_local_xlsx(
+        self, calib_table_path, calib_table_columns, index_column="WDAQ"
+    ):
+        """
+        Takes a pair of excel-style string of column names (ex. 'L,H')
+        One column is the calibration factors, the other is the index we'll use
+        Adds it to the self.calib_table dictionary.
+        """
+        table = pd.read_excel(
+            calib_table_path,
+            usecols=calib_table_columns,
+            skiprows=4,
+            nrows=30,
+            index_col=index_column,
+        )
+
+        # Get every other row
+        table = table.iloc[2::2, :]
+
+        # Parse the weird    space character out of the indices
+        indices = table.index.astype(str).tolist()
+        indices = list(
+            map(
+                lambda label: (label.split()[0] + label.split()[1])
+                if len(label.split()) >= 2
+                else label,
+                indices,
             )
-            # Apply loadcell calibs
-            dic[sensor]["ch1"] = dic[sensor]["ch1"].map(
-                lambda f: f * calib_table["Load Cell"][sensor + "/1"]
+        )
+        table.index = indices
+
+        # Union with existing calb table
+        self.calib_table = pd.concat([self.calib_table, table])
+
+        """
+        # Rename columns to something actually sensible, not generalizable.
+        
+        table.rename(
+            columns={"Cal Factor": "Load Cell", "Cal Factor.1": "Temp Sensor"},
+            inplace=True,
+        )
+        """
+        return table
+
+    def averageData(self, tdms_dict):
+        return None
+
+    def update_calib_table(self):
+        return None
+
+    def get_local_data(self, path):
+        """
+        (npTDMS object, path to calib-table)
+        => dictionary of pandas data frames
+        """
+        tdms_dict = {}
+        indices = []
+        with TdmsFile.open(path) as tdms_file:
+            for group in tdms_file.groups():
+                indices.append(group.name)
+                tdms_dict = tdms_dict | {group.name: group.as_dataframe()}
+        return tdms_dict
+
+    def apply_calibration(
+        self,
+        tdms_dict,
+        fun=lambda item, table, parameter, sensor, channel: item
+        * table["Cal Factor"][sensor + f"/{channel}"],
+    ):
+        """
+        Just apply given lambda to calib values
+        Suggested: fun = lambda i, t, p, s, c: i * t[p][s + f"/{c}"]
+        """
+
+        for parameter in self.calib_table.columns:
+            sensor = parameter.split("/")[0]
+            channel = parameter.split("/")[1]
+            tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
+                lambda item: fun(
+                    item, self.calib_table, parameter, sensor, channel
+                )
             )
-            dic[sensor]["ch2"] = dic[sensor]["ch2"].map(
-                lambda f: f * calib_table["Load Cell"][sensor + "/2"]
-            )
-
-    return dic
-
-
-def main():
-    # tdms_file = TdmsFile.read("../raw-DAQ-files/100123.tdms")
-    calib_table = get_calibs_from_xlsx("L,H,R")
-    print(calib_table)
-
-    dic = get_calibrated_data("../raw-DAQ-files/100123.tdms", calib_table)
-    print(dic)
-    print(dic["45617"]["TEMP"])
-
-
-if __name__ == "__main__":
-    main()
+            print(tdms_dict)
+        return tdms_dict
