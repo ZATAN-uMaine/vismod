@@ -1,7 +1,8 @@
 import pandas as pd
 import os
 import json
-from influxdb_client import Point, InfluxDBClient, WriteOptions  
+from dateutil import parser
+
 
 
 
@@ -65,47 +66,3 @@ json_data = json.dumps(nested_dictionaries)
 with open("data.json", "w") as file:
     file.write(json_data)
 
-
-#!/usr/bin/env python3
-    """Example to read JSON data and send to InfluxDB."""
-
-from dateutil import parser
-import json
-
-from influxdb_client import InfluxDBClient, Point, WriteOptions
-from influxdb_client.client.write_api import SYNCHRONOUS
-
-
-point = Point("Calib_Table")
-
-data = json_data
-
-point = Point("Calib_Table")
-with open("data.json", "r") as json_file:
-    data = json.load(json_file)
-    point.tag("node", data["43641","43644","43642","45616","43643","45617"])
-    point.tag("channel", data["1","2"])
-    for key, value in data["1"].items():
-        point.field(key, value)
-    for key, value in data["2"].items():
-        point.field(key, value)
-
-
-
-with InfluxDBClient.from_env_properties() as client:
-    # use the client to access the necessary APIs
-    # for example, write data using the write_api
-    with client.write_api() as writer:
-        writer.write(bucket="dev", record=point)
-
-
-
-# # Convert dictionaries to InfluxDB JSON format
-# influxdb_data = []
-# for node, channels in nested_dictionaries.items():
-#     for channel, data in channels.items():
-#         influxdb_data.append({
-
-
-# # Write data to InfluxDB
-# client.write_points(influxdb_data)

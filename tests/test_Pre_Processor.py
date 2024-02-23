@@ -80,7 +80,6 @@ class TestPreProcessor(unittest.TestCase):
             }
         )
 
-        # Dummy calibration table
         tdms_dict = pd.DataFrame(
             {
                 "/'sensor1'/'ch1'": pd.Series([1, 2, 3, 9, 5, 13]),
