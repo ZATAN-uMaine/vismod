@@ -20,18 +20,26 @@ def process_excel_to_dict(excel_file):
         if pd.notna(row["Node"]):  # Check if column 'Node' is populated
             node = str(row["Node"])
             if node not in nested_dictionaries:
-                nested_dictionaries[node] = {}  # Initialize a new list
-
+                nested_dictionaries[node] = {}  # Initialize a new dictionary
+            
             dict_entry = {
                 # Cable ID is the label, row['Cable ID'] is the value
-                "ch" + str(row["WDAQ_L"]) + "/Cable ID": row["Cable ID"],
-                # WDAQ channel number as key, 'Cal Factor' as value
-                "ch" + str(row["WDAQ_L"]): row["Cal Factor_L"],
+                'Cable ID': row['Cable ID'],
                 # Since the TDMS files also use 'TEMP'
                 # we will also use it here for consistency
                 "TEMP": row["Cal Factor_T"],
             }
-            nested_dictionaries[node] = nested_dictionaries[node] | dict_entry
+            
+            # WDAQ channel number as key, 'Cal Factor' as value
+            nested_dictionaries[node][row['WDAQ_L']] = dict_entry
+
+    # Convert dictionaries to JSON
+    json_data = json.dumps(nested_dictionaries)
+
+    #TODO move this to DB # Write JSON data to file
+    with open('data.json', 'w') as file:
+        file.write(json_data)
+            
 
     return nested_dictionaries
 
@@ -40,11 +48,11 @@ if __name__ == "__main__":
     # Adjust the path to the Excel file as necessary
     excel_file_path = "config.xlsx"
 
-    nested_dictionaries = process_excel_to_dict(excel_file_path)
-    print(nested_dictionaries)
-    # Convert dictionaries to JSON
-    json_data = json.dumps(nested_dictionaries)
+nested_dictionaries = process_excel_to_dict(excel_file_path)
+# print(nested_dictionaries)
+# Convert dictionaries to JSON
+json_data = json.dumps(nested_dictionaries)
 
-    # TODO move this to DB # Write JSON data to file
-    with open("data.json", "w") as file:
-        file.write(json_data)
+# TODO move this to DB # Write JSON data to file
+with open("data.json", "w") as file:
+    file.write(json_data)
