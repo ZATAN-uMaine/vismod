@@ -3,15 +3,18 @@
 
 
 import influxdb_client
-#import os
+
+# import os
 import time
+
 # from influxdb_client import InfluxDBClient
 from influxdb_client import Point
+
 # from influxdb_client import WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 # InfluxDB Token (NEED TO LEARN HOW TO PUT THIS IN THE ENV AND REFERENCE IT)
-#token = os.environ.get("INFLUXDB_TOKEN")
+# token = os.environ.get("INFLUXDB_TOKEN")
 token = """EB7P3CcOXeiq46mlqnpaJWznNl97s-fwDWPG-2Y3LmRiCIbqcXmBlTu1-YrWQvVBtfZBxCQI1j_pBP6laoFY2Q=="""
 
 # InfluxDB Organization
@@ -29,8 +32,8 @@ for value in range(5):
     point = (
         Point("force")  # point is going to be the thing being measured
         .tag("Node", value)
-        .field("pounds", 10000*value)
-      )
+        .field("pounds", 10000 * value)
+    )
     write_api.write(bucket=bucket, org="zatan", record=point)
     time.sleep(1)
 
@@ -40,7 +43,7 @@ for value in range(5):
     point = (
         Point("temperature")
         .tag("tempSensor", value)
-        .field("degreesF", 10*value)
+        .field("degreesF", 10 * value)
     )
     write_api.write(bucket=bucket, org="zatan", record=point)
     time.sleep(1)
@@ -51,7 +54,7 @@ for value in range(1):
     point = (
         Point("windDirection")
         .tag("windSensor", value)
-        .field("degrees", 30*value)
+        .field("degrees", 30 * value)
     )
     write_api.write(bucket=bucket, org="zatan", record=point)
     time.sleep(1)
@@ -62,7 +65,7 @@ for value in range(1):
     point = (
         Point("windSpeed")
         .tag("windSensor", value)
-        .field("feet/second", value*70)
+        .field("feet/second", value * 70)
     )
 
     write_api.write(bucket=bucket, org="zatan", record=point)

@@ -10,15 +10,17 @@ import csv
 
 
 def append_first_line(csv_file, line_data):
-    with open(csv_file, 'r', newline='') as file:
+    with open(csv_file, "r", newline="") as file:
         reader = csv.reader(file)
         rows = list(reader)
-    
+
     rows.insert(0, line_data)
 
-    with open(csv_file, 'w', newline='') as file:
+    with open(csv_file, "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
+
+
 # end annotation script
 
 
