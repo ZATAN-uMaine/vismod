@@ -1,6 +1,7 @@
 from nptdms import TdmsFile
 import pandas as pd
-from vismod_processing import syncConfig
+# from vismod_processing import syncConfig
+import syncConfig
 
 """
 

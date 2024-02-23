@@ -48,6 +48,7 @@ if __name__ == "__main__":
     # Adjust the path to the Excel file as necessary
     excel_file_path = "config.xlsx"
 
+excel_file_path = "config.xlsx"
 nested_dictionaries = process_excel_to_dict(excel_file_path)
 # print(nested_dictionaries)
 # Convert dictionaries to JSON
