@@ -51,7 +51,7 @@ with InfluxDBClient(url="http://localhost:8086", token="zatanToken", org="zatan"
         #                            index=[_now, _now + timedelta(hours=1)],
         #                            columns=["location", "water_level"])
         # Import calibration table dictionary
-        excel_file_path = 'config.xlsx'
+        excel_file_path = '//raw-DAQ-files//sensorCalib.xlsx'
         # Write Dictionary-style object
         # _write_client.write("dev", "zatan",
         #     {"measurement": "calibrationTable",
