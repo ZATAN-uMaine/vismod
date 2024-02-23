@@ -22,14 +22,14 @@ from influxdb_client import Point, InfluxDBClient, WriteOptions
 #zatanToken =  os.environ.get("INFLUXDB_TOKEN")
 
 zatanToken = "ulIEuO_JraLqvnMXRf8qraQRoCQXJKiPD7VCvVUp02JOPGIWU9xNnQU_Bd0-dhM40Je8UtnetLQgUyePT39J5w=="
-pathToFile = ".//..//tests//081523.tdms"
+pathToFile = "..//..//tests//081523.tdms"
 processor = pre_processing.Pre_Processor(pathToFile)
 
 
 # InfluxDB URL - if on dev container use "influx:8086", if on host
 # machine running docker use "localhost:8086". ("127.0.0.1:8086")
 
-# with InfluxDBClient(url="http://influx:8086", token="zatanToken", org="my-org") as _client:
+# with InfluxDBClient(url="http://influx:8086", token="zatanToken", org="zatan") as _client:
 with InfluxDBClient(url="http://localhost:8086", token="zatanToken", org="zatan") as _client:
 
     with _client.write_api(write_options=WriteOptions(batch_size=500,
