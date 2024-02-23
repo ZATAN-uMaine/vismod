@@ -27,6 +27,8 @@ def process_excel_to_dict(excel_file):
                 nested_dictionaries[node] = {}  # Initialize a new dictionary
 
             dict_entry = {
+                # Load cell calibration factor
+                "Cal_Factor": row["Cal Factor_L"],
                 # Cable ID is the label, row['Cable ID'] is the value
                 "Cable ID": row["Cable ID"],
                 # Since the TDMS files also use 'TEMP'
