@@ -52,7 +52,7 @@ class TestPreProcessor(unittest.TestCase):
         xlsx_path = "tests/config.xlsx"
         self.calib_table = syncConfig.process_excel_to_dict(xlsx_path)
         print(self.calib_table)
-        self.assertEqual(self.calib_table['43641']['ch2'], 12.604)
+        self.assertEqual(self.calib_table["43641"]["ch2"], 12.604)
 
     def test_get_local_data_as_dataframe(self):
         # Test that simpler import function works
@@ -68,16 +68,16 @@ class TestPreProcessor(unittest.TestCase):
     def test_apply_calibration(self):
         # Test applying calibration to sensor data
         calib_table = pd.DataFrame(
-        {
-            "sensor1": {
-                "ch1": 1.1,
-                "ch2": 1.4,
-            },
-            "sensor2": {
-                "ch1": 1.7, 
-                "ch2": 2.2, 
-            },
-        }
+            {
+                "sensor1": {
+                    "ch1": 1.1,
+                    "ch2": 1.4,
+                },
+                "sensor2": {
+                    "ch1": 1.7,
+                    "ch2": 2.2,
+                },
+            }
         )
 
         # Dummy calibration table
@@ -94,16 +94,18 @@ class TestPreProcessor(unittest.TestCase):
 
         # Testing whether custom lambda works
         def multiplier(item, table, sensor, channel):
-            return (70 - (item * table[sensor][channel]))
+            return 70 - (item * table[sensor][channel])
 
         tdms_dict = self.pre_processor.apply_calibration(
             tdms_dict, fun=multiplier
         )
 
         # Check if calibration has been applied correctly
-        self.assertEqual(tdms_dict["/'sensor1'/'ch1'"].iloc[1].item(), 70-(1.1 * 2))
+        self.assertEqual(
+            tdms_dict["/'sensor1'/'ch1'"].iloc[1].item(), 70 - (1.1 * 2)
+        )
 
-    #@unittest.skip("Need the correct calib function for this to work")
+    # @unittest.skip("Need the correct calib function for this to work")
     def test_apply_calibration_integration(self):
         # test with new tdms method
         tdms_frame = self.pre_processor.get_local_data_as_dataframe(
@@ -112,14 +114,18 @@ class TestPreProcessor(unittest.TestCase):
 
         values_before = tdms_frame.copy()
 
-        #self.pre_processor.get_calibs_from_local_csv("tests/sensorCalib.csv"
+        # self.pre_processor.get_calibs_from_local_csv("tests/sensorCalib.csv"
         tdms_frame = self.pre_processor.apply_calibration(tdms_frame)
         for i in range(1, 241):
-            self.assertGreater(tdms_frame[f"/'43641'/'ch1'"].iloc[i], values_before[f"/'43641'/'ch1'"].iloc[i])
+            self.assertGreater(
+                tdms_frame[f"/'43641'/'ch1'"].iloc[i],
+                values_before[f"/'43641'/'ch1'"].iloc[i],
+            )
 
             self.assertAlmostEqual(
-                self.benchmark["17AL-LC"][i], tdms_frame[f"/'43641'/'ch1'"].iloc[i],
-                places=-3
+                self.benchmark["17AL-LC"][i],
+                tdms_frame[f"/'43641'/'ch1'"].iloc[i],
+                places=-3,
             )
         # self.assertEqual(
         #     self.benchmark["17AL-LC"][1], tdms_frame[f"/'43641'/'ch1'"].iloc[1]
