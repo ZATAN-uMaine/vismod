@@ -4,7 +4,8 @@ import logging
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
-from influxdb_client import InfluxDBClient   
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS 
 from influxdb_client.extras import pd, np
 
 
@@ -44,23 +45,27 @@ def uploadDataFrame(df, bucket):
     print("=== Ingesting DataFrame via batching API ===")
     print()
     startTime = datetime.now()
-    with InfluxDBClient(url=link, token=zatanToken, org=organization) as client:
+    with InfluxDBClient(url=link, token=zatanToken, org=organization, debug=False) as client:
 
         # Use batching API
-        with client.write_api() as write_api:
+        with client.write_api(write_options=SYNCHRONOUS) as write_api:
             write_api.write(bucket=bucket, record=dataFrame,
-                            data_frame_tag_columns=['17A-TEMP', '17A-Left',
-                                '17A-Right', '10A-TEMP', '10A-Left',
-                                '10A-Right', '2A-TEMP', '2A-Left', 
-                                '2A-Right', '2B-TEMP', '2B-Left', 
-                                '2B-Right', '10B-TEMP', '10B-Left',
-                                '10B-Right', '17B-TEMP', '17B-Left',
-                                '17B-Right'],
-                            data_frame_measurement_name="PNB_Reading",)
+                            # data_frame_tag_columns=['17A-TEMP', '17A-Left',
+                            #      '17A-Right', '10A-TEMP', '10A-Left',
+                            #      '10A-Right', '2A-TEMP', '2A-Left', 
+                            #      '2A-Right', '2B-TEMP', '2B-Left', 
+                            #      '2B-Right', '10B-TEMP', '10B-Left',
+                            #      '10B-Right', '17B-TEMP', '17B-Left',
+                            #      '17B-Right'],
+                            data_frame_tag_columns=['External-Wind-Speed', 'External-Wind-Direction', 'External-Temperature'],
+                            data_frame_measurement_name='PNB_Reading',
+                            data_frame_timestamp_column="_time")
                             
             print()
             print("Wait to finishing ingesting DataFrame...")
             print()
+
+    
 
     print()
     print(f'Import finished in: {datetime.now() - startTime}')
