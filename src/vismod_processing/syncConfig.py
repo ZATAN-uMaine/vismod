@@ -1,62 +1,92 @@
+import os
+from dotenv import load_dotenv
+import requests
 import pandas as pd
 import json
+from datetime import datetime
 
 
-def process_excel_to_dict(excel_file):
-    # Read the Excel file
-    df = pd.read_excel(excel_file, header=2)  # Column headers start at row 3
+def read_config():
+    # Set the header row to the row containing the column names
+    config_df = pd.read_csv("config.csv", header=2)
 
-    # Extract contact info from Column A, skip unpopulated
-    contact_info = df.iloc[4:, 0].dropna().tolist()
+    # Contact information is stored in the first column below row 4
+    contactinfo = config_df.iloc[1:, 0].dropna().tolist()
 
-    # TODO move this to DB # Save contact info to a text file
-    with open("contactinfo.txt", "w") as file:
-        for info in contact_info:
-            file.write(f"{info}\n")
+    # Initialize dictionaries
+    nested_dictionaries = {
+        "Load Cells": {},
+        "Wind Sensor": {},
+        "Contact Info": [],
+        "Last Modified": ""
+    }
 
-    # Prepare dictionaries
-    nested_dictionaries = {}
-    for _, row in df.iloc[1:].iterrows():
-        if pd.notna(row["Node"]):  # Check if column 'Node' is populated
-            node = str(row["Node"])
-            if node not in nested_dictionaries:
-                nested_dictionaries[node] = {}  # Initialize a new dictionary
+    # Add contact info and last modified timestamp
+    nested_dictionaries["Contact Info"] = contactinfo
+    nested_dictionaries["Last Modified"] = datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
-            dict_entry = {
-                # Load cell calibration factor
-                "Cal_Factor": row["Cal Factor_L"],
-                # Cable ID is the label, row['Cable ID'] is the value
-                "Cable ID": row["Cable ID"],
-                # Since the TDMS files also use 'TEMP'
-                # we will also use it here for consistency
-                "TEMP": row["Cal Factor_T"],
-            }
+    for index, row in config_df.iterrows():
+        if pd.notna(row["Node"]):
+            if index == 0:  # Skip first row, which holds info about the header
+                continue
+            elif index == config_df.index[-1]:  # Check if this is the last row
+                # Process differently for Wind Sensor
+                nested_dictionaries["Wind Sensor"]["Sensor ID"] = row["Node"]
+            else:
+                node = str(row["Node"])
+                if node not in nested_dictionaries["Load Cells"]:
+                    nested_dictionaries["Load Cells"][node] = {}
+                    # Initialize if not exist
 
-            # WDAQ channel number as key, 'Cal Factor' as value
-            nested_dictionaries[node][row["WDAQ_L"]] = dict_entry
+                wdaq_key = str(row.get("WDAQ_L", None))
+                prefix = wdaq_key.split('_')[0]  # Extract prefix
+
+                prefixed_keys = {
+                    f"{prefix}-Cal_Factor": row.get("Cal Factor_L", None),
+                    f"{prefix}-Cable ID": row.get("Cable ID", None),
+                    f"{prefix}-TEMP": row.get("Cal Factor_T", None),
+                }
+
+                for key, value in prefixed_keys.items():
+                    nested_dictionaries["Load Cells"][node][key] = value
 
     # Convert dictionaries to JSON
-    json_data = json.dumps(nested_dictionaries)
+    json_data = json.dumps(nested_dictionaries, indent=4)
 
-    # TODO move this to DB
     # Write JSON data to file
     with open("data.json", "w") as file:
         file.write(json_data)
 
-    return nested_dictionaries
+
+def download_config():
+    # Load environment variables
+    load_dotenv()
+
+    CONFIG_ID = os.getenv("CONFIG_ID")
+
+    # Construct the URL for exporting the sheet as a CSV
+    url = (
+        f"https://docs.google.com/spreadsheets/d/{CONFIG_ID}/"
+        "export?format=csv"
+    )
+
+    # Make a GET request to download the file
+    response = requests.get(url)
+    # If the request was unsuccessful in any way, print the error and return
+    if response.status_code != 200:
+        print(f"Request failed ({response.status_code}), : {response.text}")
+        return None
+
+    # Write the response content to a local file
+    with open("config.csv", "wb") as file:
+        file.write(response.content)
+
+    print("File downloaded successfully")
+    read_config()
 
 
+# Main execution logic
 if __name__ == "__main__":
-    # Adjust the path to the Excel file as necessary
-    excel_file_path = "config.xlsx"
-
-excel_file_path = "config.xlsx"
-nested_dictionaries = process_excel_to_dict(excel_file_path)
-# print(nested_dictionaries)
-# Convert dictionaries to JSON
-json_data = json.dumps(nested_dictionaries)
-
-# TODO move this to DB
-# Write JSON data to file
-with open("data.json", "w") as file:
-    file.write(json_data)
+    nested_dictionaries = download_config()
