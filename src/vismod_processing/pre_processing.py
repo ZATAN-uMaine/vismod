@@ -50,7 +50,7 @@ class Pre_Processor:
         return data
 
     def data_to_influx_shape(self, data: pd.DataFrame) -> pd.DataFrame:
-        # data = data.set_index("_time")
+        data = data.set_index("_time")
         return data
 
     def averageData(self, tdms_dict: pd.DataFrame):

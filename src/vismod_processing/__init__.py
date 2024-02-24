@@ -8,6 +8,7 @@ def main():
     data = proc.load_and_process("tests/data/081523.tdms")
     # print(data.shape)
     print(data.head())
+    print(data.columns)
 
     # call upload script
     importDataFromPandas.uploadDataFrame(data, "dev")
