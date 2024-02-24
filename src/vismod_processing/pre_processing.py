@@ -53,8 +53,9 @@ class Pre_Processor:
         data = data.set_index("_time")
         return data
 
-    def averageData(self, tdms_dict):
-        return tdms_dict
+    def averageData(self, tdms_dict: pd.DataFrame):
+        # average the data in 1hr buckets
+        return tdms_dict.groupby(pd.Grouper(freq='30min')).mean()
 
     def apply_calibration(
         self,
@@ -103,7 +104,7 @@ class Pre_Processor:
         Call to process a data file once this class has been initialized
         """
         data = self.get_local_data_as_dataframe(data_path)
-        data = self.averageData(data)
         data = self.apply_calibration(data)
         data = self.data_to_influx_shape(data)
+        data = self.averageData(data)
         return data
