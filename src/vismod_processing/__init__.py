@@ -1,5 +1,16 @@
+from vismod_processing import pre_processing, importDataFromPandas
+import json
+
+
 def main():
-    print("Hello World!")
+    config = json.load(open("tests/data/example-config.json"))
+    proc = pre_processing.Pre_Processor(config)
+    data = proc.load_and_process("tests/data/081523.tdms")
+    # print(data.shape)
+    print(data.head())
+
+    # call upload script
+    importDataFromPandas.uploadDataFrame(data, "dev")
 
 
 if __name__ == "__main__":

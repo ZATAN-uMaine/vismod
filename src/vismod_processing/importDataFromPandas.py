@@ -1,82 +1,73 @@
 import pandas as pd
 import os
-import csv
-from datetime import datetime, timedelta
-import reactivex as rx
-from reactivex import operators as ops
-from nptdms import TdmsFile
-
-# Import ZATAN's Pre Processor Class
-import pre_processing
-
-# Import ZATAN's Config Sync Script
-import syncConfig
-
-from influxdb_client import Point, InfluxDBClient, WriteOptions  
-
-# from influxdb_client.client.write_api import SYNCHRONOUS
-
-# InfluxDB Token (NEED TO LEARN HOW TO PUT THIS IN THE ENV AND REFERENCE IT)
-# Currently I type INFLUXDB_TOKEN=<token> into the console to load it into the
-# environment prior to running the script
-
-# zatanToken =  os.environ.get("INFLUXDB_TOKEN")
-
-zatanToken = "ulIEuO_JraLqvnMXRf8qraQRoCQXJKiPD7VCvVUp02JOPGIWU9xNnQU_Bd0-dhM40Je8UtnetLQgUyePT39J5w=="
-pathToFile = "..//..//tests//081523.tdms"
-processor = pre_processing.Pre_Processor(pathToFile)
-# InfluxDB URL - if on dev container use "influx:8086", if on host
-# machine running docker use "localhost:8086". ("127.0.0.1:8086")
-# with InfluxDBClient(url="http://influx:8086", token="zatanToken", org="zatan") as _client:
-with InfluxDBClient(url="http://localhost:8086", token="zatanToken", org="zatan") as _client:
-    with _client.write_api(write_options=WriteOptions(batch_size=500,
-                                                      flush_interval=10_000,
-                                                      jitter_interval=2_000,
-                                                      retry_interval=5_000,
-                                                      max_retries=5,
-                                                      max_retry_delay=30_000,
-                                                      max_close_wait=300_000,
-                                                      exponential_base=2)
-                            ) as _write_client:
-        # Import Pandas DataFrame (needs to be updated further along development)
-        def importFrameFromFile(processor, pathToFile):
-            path = pathToFile
-            self = processor
-            tdms_frame = pre_processing.Pre_Processor.get_local_data_as_dataframe(self, path)
-            with TdmsFile.open(pathToFile) as tdms_file:
-                return tdms_file.as_dataframe()        
-        # Write Pandas DataFrame
-        # _now = datetime.utcnow()
-        # _data_frame = pd.DataFrame(data=[["coyote_creek", 1.0], ["coyote_creek", 2.0]],
-        #                            index=[_now, _now + timedelta(hours=1)],
-        #                            columns=["location", "water_level"])
-        # Import calibration table dictionary
-        excel_file_path = '//raw-DAQ-files//sensorCalib.xlsx'
-        # Write Dictionary-style object
-        # _write_client.write("dev", "zatan",
-        #     {"measurement": "calibrationTable",
-        #      "tags": {"node1": "43641", "node2": "43644","node3": "43642", "node4": "45616", "node5": "43643", "node6": "45617" },
-        #      "fields": {"Cable ID": "17A-Left", }, })
-        # _write_client.write("my-bucket", "my-org", [{"measurement": "h2o_feet", "tags": {"location": "coyote_creek"},
-        #                                              "fields": {"water_level": 2.0}, "time": 2},
-        #                                             {"measurement": "h2o_feet", "tags": {"location": "coyote_creek"},
-        #                                              "fields": {"water_level": 3.0}, "time": 3}])
+import logging
+from datetime import datetime
+from dotenv import load_dotenv
+from pathlib import Path
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS 
+from influxdb_client.extras import pd, np
 
 
-def main():
-    nested_dictionaries = syncConfig.process_excel_to_dict(excel_file_path)
-    print(" \n Printing the Dictionary: \n ")
-    print(nested_dictionaries)
-    print(" end dictionary \n")
-    _data_frame = pd.DataFrame()
-    importFrameFromFile(_data_frame, pathToFile)
-    print(" \n Printing the Dataframe: \n ")
-    print(_data_frame)
-    print(" end dataframe \n")
-    _write_client.write("dev", "zatan", record=_data_frame, data_frame_measurement_name='PNB_Reading')
-    #                     data_frame_tag_columns=['location'])
-    print("main")
-    return 0
+# Load environment
+load_dotenv(dotenv_path=Path(".env"))
 
 
-main()
+# Enable logging for DataFrame serializer
+
+loggerSerializer = logging.getLogger(
+    'influxdb_client.client.write.dataframe_serializer'
+    )
+loggerSerializer.setLevel(level=logging.DEBUG)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s | %(message)s'))
+loggerSerializer.addHandler(handler)
+
+# Load database secrets
+zatanToken = os.environ.get("INFLUXDB_V2_TOKEN")
+organization = os.environ.get("INFLUXDB_V2_ORG")
+link = os.environ.get("INFLUXDB_V2_URL")
+
+# set paths for necessary files
+pathToFile = "../../tests/081523.tdms"
+calibTablePath = '/raw-DAQ-files/sensorCalib.xlsx'
+
+
+def uploadDataFrame(df, bucket):
+    # Initialize data frame
+    dataFrame = df
+    bucket = bucket
+
+    # Initialize Database Client
+    print("=== Received dataFrame = ")
+    print(dataFrame)
+    print()
+    print("=== Ingesting DataFrame via batching API ===")
+    print()
+    startTime = datetime.now()
+    with InfluxDBClient(url=link, token=zatanToken, org=organization, debug=False) as client:
+
+        # Use batching API
+        with client.write_api(write_options=SYNCHRONOUS) as write_api:
+            write_api.write(bucket=bucket, record=dataFrame,
+                            # data_frame_tag_columns=['17A-TEMP', '17A-Left',
+                            #      '17A-Right', '10A-TEMP', '10A-Left',
+                            #      '10A-Right', '2A-TEMP', '2A-Left', 
+                            #      '2A-Right', '2B-TEMP', '2B-Left', 
+                            #      '2B-Right', '10B-TEMP', '10B-Left',
+                            #      '10B-Right', '17B-TEMP', '17B-Left',
+                            #      '17B-Right'],
+                            data_frame_tag_columns=['External-Wind-Speed', 'External-Wind-Direction', 'External-Temperature'],
+                            data_frame_measurement_name='PNB_Reading',
+                            data_frame_timestamp_column="_time")
+                            
+            print()
+            print("Wait to finishing ingesting DataFrame...")
+            print()
+
+    
+
+    print()
+    print(f'Import finished in: {datetime.now() - startTime}')
+    print()
+    return
