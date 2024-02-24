@@ -28,8 +28,12 @@ class Pre_Processor:
         assert "Wind Sensor" in self.calib_table
         assert len(self.calib_table["Load Cells"].keys()) > 0
 
-    def _check_tdms(self):
-        pass
+    def _check_tdms(self, tdms_data):
+        for sensor in self.calib_table["Load Cells"].keys():
+            assert f"{sensor}-TIME" in tdms_data
+            assert f"{sensor}-TEMP" in tdms_data
+            assert f"{sensor}-ch1" in tdms_data
+            assert f"{sensor}-ch2" in tdms_data
 
     def get_local_data_as_dataframe(self, path):
         """
@@ -41,11 +45,11 @@ class Pre_Processor:
             data = tdms_file.as_dataframe()
 
         # give the columns more sensible names
-        return data.rename(fix_tdms_col_name, axis="columns")
+        data = data.rename(fix_tdms_col_name, axis="columns")
+        self._check_tdms(data)
+        return data
 
     def data_to_influx_shape(self, data: pd.DataFrame) -> pd.DataFrame:
-        # all of the sensor time fields *should* be in sync
-        data = data.rename(columns={"17A-TIME": "_time"})
         data = data.set_index("_time")
         return data
 
@@ -61,6 +65,10 @@ class Pre_Processor:
         """
 
         results = pd.DataFrame()
+        # all of the sensor time fields *should* be in sync
+        results["_time"] = tdms_dict[
+            f"{list(self.calib_table['Load Cells'].keys())[0]}-TIME"
+        ]
 
         lcs = self.calib_table["Load Cells"]
 
@@ -68,9 +76,6 @@ class Pre_Processor:
             # temperature
             node_name = lcs[sensor_id]["1-Cable ID"].split("-")[0]
             results[f"{node_name}-TEMP"] = tdms_dict[f"{sensor_id}-TEMP"]
-
-            # time
-            results[f"{node_name}-TIME"] = tdms_dict[f"{sensor_id}-TIME"]
 
             # strain left
             cable_name1 = lcs[sensor_id]["1-Cable ID"]
@@ -83,6 +88,13 @@ class Pre_Processor:
             results[cable_name2] = (
                 tdms_dict[f"{sensor_id}-ch2"] * lcs[sensor_id]["2-Cal_Factor"]
             )
+
+        external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
+        results["External-Wind-Speed"] = tdms_dict[f"{external_sensor}-ch7"]
+        results["External-Wind-Direction"] = tdms_dict[
+            f"{external_sensor}-ch5"
+        ]  # noqa
+        results["External-Temperature"] = tdms_dict[f"{external_sensor}-TEMP"]
 
         return results
 
