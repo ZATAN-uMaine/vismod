@@ -55,7 +55,7 @@ class Pre_Processor:
 
     def averageData(self, tdms_dict: pd.DataFrame):
         # average the data in 1hr buckets
-        return tdms_dict.groupby(pd.Grouper(freq='30min')).mean()
+        return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
     def apply_calibration(
         self,

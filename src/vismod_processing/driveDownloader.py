@@ -19,8 +19,9 @@ FOLDER_ID = os.getenv("FOLDER_ID")
 LOCAL_PREVIOUS_DOWNLOADS_FILE = "previous_downloads.txt"
 
 
-def exponential_backoff_request(request_callable,
-                                max_retries=5, max_backoff=64):
+def exponential_backoff_request(
+    request_callable, max_retries=5, max_backoff=64
+):
     for n in range(max_retries):
         try:
             response = request_callable().execute()
@@ -28,12 +29,16 @@ def exponential_backoff_request(request_callable,
         except HttpError as e:
             if e.resp.status in [500, 502, 503, 504]:
                 wait_time = min((2**n) + random.random(), max_backoff)
-                print(f"Request failed with status {e.resp.status}, "
-                      f"retrying in {wait_time} seconds...")
+                print(
+                    f"Request failed with status {e.resp.status}, "
+                    f"retrying in {wait_time} seconds..."
+                )
                 time.sleep(wait_time)
             else:
-                print(f"Request failed with status {e.resp.status}, "
-                      f"error: {e}")
+                print(
+                    f"Request failed with status {e.resp.status}, "
+                    f"error: {e}"
+                )
                 return None
     print("Maximum retries reached, giving up.")
     return None
@@ -56,9 +61,11 @@ def tdmsDownload(GOOGLE_API_KEY, local_directory):
     previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
-    query = (f"'{FOLDER_ID}' in parents and "
-             "(mimeType='application/octet-stream' or mimeType='text/plain') "
-             "and trashed=false")
+    query = (
+        f"'{FOLDER_ID}' in parents and "
+        "(mimeType='application/octet-stream' or mimeType='text/plain') "
+        "and trashed=false"
+    )
     results = exponential_backoff_request(
         lambda: service.files().list(
             q=query,

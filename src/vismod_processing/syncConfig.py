@@ -18,7 +18,7 @@ def read_config():
         "Load Cells": {},
         "Wind Sensor": {},
         "Contact Info": [],
-        "Last Modified": ""
+        "Last Modified": "",
     }
 
     # Add contact info and last modified timestamp
@@ -41,7 +41,7 @@ def read_config():
                     # Initialize if not exist
 
                 wdaq_key = str(row.get("WDAQ_L", None))
-                prefix = wdaq_key.split('_')[0]  # Extract prefix
+                prefix = wdaq_key.split("_")[0]  # Extract prefix
 
                 prefixed_keys = {
                     f"{prefix}-Cal_Factor": row.get("Cal Factor_L", None),
