@@ -94,7 +94,7 @@ def tdmsDownload(GOOGLE_API_KEY, local_directory):
             while not done:
                 try:
                     status, done = downloader.next_chunk()
-                    print(f"Download {int(status.progress() * 100)}% complete.")
+                    print(f"Download {int(status.progress() * 100)}% complete.")  # noqa
                 except HttpError as e:
                     print(f"Failed to download {item['name']}: {e}")
                     fh.close()

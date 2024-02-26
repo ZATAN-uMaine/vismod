@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from pathlib import Path
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
-from influxdb_client.extras import pd, np
 
 
 # Load environment
@@ -105,10 +104,9 @@ def uploadDataFrame(df, bucket):
     print("=== Ingesting DataFrame via batching API ===")
     print()
     startTime = datetime.now()
-    with InfluxDBClient(url=link, token=zatanToken, org=organization) as client:
-
+    with InfluxDBClient(url=link, token=zatanToken, org=organization) as cli:
         # Use batching API
-        with client.write_api(write_options=SYNCHRONOUS) as write_api:
+        with cli.write_api(write_options=SYNCHRONOUS) as write_api:
             write_api.write(
                 bucket=bucket,
                 record=dataFrame,
