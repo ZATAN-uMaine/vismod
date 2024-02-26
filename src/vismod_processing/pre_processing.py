@@ -1,132 +1,110 @@
 from nptdms import TdmsFile
 import pandas as pd
 
-"""
 
-"""
+def fix_tdms_col_name(name: str) -> str:
+    splits = name.split("'")
+    if len(splits) != 5:
+        return name
+    return f"{splits[1]}-{splits[3]}"
 
 
 class Pre_Processor:
-    def __init__(self, calibration_file_path):
+    """
+    Takes both the calibration data and the latest sensor readings.
+    Creates a frame with averaged data.
+    """
+
+    def __init__(self, calibration_dict):
+        self.calib_table = calibration_dict
+        self._check_calibration_dict()
+
+    def _check_calibration_dict(self):
         """
-        This is just so we can have one pre_processor for each
-        calibration table if we have multiple that
-        need to be applied to the same data channels.
+        Does some sanity checks on the calibration table dictionary
         """
-        self.calib_file_path = calibration_file_path
-        self.calib_table = pd.DataFrame()
+        assert isinstance(self.calib_table, dict)
+        assert "Load Cells" in self.calib_table
+        assert "Wind Sensor" in self.calib_table
+        assert len(self.calib_table["Load Cells"].keys()) > 0
 
-    def get_calibs_from_local_csv(self, csv_path, index_column="WDAQ"):
-        table = pd.read_csv(csv_path, index_col=index_column)
-
-        # Parse the weird    space character out of the indices
-        indices = table.index.tolist()
-        indices = list(
-            map(lambda label: label.split()[0] + label.split()[1], indices)
-        )
-        table.index = indices
-
-        # Union with existing calb table
-        self.calib_table = pd.concat([self.calib_table, table])
-
-    def get_calibs_from_local_xlsx(
-        self, calib_table_path, calib_table_columns, index_column="WDAQ"
-    ):
-        """
-        Takes a pair of excel-style string of column names (ex. 'L,H')
-        One column is the calibration factors, the other is the index used
-        Adds it to the self.calib_table dictionary.
-        """
-        table = pd.read_excel(
-            calib_table_path,
-            usecols=calib_table_columns,
-            skiprows=4,
-            nrows=30,
-            index_col=index_column,
-        )
-
-        # Get every other row
-        table = table.iloc[2::2, :]
-
-        # Parse the weird    space character out of the indices
-        indices = table.index.astype(str).tolist()
-        indices = list(
-            map(
-                lambda label: (
-                    (label.split()[0] + label.split()[1])
-                    if len(label.split()) >= 2
-                    else label
-                ),
-                indices,
-            )
-        )
-        table.index = indices
-
-        # Union with existing calb table
-        self.calib_table = pd.concat([self.calib_table, table])
-
-        return table
-
-    def averageData(self, tdms_dict):
-        return None
-
-    def update_calib_table(self):
-        return None
-
-    def get_local_data(self, path):
-        """
-        (npTDMS object, path to calib-table)
-        => dictionary of pandas data frames
-        """
-        tdms_dict = {}
-        indices = []
-        with TdmsFile.open(path) as tdms_file:
-            for group in tdms_file.groups():
-                indices.append(group.name)
-                tdms_dict = tdms_dict | {group.name: group.as_dataframe()}
-        return tdms_dict
+    def _check_tdms(self, tdms_data):
+        for sensor in self.calib_table["Load Cells"].keys():
+            assert f"{sensor}-TIME" in tdms_data
+            assert f"{sensor}-TEMP" in tdms_data
+            assert f"{sensor}-ch1" in tdms_data
+            assert f"{sensor}-ch2" in tdms_data
 
     def get_local_data_as_dataframe(self, path):
         """
-        Way simpler, just imports the whole file as a dataframe
+        Way simpler, just imports the whole file as a dataframe.
+        Warning: kind of slow.
         """
+        data = pd.DataFrame()
         with TdmsFile.open(path) as tdms_file:
-            return tdms_file.as_dataframe()
+            data = tdms_file.as_dataframe()
+
+        # give the columns more sensible names
+        data = data.rename(fix_tdms_col_name, axis="columns")
+        self._check_tdms(data)
+        return data
+
+    def data_to_influx_shape(self, data: pd.DataFrame) -> pd.DataFrame:
+        data = data.set_index("_time")
+        return data
+
+    def averageData(self, tdms_dict: pd.DataFrame):
+        # average the data in 1hr buckets
+        return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
     def apply_calibration(
         self,
-        remote_tdms_dict,
-        fun=lambda item, table, parameter, sensor, channel: item
-        * table["Cal Factor"][sensor + f"/{channel}"],
-    ):
+        tdms_dict,
+    ) -> pd.DataFrame:
         """
-        Just apply a given function 'fun' to calib values
-        Suggested: fun = lambda i, t, p, s, c: i * t[p][s + f"/{c}"]
+        Creates new columns that apply correct callibration to strain sensors
         """
-        tdms_dict = remote_tdms_dict.copy()
 
-        for parameter in self.calib_table.columns:
+        results = pd.DataFrame()
+        # all of the sensor time fields *should* be in sync
+        results["_time"] = tdms_dict[
+            f"{list(self.calib_table['Load Cells'].keys())[0]}-TIME"
+        ]
 
-            # For some reason it sometimes counts the colnames as a param.
-            if len(parameter.split("/")) == 1:
-                continue
+        lcs = self.calib_table["Load Cells"]
 
-            sensor = parameter.split("/")[0]
-            channel = parameter.split("/")[1]
+        for sensor_id in lcs.keys():
+            # temperature
+            node_name = lcs[sensor_id]["1-Cable ID"].split("-")[0]
+            results[f"{node_name}-TEMP"] = tdms_dict[f"{sensor_id}-TEMP"]
 
-            # Temporary try-except, needed to handle the two import methods
-            try:
-                tdms_dict[sensor][channel] = tdms_dict[sensor][channel].map(
-                    lambda item: fun(
-                        item, self.calib_table, parameter, sensor, channel
-                    )
-                )
-            except KeyError:
-                tdms_dict[f"/{sensor}/{channel}"] = tdms_dict[
-                    f"/{sensor}/{channel}"
-                ].map(
-                    lambda item: fun(
-                        item, self.calib_table, parameter, sensor, channel
-                    )
-                )
-        return tdms_dict
+            # strain left
+            cable_name1 = lcs[sensor_id]["1-Cable ID"]
+            results[cable_name1] = (
+                tdms_dict[f"{sensor_id}-ch1"] * lcs[sensor_id]["1-Cal_Factor"]
+            )
+
+            # strain right
+            cable_name2 = lcs[sensor_id]["2-Cable ID"]
+            results[cable_name2] = (
+                tdms_dict[f"{sensor_id}-ch2"] * lcs[sensor_id]["2-Cal_Factor"]
+            )
+
+        external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
+        results["External-Wind-Speed"] = tdms_dict[f"{external_sensor}-ch7"]
+        results["External-Wind-Direction"] = tdms_dict[
+            f"{external_sensor}-ch5"
+        ]  # noqa
+        results["External-Temperature"] = tdms_dict[f"{external_sensor}-TEMP"]
+
+        return results
+
+    def load_and_process(self, data_path):
+        """
+        Call to process a data file once this class has been initialized
+        """
+        data = self.get_local_data_as_dataframe(data_path)
+        data = self.apply_calibration(data)
+        data = self.data_to_influx_shape(data)
+        data = self.averageData(data)
+        return data

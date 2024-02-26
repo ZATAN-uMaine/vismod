@@ -39,7 +39,7 @@ dependencies = [
 
 # scripts that you can run with `hatch run <script>`
 [tool.hatch.envs.default.scripts]
-test = "pytest {args:tests}"
+test = "PYTHONPATH=src pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
   "- coverage combine",
@@ -51,8 +51,8 @@ cov = [
 ]
 format = "black src"
 lint = "flake8"
-web = "flask run"
-process = "python src/vismod_processing/__init__.py"
+web = "flask --app=src/vismod_web run"
+process = "PYTHONPATH=src python src/vismod_processing/__main__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vismod_processing", "src/vismod_web"]
