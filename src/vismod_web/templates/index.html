@@ -98,26 +98,28 @@
         </svg>
     </div>
 
+    <div id="plotBay" class="pure-g"></div>
+
     <!-- The Modal -->
     <div id="myModal" class="modal">
 
         <!-- Modal content -->
         <div class="modal-content pure-g">
-            <div id="dataInfo" class="pure-u-3-8">
+            <div id="data-info" class="pure-u-3-8">
                 <div>
-                    <p>SENSOR: <span id="which-sensor"></span></p>
+                    <p>SENSOR: <span id="modal-sensor"></span></p>
                 </div>
                 <div>
-                    <p>DATE: <span id="which-range"></span></p>
+                    <p>DATE: <span id="modal-range"></span></p>
                 </div>
             </div>
             <div class="pure-u-1-4">
-                <button id="plotNodeData" class="pure-button">
+                <button id="plot-node-data" onclick="createPlotIFrame()" class="pure-button">
                     PLOT
                 </button>
             </div>
             <div class="pure-u-1-4">
-                <button id="downloadNodeData" class="pure-button">
+                <button id="download-node-data" class="pure-button">
                     DOWNLOAD
                 </button>
             </div>  

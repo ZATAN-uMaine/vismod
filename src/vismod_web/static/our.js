@@ -1,31 +1,56 @@
-var current_sensor = "sensor1";
+var selectedSensor = "sensor1"; // default value 
+var selectedStartDay = "";
+var selectedStartHour = "";
+var selectedEndDay = "";
+var selectedEndHour = "";
 
-function updateSensor(sensorId, modal) {
-    current_sensor = sensorId;
+function updateDateRangeSelection(){
+    selectedStartDay = document.getElementById('startDate').value;
+    selectedStartHour = document.getElementById('startHour').value;
+    selectedEndDay = document.getElementById('endDate').value;
+    selectedEndHour = document.getElementById('endHour').value;
+}
 
-    which_sensor = document.getElementById("which-sensor");
-    which_sensor.textContent = `${current_sensor}`;
+function createModal(sensorId, modal) {
+    // update variables
+    selectedSensor = sensorId;
+    updateDateRangeSelection()
 
-    which_range = document.getElementById("which-range");
-    
+    // inform user of selected sensor (rename later, probably)
+    modalSensor = document.getElementById("modal-sensor");
+    modalSensor.textContent = `${selectedSensor}`;
 
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    const startHourSelect = document.getElementById('startHour');
-    const endHourSelect = document.getElementById('endHour');
+    // inform user of selected range
+    modalRange = document.getElementById("modal-range");
+    modalRange.textContent = `(${selectedStartDay}, ${selectedStartHour}:00) to (${selectedEndDay}, ${selectedEndHour}:00)`;
 
-    which_range.textContent = `(${startDateInput.value}, ${startHourSelect.value}:00) to (${endDateInput.value}, ${endHourSelect.value}:00)`;
-
+    // show modal popup
     modal.style.display = "block";
 }
 
+function createPlotIFrame(){
+    console.log("ZALGO")
+    var plotIFrame = document.createElement('iframe');
+    
+    var htmlcode = `
+    <body><h1 style="text-align: center; color: green;"}>Plot of ${selectedSensor}'s data from ${selectedStartHour}:00 on ${selectedStartDay} to ${selectedEndHour}:00 on ${selectedEndDay}</h1></body>
+    `
+    
+    document.getElementById("plotBay").appendChild(plotIFrame);
+    plotIFrame.setAttribute("style","height:100%;width:100%;");
+    plotIFrame.contentWindow.document.open();
+    plotIFrame.contentWindow.document.write(htmlcode);
+    plotIFrame.contentWindow.document.close();
 
-// because of the way JS works, all of these vars are available out of scope. lol how did i not know that.
+    var modal = document.getElementById("myModal");
+    modal.style.display = "none";
+}
+
 document.addEventListener('DOMContentLoaded', (event) => { 
     // Set default dates
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-    const minDate = "2023-08-01"; // just a guess, will fix later
+    const minDate = "2023-08-01"; // TODO: fix later to actual minimum date
 
     const formatDate = (date) => {
         const year = date.getFullYear();
@@ -34,61 +59,65 @@ document.addEventListener('DOMContentLoaded', (event) => {
         return `${year}-${month}-${day}`;
     };
 
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    const startHourSelect = document.getElementById('startHour');
-    const endHourSelect = document.getElementById('endHour');
+    const startDaySelector = document.getElementById('startDate');
+    const endDaySelector = document.getElementById('endDate');
+    const startHourSelector = document.getElementById('startHour');
+    const endHourSelector = document.getElementById('endHour');
 
-    startDateInput.setAttribute('min', minDate);
-    startDateInput.setAttribute('max', formatDate(now));
-    endDateInput.setAttribute('min', minDate);
-    endDateInput.setAttribute('max', formatDate(now));
+    startDaySelector.setAttribute('min', minDate);
+    startDaySelector.setAttribute('max', formatDate(now));
+    endDaySelector.setAttribute('min', minDate);
+    endDaySelector.setAttribute('max', formatDate(now));
 
     // Populate the hour <select> elements
     for (let i = 0; i < 24; i++) {
         const hourValue = i.toString().padStart(2, '0') + ':00';
         const option = new Option(hourValue, i);
-        startHourSelect.add(option.cloneNode(true));
-        endHourSelect.add(option.cloneNode(true));
+        startHourSelector.add(option.cloneNode(true));
+        endHourSelector.add(option.cloneNode(true));
     }
 
     // Set default values for dates
-    startDateInput.value = formatDate(oneWeekAgo);
-    endDateInput.value = formatDate(now);
+    startDaySelector.value = formatDate(oneWeekAgo);
+    endDaySelector.value = formatDate(now);
 
     // Set default values for hours
-    startHourSelect.value = oneWeekAgo.getHours();
-    endHourSelect.value = now.getHours();
+    startHourSelector.value = oneWeekAgo.getHours();
+    endHourSelector.value = now.getHours();
 
     // Enforce date constraints
-    startDateInput.max = endDateInput.value;
-    endDateInput.min = startDateInput.value;
+    startDaySelector.max = endDaySelector.value;
+    endDaySelector.min = startDaySelector.value;
 
     // Enforce time constraints
     const enforceTimeConstraints = () => {
-        const startHour = parseInt(startHourSelect.value, 10);
-        const endHour = parseInt(endHourSelect.value, 10);
-        if (startDateInput.value === endDateInput.value && startHour > endHour) {
-            endHourSelect.value = startHour;
+        const startHour = parseInt(startHourSelector.value, 10);
+        const endHour = parseInt(endHourSelector.value, 10);
+        if (startDaySelector.value === endDaySelector.value && startHour > endHour) {
+            endHourSelector.value = startHour;
         }
     };
 
-    startDateInput.addEventListener('change', function () {
-        endDateInput.min = this.value;
+    startDaySelector.addEventListener('change', function () {
+        endDaySelector.min = this.value;
         enforceTimeConstraints();
+        updateDateRangeSelection();
     });
 
-    endDateInput.addEventListener('change', function () {
-        startDateInput.max = this.value;
+    endDaySelector.addEventListener('change', function () {
+        startDaySelector.max = this.value;
         enforceTimeConstraints();
+        updateDateRangeSelection();
     });
 
-    startHourSelect.addEventListener('change', function () {
+    startHourSelector.addEventListener('change', function () {
         enforceTimeConstraints();
+        updateDateRangeSelection();
     });
 
-    endHourSelect.addEventListener('change', function () {
+    endHourSelector.addEventListener('change', function () {
         enforceTimeConstraints();
+        updateDateRangeSelection();
     });
 
 
@@ -100,18 +129,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const circles = document.querySelectorAll('[id^="sensor"]');
     circles.forEach(circle => {
-        circle.addEventListener('click', () => updateSensor(circle.id, modal))
+        circle.addEventListener('click', () => createModal(circle.id, modal))
     });
 
     // When the user clicks on <span> (x), close the modal
     span.onclick = function() {
-    modal.style.display = "none";
+        modal.style.display = "none";
     }
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
     }
 });
