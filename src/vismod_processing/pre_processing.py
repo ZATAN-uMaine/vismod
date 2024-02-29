@@ -112,7 +112,7 @@ class Pre_Processor:
 
 
 # Load the calibration data from data.json
-with open('data.json', 'r') as file:
+with open("data.json", "r") as file:
     calibration_data = json.load(file)
 
 # Create a pre-processor object with the calibration data
