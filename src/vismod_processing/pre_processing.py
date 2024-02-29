@@ -58,6 +58,13 @@ class Pre_Processor:
         # average the data in 1hr buckets
         return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
+    def calibrate_channel(channel, fun):
+        """
+        This will be a function that generalizes calibration
+        `fun` would be a function/lambda that gets applied to a channel
+        """
+        return None
+
     def apply_calibration(
         self,
         tdms_dict,
@@ -82,13 +89,15 @@ class Pre_Processor:
             # strain left
             cable_name1 = lcs[sensor_id]["1-Cable ID"]
             results[cable_name1] = (
-                tdms_dict[f"{sensor_id}-ch1"] * lcs[sensor_id]["1-Cal_Factor"]
+                70
+                - tdms_dict[f"{sensor_id}-ch1"] * lcs[sensor_id]["1-Cal_Factor"]
             )
 
             # strain right
             cable_name2 = lcs[sensor_id]["2-Cable ID"]
             results[cable_name2] = (
-                tdms_dict[f"{sensor_id}-ch2"] * lcs[sensor_id]["2-Cal_Factor"]
+                70
+                - tdms_dict[f"{sensor_id}-ch2"] * lcs[sensor_id]["2-Cal_Factor"]
             )
 
         external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
@@ -111,14 +120,16 @@ class Pre_Processor:
         return data
 
 
-# Load the calibration data from data.json
-with open("data.json", "r") as file:
-    calibration_data = json.load(file)
+# You need this boilerplate for scripts, otherwise you can't import it as a module without it running
+if __name__ == "__main__":
+    # Load the calibration data from data.json
+    with open("src/vismod_processing/data.json", "r") as file:
+        calibration_data = json.load(file)
 
-# Create a pre-processor object with the calibration data
-pre_processor = Pre_Processor(calibration_data)
+    # Create a pre-processor object with the calibration data
+    pre_processor = Pre_Processor(calibration_data)
 
-# Load and process the latest data file
-data_path = "tdms_files/022924.tdms"
+    # Load and process the latest data file
+    data_path = "tdms_files/022924.tdms"
 
-processed_data = pre_processor.load_and_process(data_path)
+    processed_data = pre_processor.load_and_process(data_path)
