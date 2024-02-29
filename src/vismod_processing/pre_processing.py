@@ -90,14 +90,16 @@ class Pre_Processor:
             cable_name1 = lcs[sensor_id]["1-Cable ID"]
             results[cable_name1] = (
                 70
-                - tdms_dict[f"{sensor_id}-ch1"] * lcs[sensor_id]["1-Cal_Factor"]
+                - tdms_dict[f"{sensor_id}-ch1"] 
+                * lcs[sensor_id]["1-Cal_Factor"]
             )
 
             # strain right
             cable_name2 = lcs[sensor_id]["2-Cable ID"]
             results[cable_name2] = (
                 70
-                - tdms_dict[f"{sensor_id}-ch2"] * lcs[sensor_id]["2-Cal_Factor"]
+                - tdms_dict[f"{sensor_id}-ch2"] 
+                * lcs[sensor_id]["2-Cal_Factor"]
             )
 
         external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
