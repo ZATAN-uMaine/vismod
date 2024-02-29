@@ -88,19 +88,15 @@ class Pre_Processor:
 
             # strain left
             cable_name1 = lcs[sensor_id]["1-Cable ID"]
-            results[cable_name1] = (
-                70
-                - tdms_dict[f"{sensor_id}-ch1"] 
-                * lcs[sensor_id]["1-Cal_Factor"]
-            )
+            strain = tdms_dict[f"{sensor_id}-ch1"]
+            cal_factor = lcs[sensor_id]["1-Cal_Factor"]
+            results[cable_name1] = 70 - strain * cal_factor
 
             # strain right
             cable_name2 = lcs[sensor_id]["2-Cable ID"]
-            results[cable_name2] = (
-                70
-                - tdms_dict[f"{sensor_id}-ch2"] 
-                * lcs[sensor_id]["2-Cal_Factor"]
-            )
+            strain = tdms_dict[f"{sensor_id}-ch2"]
+            cal_factor = lcs[sensor_id]["2-Cal_Factor"]
+            results[cable_name2] = 70 - strain * cal_factor
 
         external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
         results["External-Wind-Speed"] = tdms_dict[f"{external_sensor}-ch7"]
@@ -124,7 +120,7 @@ class Pre_Processor:
 
 if __name__ == "__main__":
     # Load the calibration data from data.json
-    with open("src/vismod_processing/data.json", "r") as file:
+    with open("data.json", "r") as file:
         calibration_data = json.load(file)
 
     # Create a pre-processor object with the calibration data
