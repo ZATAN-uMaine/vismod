@@ -12,11 +12,9 @@ class TestPreProcessor(unittest.TestCase):
         # Creating a Pre_Processor instance for testing
         self.pre_processor = Pre_Processor(self.config)
 
-    @unittest.skip(
-        "manually created data, might need reworking according to new format, good framework for a test though"
-    )
+    @unittest.skip("Needs reworking according to new calib format")
     def test_apply_calibration(self):
-        # Test applying calibration to sensor data
+        # Test applying calibration to sensor data. Test data created manually
         tdms_dict = {
             "sensor1": {
                 "ch1": pd.Series([1, 2, 3]),
@@ -61,7 +59,7 @@ class TestPreProcessor(unittest.TestCase):
         tdms_frame = self.pre_processor.get_local_data_as_dataframe(
             "tests/081523.tdms"
         )
-        benchmark = self.pre_processor
+        # benchmark = csv_as_dataframe(benchmark.csv)
 
         tdms_frame = self.pre_processor.apply_calibration(tdms_frame)
         self.assertEqual(
