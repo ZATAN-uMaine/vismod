@@ -120,7 +120,6 @@ class Pre_Processor:
         return data
 
 
-# You need this boilerplate for scripts, otherwise you can't import it as a module without it running
 if __name__ == "__main__":
     # Load the calibration data from data.json
     with open("src/vismod_processing/data.json", "r") as file:
