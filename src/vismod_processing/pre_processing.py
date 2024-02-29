@@ -1,5 +1,6 @@
 from nptdms import TdmsFile
 import pandas as pd
+import json
 
 
 def fix_tdms_col_name(name: str) -> str:
@@ -108,3 +109,16 @@ class Pre_Processor:
         data = self.data_to_influx_shape(data)
         data = self.averageData(data)
         return data
+
+
+# Load the calibration data from data.json
+with open('data.json', 'r') as file:
+    calibration_data = json.load(file)
+
+# Create a pre-processor object with the calibration data
+pre_processor = Pre_Processor(calibration_data)
+
+# Load and process the latest data file
+data_path = "tdms_files/022924.tdms"
+
+processed_data = pre_processor.load_and_process(data_path)

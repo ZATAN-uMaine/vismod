@@ -57,7 +57,8 @@ def update_downloads_file(filename):
     print(f"Updated local file with download: {filename}")
 
 
-def tdmsDownload(GOOGLE_API_KEY, local_directory):
+def tdmsDownload():
+
     previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
@@ -110,4 +111,4 @@ def tdmsDownload(GOOGLE_API_KEY, local_directory):
         print("No new files to download.")
 
 
-tdmsDownload(GOOGLE_API_KEY, local_directory)
+tdmsDownload()
