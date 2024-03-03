@@ -7,8 +7,8 @@ from pathlib import Path
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-#Team Zatan 2024
-#To learn more about InfluxDB's Python Client API visit:
+# Team Zatan 2024
+# To learn more about InfluxDB's Python Client API visit:
 """
     Docs:
     https://influxdb-client.readthedocs.io/en/stable/api.html#writeapi
@@ -112,19 +112,18 @@ def uploadDataFrame(df, bucket):
             write_api.write(
                 bucket=bucket,
                 record=dataFrame,
-                #Adding Wind and External temperature as tags to query with the fields.
-                #Fields are the columns that are not identified as tags.
+                # Fields are the columns that are not identified as tags.
                 data_frame_tag_columns=[
-                    "External-Wind-Speed",
-                    "External-Wind-Direction",
-                    "External-Temperature",
+                 #    "External-Wind-Speed",
+                 #    "External-Wind-Direction",
+                 #    "External-Temperature",
                 ],
                 data_frame_measurement_name="PNB_Reading",
             )
             # data_frame_timestamp_column="_time")
 
             print()
-            print("Wait to finishing ingesting DataFrame...")
+            print("Waiting to finish ingesting DataFrame...")
             print()
 
     print()
