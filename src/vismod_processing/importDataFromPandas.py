@@ -7,6 +7,14 @@ from pathlib import Path
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+#Team Zatan 2024
+#To learn more about InfluxDB's Python Client API visit:
+"""
+    Docs:
+    https://influxdb-client.readthedocs.io/en/stable/api.html#writeapi
+    Repo Readme:
+    https://github.com/influxdata/influxdb-client-python/blob/master/README.md#writes
+"""
 
 # Load environment
 load_dotenv(dotenv_path=Path(".env"))
@@ -90,12 +98,6 @@ def uploadDataFrame(df, bucket):
     # Initialize data frame
     dataFrame = df
     bucket = bucket
-    # dataFrame["_time"] = pd.to_datetime("_time")
-    # Set column as Index
-    # dataFrame.set_index('_time', inplace=True)
-    # dataFrame.set_index('_time')
-    # Transform index to PeriodIndex
-    # dataFrame.index = pd.to_datetime(dataFrame.index, unit='s')
 
     # Initialize Database Client
     print("=== Received dataFrame = ")
@@ -110,13 +112,8 @@ def uploadDataFrame(df, bucket):
             write_api.write(
                 bucket=bucket,
                 record=dataFrame,
-                # data_frame_tag_columns=['17A-TEMP', '17A-Left',
-                #      '17A-Right', '10A-TEMP', '10A-Left',
-                #      '10A-Right', '2A-TEMP', '2A-Left',
-                #      '2A-Right', '2B-TEMP', '2B-Left',
-                #      '2B-Right', '10B-TEMP', '10B-Left',
-                #      '10B-Right', '17B-TEMP', '17B-Left',
-                #      '17B-Right'],
+                #Adding Wind and External temperature as tags to query with the fields.
+                #Fields are the columns that are not identified as tags.
                 data_frame_tag_columns=[
                     "External-Wind-Speed",
                     "External-Wind-Direction",
