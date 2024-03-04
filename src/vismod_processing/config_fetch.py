@@ -1,14 +1,21 @@
 import os
+import json
+from datetime import datetime
+from io import StringIO
+
 from dotenv import load_dotenv
 import requests
 import pandas as pd
-import json
-from datetime import datetime
 
 
-def read_config():
+def config_to_json(csv_content: str, save_file=False):
+    """
+    Turns CSV config file (as string) into the standard
+    JSON representation. Can optionally save a copy as data.json.
+    """
+
     # Set the header row to the row containing the column names
-    config_df = pd.read_csv("config.csv", header=2)
+    config_df = pd.read_csv(StringIO(csv_content), header=2)
 
     # Contact information is stored in the first column below row 4
     contactinfo = config_df.iloc[1:, 0].dropna().tolist()
@@ -56,14 +63,15 @@ def read_config():
     json_data = json.dumps(nested_dictionaries, indent=4)
 
     # Write JSON data to file
-    with open("data.json", "w") as file:
-        file.write(json_data)
+    if save_file:
+        print("Saving config to data.json")
+        with open("data.json", "w") as file:
+            file.write(json_data)
+
+    return nested_dictionaries
 
 
-def download_config():
-    # Load environment variables
-    load_dotenv()
-
+def download_config(save_file=False):
     CONFIG_ID = os.getenv("CONFIG_ID")
 
     # Construct the URL for exporting the sheet as a CSV
@@ -79,14 +87,13 @@ def download_config():
         print(f"Request failed ({response.status_code}), : {response.text}")
         return None
 
-    # Write the response content to a local file
-    with open("config.csv", "wb") as file:
-        file.write(response.content)
-
     print("File downloaded successfully")
-    read_config()
+    str_content = response.content.decode("utf-8")
+    print("CSV extracted from file")
+    return config_to_json(str_content, save_file=save_file)
 
 
-# Main execution logic
+# Allow this file to be run standalone
 if __name__ == "__main__":
-    nested_dictionaries = download_config()
+    load_dotenv()
+    nested_dictionaries = download_config(save_file=True)
