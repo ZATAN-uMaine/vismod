@@ -57,7 +57,7 @@ class TestPreProcessor(unittest.TestCase):
     def test_apply_calibration_integration(self):
         # test with new tdms method
         tdms_frame = self.pre_processor.get_local_data_as_dataframe(
-            "tests/081523.tdms"
+            "tests/data/081523.tdms"
         )
         # benchmark = csv_as_dataframe(benchmark.csv)
 
