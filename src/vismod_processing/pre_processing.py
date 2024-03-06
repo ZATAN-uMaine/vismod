@@ -58,13 +58,30 @@ class Pre_Processor:
         # average the data in 1hr buckets
         return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
+
+    def loadcell_offset(x: int, tempCoeff: tuple) -> int:
+        """
+        Returns the offset added to a loadcell
+        Takes a tuple for now, not sure how we're going to fit in the 
+        temp coeffs yet.
+        """
+        if x > 140:
+            return (140 - x) * tempCoeff[1]
+        elif x < -30:
+            return (30 - x) * tempCoeff[0]
+        else:
+            return 0
+
     def calibrate_channel(channel, fun):
         """
         This will be a function that generalizes calibration
         `fun` would be a function/lambda that gets applied to a channel
         """
-        return None
-
+        cable_name = lcs[sensor_id][f"{channel}-Cable ID"]
+        strain = tdms_dict[f"{sensor_id}-ch1"]
+        cal_factor = lcs[sensor_id]["1-Cal_Factor"]
+        results[cable_name1] = strain * cal_factor
+    
     def apply_calibration(
         self,
         tdms_dict,
@@ -84,19 +101,23 @@ class Pre_Processor:
         for sensor_id in lcs.keys():
             # temperature
             node_name = lcs[sensor_id]["1-Cable ID"].split("-")[0]
+            cal_factor = lcs[sensor_id]["1-Cal_Factor"]
             results[f"{node_name}-TEMP"] = tdms_dict[f"{sensor_id}-TEMP"]
+
+            # Strain/load cells get calibrated by the equation:
+            #           data * cal_factor + offset
 
             # strain left
             cable_name1 = lcs[sensor_id]["1-Cable ID"]
             strain = tdms_dict[f"{sensor_id}-ch1"]
             cal_factor = lcs[sensor_id]["1-Cal_Factor"]
-            results[cable_name1] = 70 - strain * cal_factor
+            results[cable_name1] = strain * cal_factor
 
             # strain right
             cable_name2 = lcs[sensor_id]["2-Cable ID"]
             strain = tdms_dict[f"{sensor_id}-ch2"]
             cal_factor = lcs[sensor_id]["2-Cal_Factor"]
-            results[cable_name2] = 70 - strain * cal_factor
+            results[cable_name2] = strain * cal_factor
 
         external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
         results["External-Wind-Speed"] = tdms_dict[f"{external_sensor}-ch7"]
@@ -128,5 +149,6 @@ if __name__ == "__main__":
 
     # Load and process the latest data file
     data_path = "tdms_files/022924.tdms"
+    print(pre_processor.get_local_data_as_dataframe(data_path))
 
-    processed_data = pre_processor.load_and_process(data_path)
+    #processed_data = pre_processor.load_and_process(data_path)
