@@ -12,6 +12,10 @@ def main():
     data_files = data_fetch.tdmsDownload()
     print(data_files)
 
+    if len(data_files) == 0:
+        print("No new data files")
+        return
+
     # download the config from drive
     config = config_fetch.download_config()
     print(config)

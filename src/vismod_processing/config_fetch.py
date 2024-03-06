@@ -51,7 +51,9 @@ def config_to_json(csv_content: str, save_file=False):
                 prefix = wdaq_key.split("_")[0]  # Extract prefix
 
                 prefixed_keys = {
-                    f"{prefix}-Cal_Factor": float(row.get("Cal Factor_L", 0.0)), # noqa
+                    f"{prefix}-Cal_Factor": float(
+                        row.get("Cal Factor_L", 0.0)
+                    ),  # noqa
                     f"{prefix}-Cable ID": row.get("Cable ID", None),
                     f"{prefix}-TEMP": float(row.get("Cal Factor_T", 0.0)),
                 }
