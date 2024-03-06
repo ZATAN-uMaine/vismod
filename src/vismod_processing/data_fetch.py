@@ -2,6 +2,7 @@ import io
 import os
 import random
 import time
+import re
 from dotenv import load_dotenv
 
 from googleapiclient.discovery import build
@@ -49,17 +50,12 @@ def update_downloads_file(filename):
     print(f"Updated local file with download: {filename}")
 
 
-def tdmsDownload() -> list[str]:
+def list_tdms_files(service):
     """
-    Downloads TDMS files from Drive.
-    Returns list of string file paths for any new TDMS files.
+    Query the Google api for a list of files,
+    filter for only the .tdms, sort them
     """
-    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     FOLDER_ID = os.getenv("FOLDER_ID")
-
-    previous_downloads = fetch_previous_downloads_from_file()
-    service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
-
     query = (
         f"'{FOLDER_ID}' in parents and "
         "(mimeType='application/octet-stream' or mimeType='text/plain') "
@@ -71,22 +67,42 @@ def tdmsDownload() -> list[str]:
             spaces="drive",
             fields="files(id, name, createdTime)",
             orderBy="createdTime desc",  # Sort by createdTime, newest first
-            pageSize=1,  # Request only the newest file
+            pageSize=2,  # Request only the newest file
             supportsAllDrives=True,
         )
     )
-
+    results = results.get("files", [])
     if not results:
-        print("No files to download.")
         return []
+
+    file_name_regex = re.compile("^.*\\.tdms$")
+    file_list = []
+    for file in results:
+        name = file["name"]
+        if file_name_regex.match(name):
+            file_list.append(file)
+
+    return file_list
+
+
+def tdmsDownload() -> list[str]:
+    """
+    Downloads TDMS files from Drive.
+    Returns list of string file paths for any new TDMS files.
+    """
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+    previous_downloads = fetch_previous_downloads_from_file()
+    service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
+
+    data_file_list = list_tdms_files(service)
 
     if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):
         os.makedirs(LOCAL_TDMS_STORAGE_DIR)
 
-    items = results.get("files", [])
     local_files = []
-    if items:
-        item = items[0]  # Get the newest file
+    if len(data_file_list) > 0:
+        item = data_file_list[0]  # Get the newest file
         if item["name"] not in previous_downloads:
             print(f"Downloading {item['name']}...")
             file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
