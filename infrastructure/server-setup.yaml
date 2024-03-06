@@ -1,0 +1,99 @@
+- name: "Update server packages"
+  hosts: prod
+  become: true
+  tasks:
+    - apt:
+        name: "*"
+        state: latest
+        update_cache: true
+    - apt:
+        name: "apt-transport-https" # need for 3rd party apt repos
+        state: latest
+
+- name: "Install InfluxDB 2.x"
+  hosts: prod
+  become: true
+  tasks:
+    - name: "Include influx setup tasks"
+      include_tasks:
+        file: "tasks/influx-install.yaml"
+
+- name: "Install nginx"
+  hosts: "prod"
+  become: true
+  tasks:
+    - name: "Add Nginx packages"
+      apt:
+        name:
+          - nginx-light
+          - certbot
+          - python3-certbot-nginx
+    #- name: "Remove default nginx config file"
+    #  file:
+    #    path: "/etc/nginx/sites-enabled/default"
+    #    state: absent
+    - name: "Install nginx config file"
+      template:
+        src: "nginx.conf"
+        dest: "/etc/nginx/sites-enabled/pnb.conf"
+      register: "nginx_copy_res"
+      # this will fail the playbook if there is a config error
+    - name: "Check Nginx config file syntax"
+      shell: "nginx -T"
+      changed_when: false
+
+    - name: "Get Lets Encrypt cert for nginx"
+      include_tasks:
+        file: "tasks/nginx-certbot.yaml"
+      when: "get_https_cert"
+
+    # this works whether or not ufw is active
+    - name: "Configure UFW for web server"
+      community.general.ufw:
+        rule: "allow"
+        direction: "in"
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 22
+        - 80
+        - 443
+    - name: "Reload nginx"
+      systemd:
+        name: "nginx"
+        state: "reloaded"
+        enabled: true
+
+- name: "Install grafana"
+  hosts: prod
+  become: true
+  tasks:
+    - name: "Download grafana apt key"
+      get_url:
+        url: "https://apt.grafana.com/gpg.key"
+        dest: "/etc/apt/keyrings/grafana.asc"
+    - name: "Enable grafana apt repo"
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
+        state: present
+    - name: "Install grafana OSS package"
+      apt:
+        update_cache: true
+        state: present
+        name: grafana
+    - name: "Create grafana config file"
+      template:
+        src: "grafana.ini"
+        dest: "/etc/grafana/grafana.ini"
+        mode: "0640"
+      register: grafana_config_copy
+    - name: "Restart grafana if necessary"
+      systemd:
+        name: grafana-server
+        state: restarted
+      when: "grafana_config_copy.changed"
+    - name: "Enable and run Grafana"
+      systemd:
+        name: "grafana-server"
+        enabled: true
+        state: started

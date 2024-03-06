@@ -95,7 +95,7 @@ is the preferred query langauge.
 To use the Influx CLI (this is mostly good for database admin, not querying):
 
 1. From the `.devcontainer` directory...
-2. Run `docker compose exec influxdb <YOUR COMMAND HERE>`
+2. Run `docker compose exec influx <YOUR COMMAND HERE>`
 
 
 #### Grafana
