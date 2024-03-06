@@ -4,6 +4,20 @@ import json
 
 from vismod_processing.pre_processing import Pre_Processor
 
+def parse_csv_columnwise(filename):
+    result = {}
+    with open(filename, "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            for key, value in row.items():
+                if key not in result:
+                    result[key] = []
+                try:
+                    result[key].append(float(value))
+                except ValueError:
+                    result[key].append(value)
+    csvfile.close()
+    return result
 
 class TestPreProcessor(unittest.TestCase):
     def setUp(self):
