@@ -77,7 +77,7 @@ class TestPreProcessor(unittest.TestCase):
         )
 
     def test_data_processing(self):
-        benchmark = csv_as_dataframe('tests/data/benchmark.csv')
+        benchmark = csv_as_dataframe('benchmark.csv')
         tdms_frame = self.pre_processor.load_and_process("tests/data/081523.tdms")
 
         #self.assertEqual
