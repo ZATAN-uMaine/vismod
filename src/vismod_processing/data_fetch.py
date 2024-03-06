@@ -72,6 +72,8 @@ def list_tdms_files(service):
         )
     )
     results = results.get("files", [])
+    if not results:
+        return []
 
     file_name_regex = re.compile("^.*\\.tdms$")
     file_list = []
@@ -94,10 +96,6 @@ def tdmsDownload() -> list[str]:
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
     data_file_list = list_tdms_files(service)
-
-    if not data_file_list:
-        print("No files to download.")
-        return []
 
     if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):
         os.makedirs(LOCAL_TDMS_STORAGE_DIR)
