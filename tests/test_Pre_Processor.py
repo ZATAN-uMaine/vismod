@@ -4,7 +4,7 @@ import json
 
 from vismod_processing.pre_processing import Pre_Processor
 
-def parse_csv_columnwise(filename):
+def csv_as_dataframe(filename):
     result = {}
     with open(filename, "r") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -77,7 +77,7 @@ class TestPreProcessor(unittest.TestCase):
         )
 
     def test_data_processing(self):
-        benchmark = csv_as_dataframe(benchmark.csv)
+        benchmark = csv_as_dataframe('tests/data/benchmark.csv')
         tdms_frame = self.pre_processor.load_and_process("tests/data/081523.tdms")
 
         #self.assertEqual
