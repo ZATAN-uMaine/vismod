@@ -114,7 +114,7 @@ Find the `dependencies` section in `pyproject.toml` and add it to the list.
 `hatch` will automatically install the next time you start a shell or run
 a command. If you currently have a shell open, restart it.
 
-Run Tests using `pytest`
+Run Tests (using `pytest` internally)
 
 ```
 hatch run test
@@ -125,8 +125,12 @@ hatch run test
 ### Packages
 
 ```
-python3 -m build --wheel
+hatch build
 ```
+
+We create a single package that contains both the vismod_process and vismod_web
+module. This package can be installed with pip, and then you can run both modules
+separately.
 
 ### Server
 
