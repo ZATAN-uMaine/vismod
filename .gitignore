@@ -10,3 +10,9 @@ dist
 **/*.egg-info
 .hatch
 .pytest_cache
+
+# some prettier jsons
+.prettierrc
+package-lock.json
+package.json
+node_modules
