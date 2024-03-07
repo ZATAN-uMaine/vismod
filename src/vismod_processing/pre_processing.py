@@ -18,6 +18,7 @@ class Pre_Processor:
     Takes both the calibration data and the latest sensor readings.
     Creates a frame with averaged data.
     """
+
     def __init__(self, calibration_dict):
         self.calib_table = calibration_dict
         self._check_calibration_dict()
@@ -81,9 +82,7 @@ class Pre_Processor:
         lcs = self.calib_table["Load Cells"]
 
         # All of the sensor time fields *should* be in sync
-        results["_time"] = tdms_dict[
-            f"{list(lcs.keys())[0]}-TIME"
-        ]
+        results["_time"] = tdms_dict[f"{list(lcs.keys())[0]}-TIME"]
 
         for sensor_id in lcs.keys():
             # Temperature
