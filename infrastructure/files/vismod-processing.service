@@ -5,6 +5,7 @@ Description=Vismod Data Processing Script
 Type=oneshot
 ExecStart=/usr/bin/python3 -m vismod_processing
 User=vismod
+EnvironmentFile=/home/vismod/vismod.env
 
 [Install]
 Also=vismod-processing.timer

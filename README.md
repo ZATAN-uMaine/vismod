@@ -146,7 +146,7 @@ To run Ansible manually, add the correct SSH private key to your agent,
 and then try
 
 ```
-ansible-playbook -i inventory.yaml deploy-prod.yaml
+ansible-playbook -i inventory.yaml deploy.yaml
 ```
 
 
