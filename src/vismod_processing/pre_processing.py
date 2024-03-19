@@ -122,6 +122,7 @@ class Pre_Processor:
 
 
 # Allow this file to be run standalone
+# THIS IS JUST FOR TESTING!
 if __name__ == "__main__":
     # Load the calibration data from data.json
     with open("data.json", "r") as file:

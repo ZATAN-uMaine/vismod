@@ -67,6 +67,10 @@ def list_tdms_files(service):
     filter for only the .tdms, sort them
     """
     FOLDER_ID = os.getenv("FOLDER_ID")
+    if not FOLDER_ID or len(FOLDER_ID) < 5:
+        print("$FOLDER_ID not provided by environment")
+        return None
+
     query = (
         f"'{FOLDER_ID}' in parents and "
         "(mimeType='application/octet-stream' or mimeType='text/plain') "
@@ -108,6 +112,10 @@ def tdmsDownload() -> list[str]:
     """
     # Create the google api service
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    if not GOOGLE_API_KEY or len(GOOGLE_API_KEY) < 5:
+        print("$GOOGLE_API_KEY not available from environment")
+        return []
+
     previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 

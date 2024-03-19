@@ -79,8 +79,12 @@ def download_config(save_file=False):
     """
     Downloads the config file from Google Sheets and converts it to JSON.
     Optionally saves the JSON to data.json.
+    Return None if something breaks.
     """
     CONFIG_ID = os.getenv("CONFIG_ID")
+    if not CONFIG_ID or len(CONFIG_ID) < 5:
+        print("$CONFIG_ID not provided by environment")
+        return None
 
     # Construct the URL for exporting the sheet as a CSV
     url = (
@@ -88,6 +92,7 @@ def download_config(save_file=False):
         "export?format=csv"
     )
 
+    print(f"Attempting to fetch config file from {url}")
     # Request the file from the URL
     try:
         response = requests.get(url)
