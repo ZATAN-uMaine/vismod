@@ -14,7 +14,7 @@ organization = os.environ.get("INFLUXDB_V2_ORG")
 link = os.environ.get("INFLUXDB_V2_URL")
 
 
-def listToString(list):
+def list_to_string(list):
 
     # initialize an empty string
     string = ""
@@ -27,23 +27,41 @@ def listToString(list):
     return string
 
 
-def generateFileName(start, stop):
+def generate_file_name(start, stop):
 
     # Remove time-related characters from start and stop dates
     fileStartDate = start[:10]  # Extract YYYY-MM-DD from start string
     fileStopDate = stop[:10]    # Extract YYYY-MM-DD from stop string
 
-    fileName = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}.csv"
+    file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}.csv"
 
-    return fileName
+    return file_name
 
 
-def querySensors(start, stop, sensors):
+def query_sensors(start, stop, sensors):
 
+    received_sensors = sensors
     print("sensors received: ")
-    print(sensors)
+    print(received_sensors)
 
-    fileName = generateFileName(start, stop)
+    for index, item in enumerate(received_sensors):
+        if index == 0:
+            received_sensors[index] = 'r["_field"] == "' + item + '"'
+        else:
+            received_sensors[index] = ' or r["_field"] == "' + item + '"'
+    partially_formatted_sensors = list_to_string(received_sensors)
+    print("partial format applied: ")
+    print(repr(partially_formatted_sensors))
+    formatted_sensors = partially_formatted_sensors.replace('"', '\"')
+
+    print("prototype formatting: ")
+    print(repr(formatted_sensors))
+
+    #string_sensors = list_to_string(received_sensors)
+    #print("prototype formatting to string: ")
+    #print(string_sensors)
+
+    file_name = generate_file_name(start, stop)
 
     exportStartTime = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization)as client:
@@ -66,27 +84,33 @@ def querySensors(start, stop, sensors):
                 |> range(start: {startTime},
                   stop: {stopTime})
                 |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
-                |> group(columns: [{sensorList}])
+                |> filter(fn: (r) => {sensor_list})
                 |>pivot(rowKey:["_time"],
                          columnKey: ["_field"],
                          valueColumn: "_value")
                 |> drop(columns: ["result","_start","_stop","_measurement"])
             '''
-            .format(startTime=start, stopTime=stop, sensorList=sensors),
+            .format(startTime=start, stopTime=stop, sensor_list=formatted_sensors),
             dialect=Dialect(header=True, annotations=[], 
                             date_time_format='RFC3339', delimiter=","))
-
+        #   |> filter(fn: (r) => r["_field"] == "10A-Left" or r["_field"] == "10A-Right" or r["_field"] == "10A-TEMP")
         output = csv_iterator.to_values()
-        # print(output)
-        # print()
+        print("here is our output")
+        print(output)
+        print()
 
-        with open('test.csv', mode='w', newline='') as file:
-            print("Writing to file: ", fileName)
+        with open(file_name, mode='w', newline='') as file:
+            print("Writing to file: ", file_name)
             writer = csv.writer(file)
             # Do not write '','result', nor 'table' columns.
             for row in output:
                 new_row = row[3:]  # Exclude the first three columns
+                # print(row)
                 writer.writerow(new_row)
+
+    print()
+    print(f"Export finished in: {datetime.now() - exportStartTime}")
+    print()
 
     print()
     print(f"Export finished in: {datetime.now() - exportStartTime}")
@@ -94,11 +118,11 @@ def querySensors(start, stop, sensors):
     return
 
 
-def queryAllSensors(start, stop):
+def query_all_sensors(start, stop):
 
-    fileName = generateFileName(start, stop)
+    file_name = generate_file_name(start, stop)
 
-    exportStartTime = datetime.now()
+    export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization)as client:
         # Query All Sensors
         csv_iterator = client.query_api().query_csv(
@@ -126,27 +150,24 @@ def queryAllSensors(start, stop):
             dialect=Dialect(header=True, annotations=[], 
                             date_time_format='RFC3339', delimiter=","))
 
-        # Query Everything 1,000,000 minutes in the past from the dev bucket
-        # csv_iterator = client.query_api().query_csv(
-        #    '''from(bucket:"dev") |> range(start: -1000000m)''',
-        #      dialect=Dialect(header=True, annotations=[],
-        # date_time_format='RFC3339', delimiter=","))
-
         output = csv_iterator.to_values()
         # print(output)
         print()
 
-        with open(fileName, mode='w', newline='') as file:
-            print("Writing to file: ", fileName)
+        with open(file_name, mode='w', newline='') as file:
+            print("Writing to file: ", file_name)
             writer = csv.writer(file)
             for row in output:
                 writer.writerow(row[3:])
     print()
-    print(f"Export finished in: {datetime.now() - exportStartTime}")
+    print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
     return
 
-
+"""
+This is the first successful query we wrote, and if needed can serve as a template method for querying each sensor individually.
+It takes the start and stop time as the input.
+"""
 def querySensors10AB(start, stop):
 
     exportStartTime = datetime.now()
@@ -159,17 +180,9 @@ def querySensors10AB(start, stop):
                 |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
                 |> group(columns: ["_measurement",
                   "10A-Left", "10A-Right", "10A-TEMP"])'''
-            # |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-            # |> yield(name: "mean")'''
             .format(startTime=start, stopTime=stop),
             dialect=Dialect(header=True, annotations=[], 
                             date_time_format='RFC3339', delimiter=","))
-
-        # Query Everything 1,000,000 minutes in the past from the dev bucket
-        # csv_iterator = client.query_api().query_csv(
-        #    '''from(bucket:"dev") |> range(start: -1000000m)''',
-        #      dialect=Dialect(header=True, annotations=[],
-        # date_time_format='RFC3339', delimiter=","))
 
         output = csv_iterator.to_values()
         # print(output)
