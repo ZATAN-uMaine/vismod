@@ -34,16 +34,22 @@ logger_serializer.addHandler(handler)
 zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
 organization = os.environ.get("INFLUXDB_V2_ORG")
 link = os.environ.get("INFLUXDB_V2_URL")
+zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
 # set paths for necessary files
 path_to_file = "../../tests/081523.tdms"
 calibration_table_path = "/raw-DAQ-files/sensorCalib.xlsx"
 
+"""
+This method takes a dataframe (df), and a bucket for input.
+Its purpose is to upload a dataframe to the database.
+"""
+
 
 def upload_data_frame(df, bucket):
     # Initialize data frame
     data_frame = df
-    bucket = bucket
+    bucket = zatan_bucket
     """
     "10A-Left", "10A-Right", "10A-TEMP",
                     "10B-Left", "10B-Right", "10B-TEMP",
@@ -61,7 +67,7 @@ def upload_data_frame(df, bucket):
     print()
     print("=== Ingesting DataFrame via batching API ===")
     print()
-    startTime = datetime.now()
+    start_time = datetime.now()
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         # Use batching API
         with cli.write_api(write_options=SYNCHRONOUS) as write_api:
@@ -76,13 +82,12 @@ def upload_data_frame(df, bucket):
                 ],
                 data_frame_measurement_name="PNB_Reading",
             )
-            # data_frame_timestamp_column="_time")
 
             print()
             print("Waiting to finish ingesting DataFrame...")
             print()
 
     print()
-    print(f"Import finished in: {datetime.now() - startTime}")
+    print(f"Import finished in: {datetime.now() - start_time}")
     print()
     return

@@ -12,6 +12,12 @@ load_dotenv(dotenv_path=Path(".env"))
 ourToken = os.environ.get("INFLUXDB_V2_TOKEN")
 organization = os.environ.get("INFLUXDB_V2_ORG")
 link = os.environ.get("INFLUXDB_V2_URL")
+zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
+
+"""
+This method converts a list to a string in Python.
+It takes a list as input.
+"""
 
 
 def list_to_string(list):
@@ -27,6 +33,13 @@ def list_to_string(list):
     return string
 
 
+"""
+This method generates the file name for the output file
+It takes a start time and a stop time as input.
+The format for these times is RFC3339.
+"""
+
+
 def generate_file_name(start, stop):
 
     # Remove time-related characters from start and stop dates
@@ -36,6 +49,34 @@ def generate_file_name(start, stop):
     file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}.csv"
 
     return file_name
+
+
+"""
+query_sensors is our custom and most up to date
+querying method. It takes a start time, stop time,
+and a list of desired sensors as input.
+
+
+    # Parameterized query for sensors
+    # sensors is a list
+    here is the full list of sensors (as of 3/3/24):
+                ["_measurement",
+                "10A-Left", "10A-Right", "10A-TEMP",
+                "10B-Left", "10B-Right", "10B-TEMP",
+                "17A-Left", "17A-Right", "17A-TEMP",
+                "17B-Left", "17B-Right", "17B-TEMP",
+                "2A-Left", "2A-Right", "2A-TEMP",
+                "2B-Left", "2B-Right", "2B-TEMP",
+                "External-Temperature",
+                "External-Wind-Direction",
+                "External-Wind-Speed"]
+    # to query your sensor follow the following format (EST):
+    # exportInfluxAsCSV.querySensors(
+    # 'YYYY-MM-DDT00:00:00.000+04:00',
+    # 'YYYY-MM-DDT00:00:00.000+04:00',
+    # [<sensorlist>])
+    # INCLUDE "_measurement" as an item in sensor list!!!
+"""
 
 
 def query_sensors(start, stop, sensors):
@@ -57,13 +98,10 @@ def query_sensors(start, stop, sensors):
     print("prototype formatting: ")
     print(repr(formatted_sensors))
 
-    #string_sensors = list_to_string(received_sensors)
-    #print("prototype formatting to string: ")
-    #print(string_sensors)
-
+    # Generate the file name for the output file
     file_name = generate_file_name(start, stop)
 
-    exportStartTime = datetime.now()
+    export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization)as client:
         # sensors is a list
         """ here is the full list of sensors (as of 3/3/24):
@@ -80,9 +118,9 @@ def query_sensors(start, stop, sensors):
         """
         csv_iterator = client.query_api().query_csv(
             '''
-                from(bucket: "dev")
-                |> range(start: {startTime},
-                  stop: {stopTime})
+                from(bucket: "{bucket_name}")
+                |> range(start: {start_time},
+                  stop: {stop_time})
                 |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
                 |> filter(fn: (r) => {sensor_list})
                 |>pivot(rowKey:["_time"],
@@ -90,8 +128,8 @@ def query_sensors(start, stop, sensors):
                          valueColumn: "_value")
                 |> drop(columns: ["result","_start","_stop","_measurement"])
             '''
-            .format(startTime=start, stopTime=stop, sensor_list=formatted_sensors),
-            dialect=Dialect(header=True, annotations=[], 
+            .format(bucket_name=str(zatan_bucket), start_time=start, stop_time=stop, sensor_list=formatted_sensors),
+            dialect=Dialect(header=True, annotations=[],
                             date_time_format='RFC3339', delimiter=","))
         #   |> filter(fn: (r) => r["_field"] == "10A-Left" or r["_field"] == "10A-Right" or r["_field"] == "10A-TEMP")
         output = csv_iterator.to_values()
@@ -109,13 +147,21 @@ def query_sensors(start, stop, sensors):
                 writer.writerow(new_row)
 
     print()
-    print(f"Export finished in: {datetime.now() - exportStartTime}")
+    print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
 
     print()
-    print(f"Export finished in: {datetime.now() - exportStartTime}")
+    print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
     return
+
+
+"""
+This method is used to query all sensors
+It takes a start time and a stop time as input. The format for these times is RFC3339.
+(currently using standard est, daylight savings would be +05:00)
+example: exportInfluxAsCSV.query_all_sensors('2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
+"""
 
 
 def query_all_sensors(start, stop):
@@ -127,8 +173,8 @@ def query_all_sensors(start, stop):
         # Query All Sensors
         csv_iterator = client.query_api().query_csv(
             '''
-                from(bucket: "dev")
-                |> range(start: {startTime},
+                from(bucket: "{bucket_name}")
+                |> range(start: {start_time},
                   stop: {stopTime})
                 |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
                 |> group(columns: ["_measurement",
@@ -146,8 +192,8 @@ def query_all_sensors(start, stop):
                          valueColumn: "_value")
                 |> drop(columns: ["result","_start","_stop","_measurement"])
             '''
-            .format(startTime=start, stopTime=stop),
-            dialect=Dialect(header=True, annotations=[], 
+            .format(bucket_name=str(zatan_bucket), start_time=start, stopTime=stop),
+            dialect=Dialect(header=True, annotations=[],
                             date_time_format='RFC3339', delimiter=","))
 
         output = csv_iterator.to_values()
@@ -164,24 +210,31 @@ def query_all_sensors(start, stop):
     print()
     return
 
+
 """
 This is the first successful query we wrote, and if needed can serve as a template method for querying each sensor individually.
-It takes the start and stop time as the input.
+It takes a start time and a stop time as input.
+The format for these times is RFC3339.
+This method specifically queries node 10 with sensors 10A, 10B, and Temp (UTC/GMT). Please see query_all_sensors for EST.
+example: exportInfluxAsCSV.query_sensors_10AB('2023-08-16T00:00:00.000Z', '2023-08-17T00:00:00.000Z')
+For EST please see query_all_sensors.
 """
-def querySensors10AB(start, stop):
 
-    exportStartTime = datetime.now()
+
+def query_sensors_10AB(start, stop):
+
+    export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
         # Query Sensors 10A-Left, 10A-Right, and 10A-Temp
         csv_iterator = client.query_api().query_csv(
-            '''from(bucket: "dev")
-                |> range(start: {startTime},
+            '''from(bucket: "{bucket_name}")
+                |> range(start: {start_time},
                   stop: {stopTime})
                 |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
                 |> group(columns: ["_measurement",
                   "10A-Left", "10A-Right", "10A-TEMP"])'''
-            .format(startTime=start, stopTime=stop),
-            dialect=Dialect(header=True, annotations=[], 
+            .format(bucket_name=str(zatan_bucket), start_time=start, stopTime=stop),
+            dialect=Dialect(header=True, annotations=[],
                             date_time_format='RFC3339', delimiter=","))
 
         output = csv_iterator.to_values()
@@ -191,9 +244,9 @@ def querySensors10AB(start, stop):
         with open('test.csv', mode='w', newline='') as file:
             print("writing to file")
             writer = csv.writer(file)
-            writer.writerows(output)    
+            writer.writerows(output)
 
     print()
-    print(f"Export finished in: {datetime.now() - exportStartTime}")
+    print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
     return
