@@ -23,6 +23,22 @@ class Pre_Processor:
         self.calib_table = calibration_dict
         self._check_calibration_dict()
 
+        # Proper indexing for a key here is just group#-ch#
+        self.tempCoeff = {
+            '43641-1': 2.07,
+            '43641-2': 2.98,
+            '45617-1': 0.80,
+            '45617-2': -0.58,
+            '43644-1': 3.31,
+            '43644-2': 2.49,
+            '43643-1': -2.40,
+            '43643-2': -1.37,
+            '43642-1': 2.52,
+            '43642-2': 1.25,
+            '45616-1': -1.03,
+            '45616-2': -0.34
+        }
+
     def _check_calibration_dict(self):
         """
         Does some sanity checks on the calibration table dictionary
@@ -65,28 +81,31 @@ class Pre_Processor:
         return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
 
-    def loadcell_offset(x: int, tempCoeff: tuple) -> int:
+    def loadcell_offset(self, temp, loadcell_id):
         """
-        Returns the offset added to a loadcell
-        Takes a tuple for now, not sure how we're going to fit in the 
-        temp coeffs yet.
+        Returns the offset added to a loadcell if its outside
+        the allowed temperature range between -30 and 140. 
+        Might be good to make this range a constant so its
+        easily changed.
         """
-        if x > 140:
-            return (140 - x) * tempCoeff[1]
-        elif x < -30:
-            return (30 - x) * tempCoeff[0]
+        if temp > 140:
+            return (140 - temp) * self.tempCoeff[loadcell_id]
+        elif temp < -30:
+            return (-30 - temp) * self.tempCoeff[loadcell_id]
         else:
             return 0
 
-    def calibrate_channel(channel, fun):
+    def calibrate_channel(self, channel, fun):
         """
         This will be a function that generalizes calibration
         `fun` would be a function/lambda that gets applied to a channel
         """
         cable_name = lcs[sensor_id][f"{channel}-Cable ID"]
-        strain = tdms_dict[f"{sensor_id}-ch1"]
-        cal_factor = lcs[sensor_id]["1-Cal_Factor"]
-        results[cable_name1] = strain * cal_factor
+        val = tdms_dict[f"{sensor_id}-ch{channel}"]
+        cal_factor = lcs[sensor_id][f"{channel}-Cal_Factor"]
+        offset = loadcell_offset(val, f"{sensor_id}-{channel}")
+        
+        return val * cal_factor + offset
     
     def apply_calibration(
         self,
@@ -111,16 +130,22 @@ class Pre_Processor:
             #           data * cal_factor + offset
 
             # strain left
-            cable_name1 = lcs[sensor_id]["1-Cable ID"]
+            cable_name = lcs[sensor_id]["1-Cable ID"]
             strain = tdms_dict[f"{sensor_id}-ch1"]
             cal_factor = lcs[sensor_id]["1-Cal_Factor"]
-            results[cable_name1] = strain * cal_factor
+            offset = tdms_dict[f"{sensor_id}-TEMP"].map(
+                lambda element: self.loadcell_offset(element, f"{sensor_id}-1")
+            )
+            results[cable_name] = strain * cal_factor + offset
 
             # strain right
-            cable_name2 = lcs[sensor_id]["2-Cable ID"]
+            cable_name = lcs[sensor_id]["2-Cable ID"]
             strain = tdms_dict[f"{sensor_id}-ch2"]
             cal_factor = lcs[sensor_id]["2-Cal_Factor"]
-            results[cable_name2] = strain * cal_factor
+            offset = tdms_dict[f"{sensor_id}-TEMP"].map(
+                lambda element: self.loadcell_offset(element, f"{sensor_id}-2")
+            )
+            results[cable_name] = strain * cal_factor + offset
 
         external_sensor = self.calib_table["Wind Sensor"]["Sensor ID"]
         results["External-Wind-Speed"] = tdms_dict[f"{external_sensor}-ch7"]
