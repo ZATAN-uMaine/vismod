@@ -1,4 +1,3 @@
-import pandas as pd
 import os
 import logging
 from datetime import datetime
@@ -19,14 +18,16 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 # Load environment
 load_dotenv(dotenv_path=Path(".env"))
 
+# Get the current date
+current_date = datetime.now().date()
+file_name = "{log_date}_influx_db_logs.txt".format(log_date=current_date)
 
 # Enable logging for DataFrame serializer
-
 logger_serializer = logging.getLogger(
     "influxdb_client.client.write.dataframe_serializer"
 )
 logger_serializer.setLevel(level=logging.DEBUG)
-handler = logging.StreamHandler()
+handler = logging.FileHandler(file_name)  # This sets the logging filename 
 handler.setFormatter(logging.Formatter("%(asctime)s | %(message)s"))
 logger_serializer.addHandler(handler)
 
@@ -37,8 +38,8 @@ link = os.environ.get("INFLUXDB_V2_URL")
 zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
 # set paths for necessary files
-path_to_file = "../../tests/081523.tdms"
-calibration_table_path = "/raw-DAQ-files/sensorCalib.xlsx"
+# path_to_file = "../../tests/081523.tdms"
+# calibration_table_path = "/raw-DAQ-files/sensorCalib.xlsx"
 
 """
 This method takes a dataframe (df), and a bucket for input.
@@ -51,6 +52,7 @@ def upload_data_frame(df, bucket):
     data_frame = df
     bucket = zatan_bucket
     """
+    List of all sensors as of 3.21/24
     "10A-Left", "10A-Right", "10A-TEMP",
                     "10B-Left", "10B-Right", "10B-TEMP",
                     "17A-Left", "17A-Right", "17A-TEMP",
@@ -62,8 +64,8 @@ def upload_data_frame(df, bucket):
                     "External-Wind-Speed"
     """
     # Initialize Database Client
-    print("=== Received dataFrame = ")
-    print(data_frame)
+    print("=== Received data_frame ===")
+    # print(data_frame)
     print()
     print("=== Ingesting DataFrame via batching API ===")
     print()
