@@ -25,18 +25,18 @@ class Pre_Processor:
 
         # Proper indexing for a key here is just group#-ch#
         self.tempCoeff = {
-            '43641-1': 2.07,
-            '43641-2': 2.98,
-            '45617-1': 0.80,
-            '45617-2': -0.58,
-            '43644-1': 3.31,
-            '43644-2': 2.49,
-            '43643-1': -2.40,
-            '43643-2': -1.37,
-            '43642-1': 2.52,
-            '43642-2': 1.25,
-            '45616-1': -1.03,
-            '45616-2': -0.34
+            "43641-1": 2.07,
+            "43641-2": 2.98,
+            "45617-1": 0.80,
+            "45617-2": -0.58,
+            "43644-1": 3.31,
+            "43644-2": 2.49,
+            "43643-1": -2.40,
+            "43643-2": -1.37,
+            "43642-1": 2.52,
+            "43642-2": 1.25,
+            "45616-1": -1.03,
+            "45616-2": -0.34,
         }
 
     def _check_calibration_dict(self):
@@ -80,11 +80,10 @@ class Pre_Processor:
         # Average the data in 1hr buckets
         return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
-
     def loadcell_offset(self, temp, loadcell_id):
         """
         Returns the offset added to a loadcell if its outside
-        the allowed temperature range between -30 and 140. 
+        the allowed temperature range between -30 and 140.
         Might be good to make this range a constant so its
         easily changed.
         """
@@ -104,9 +103,9 @@ class Pre_Processor:
         val = tdms_dict[f"{sensor_id}-ch{channel}"]
         cal_factor = lcs[sensor_id][f"{channel}-Cal_Factor"]
         offset = loadcell_offset(val, f"{sensor_id}-{channel}")
-        
+
         return val * cal_factor + offset
-    
+
     def apply_calibration(
         self,
         tdms_dict,
@@ -181,4 +180,4 @@ if __name__ == "__main__":
     data_path = "tdms_files/022924.tdms"
     print(pre_processor.get_local_data_as_dataframe(data_path))
 
-    #processed_data = pre_processor.load_and_process(data_path)
+    # processed_data = pre_processor.load_and_process(data_path)
