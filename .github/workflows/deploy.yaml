@@ -85,3 +85,10 @@ jobs:
           key: ${{secrets.PROD_SERVER_KEY}}
           options: |
             --extra-vars www_location=${{secrets.PROD_SERVER_HOSTNAME}} 
+        # the secrets for the project are stored in Github
+        # they get written to an env file by Ansible
+        env:
+          CONFIG_SHEETS_ID: ${{ secrets.CONFIG_SHEETS_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          PNB_DRIVE_ID: ${{ secrets.PNB_DRIVE_ID }}
+          INFLUXDB_V2_TOKEN: ${{ secrets.INFLUXDB_V2_TOKEN }}

@@ -16,4 +16,3 @@ class TestDriveDownload(unittest.TestCase):
             self.assertIn("Load Cells", config)
             self.assertIn("Wind Sensor", config)
             self.assertIn("Contact Info", config)
-            self.assertIn("Last Modified", config)

@@ -4,6 +4,9 @@ import json
 
 
 def fix_tdms_col_name(name: str) -> str:
+    """
+    Fixes the column names from the tdms file
+    """
     splits = name.split("'")
     if len(splits) != 5:
         return name
@@ -30,6 +33,9 @@ class Pre_Processor:
         assert len(self.calib_table["Load Cells"].keys()) > 0
 
     def _check_tdms(self, tdms_data):
+        """
+        Does some sanity checks on the tdms data
+        """
         for sensor in self.calib_table["Load Cells"].keys():
             assert f"{sensor}-TIME" in tdms_data
             assert f"{sensor}-TEMP" in tdms_data
@@ -45,7 +51,7 @@ class Pre_Processor:
         with TdmsFile.open(path) as tdms_file:
             data = tdms_file.as_dataframe()
 
-        # give the columns more sensible names
+        # Fix the column names
         data = data.rename(fix_tdms_col_name, axis="columns")
         self._check_tdms(data)
         return data
@@ -55,7 +61,7 @@ class Pre_Processor:
         return data
 
     def averageData(self, tdms_dict: pd.DataFrame):
-        # average the data in 1hr buckets
+        # Average the data in 1hr buckets
         return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
 
 
@@ -89,17 +95,14 @@ class Pre_Processor:
         """
         Creates new columns that apply correct callibration to strain sensors
         """
-
         results = pd.DataFrame()
-        # all of the sensor time fields *should* be in sync
-        results["_time"] = tdms_dict[
-            f"{list(self.calib_table['Load Cells'].keys())[0]}-TIME"
-        ]
-
         lcs = self.calib_table["Load Cells"]
 
+        # All of the sensor time fields *should* be in sync
+        results["_time"] = tdms_dict[f"{list(lcs.keys())[0]}-TIME"]
+
         for sensor_id in lcs.keys():
-            # temperature
+            # Temperature
             node_name = lcs[sensor_id]["1-Cable ID"].split("-")[0]
             cal_factor = lcs[sensor_id]["1-Cal_Factor"]
             results[f"{node_name}-TEMP"] = tdms_dict[f"{sensor_id}-TEMP"]
@@ -139,6 +142,8 @@ class Pre_Processor:
         return data
 
 
+# Allow this file to be run standalone
+# THIS IS JUST FOR TESTING!
 if __name__ == "__main__":
     # Load the calibration data from data.json
     with open("data.json", "r") as file:
