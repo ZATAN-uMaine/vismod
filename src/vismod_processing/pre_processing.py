@@ -99,12 +99,12 @@ class Pre_Processor:
         This will be a function that generalizes calibration
         `fun` would be a function/lambda that gets applied to a channel
         """
-        cable_name = lcs[sensor_id][f"{channel}-Cable ID"]
-        val = tdms_dict[f"{sensor_id}-ch{channel}"]
-        cal_factor = lcs[sensor_id][f"{channel}-Cal_Factor"]
-        offset = loadcell_offset(val, f"{sensor_id}-{channel}")
+        # cable_name = lcs[sensor_id][f"{channel}-Cable ID"]
+        # val = tdms_dict[f"{sensor_id}-ch{channel}"]
+        # cal_factor = lcs[sensor_id][f"{channel}-Cal_Factor"]
+        # offset = loadcell_offset(val, f"{sensor_id}-{channel}")
 
-        return val * cal_factor + offset
+        # return val * cal_factor + offset
 
     def apply_calibration(
         self,

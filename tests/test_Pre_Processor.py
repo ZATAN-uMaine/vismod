@@ -6,22 +6,17 @@ from vismod_processing.pre_processing import Pre_Processor
 
 
 def csv_as_dataframe(filename):
-    result = {}
-    with open(filename, "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            for key, value in row.items():
-                if key not in result:
-                    result[key] = []
-                try:
-                    result[key].append(float(value))
-                except ValueError:
-                    result[key].append(value)
-    csvfile.close()
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(filename, sep=";")
+
+    # Transpose the DataFrame to get data column-wise
+    result = df.T.to_dict(orient="list")
+
     return result
 
 
 class TestPreProcessor(unittest.TestCase):
+
     def setUp(self):
         self.config = json.load(open("tests/data/example-config.json"))
 
@@ -158,6 +153,4 @@ class TestPreProcessor(unittest.TestCase):
             "tests/data/081523.tdms"
         )
 
-        self.assertEqual(
-            self.benchmark["17AL-LC"][1], tdms_frame["17AL-LC"].iloc[1]
-        )
+        self.assertEqual(benchmark["17AL-LC"][1], tdms_frame["17AL-LC"].iloc[1])
