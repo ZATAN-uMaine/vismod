@@ -151,5 +151,8 @@ class TestPreProcessor(unittest.TestCase):
         tdms_frame = self.pre_processor.load_and_process(
             "tests/data/081523.tdms"
         )
-
-        self.assertEqual(benchmark["17AL-LC"][1], tdms_frame["17AL-LC"].iloc[1])
+        # fmt: off
+        self.assertEqual(
+            benchmark["17AL-LC"][1], tdms_frame["17AL-LC"].iloc[1]
+        )
+        # fmt: on
