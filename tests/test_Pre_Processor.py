@@ -16,7 +16,6 @@ def csv_as_dataframe(filename):
 
 
 class TestPreProcessor(unittest.TestCase):
-
     def setUp(self):
         self.config = json.load(open("tests/data/example-config.json"))
 
