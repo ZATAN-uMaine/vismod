@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, HttpError
 
 # Constants for the file paths and names
-LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt" # TODO: Change this to a more permanent location # noqa
+LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt"  # TODO: Change this to a more permanent location # noqa
 LOCAL_TDMS_STORAGE_DIR = "/tmp/vismod_tdms_files"
 
 
