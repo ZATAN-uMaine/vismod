@@ -7,6 +7,7 @@ from vismod_processing import data_fetch
 
 
 def main():
+    """ Main function to run the data processing pipeline"""
     load_dotenv()
 
     data_files = data_fetch.tdmsDownload()
@@ -28,6 +29,9 @@ def main():
 
         # call upload script
         importDataFromPandas.uploadDataFrame(data, "dev")
+
+    # Clean up tmp files
+    data_fetch.cleanTmpFiles()
 
 
 if __name__ == "__main__":
