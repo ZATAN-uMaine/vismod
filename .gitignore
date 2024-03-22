@@ -10,3 +10,15 @@ dist
 **/*.egg-info
 .hatch
 .pytest_cache
+
+# Created by scripts
+config.csv
+data.json
+tdms_files/*
+previous_downloads.txt
+
+# some prettier jsons
+.prettierrc
+package-lock.json
+package.json
+node_modules

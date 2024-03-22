@@ -1,0 +1,134 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100vh;
+}
+
+body * {
+    font-family: 'open sans', Helvetica, sans-serif;
+}
+
+#navigation-bar {
+    display: flex;
+    align-items: center;
+    border-bottom: thick double #202020;
+    font-size: large;
+}
+
+.navigation-item {
+    display: table;
+}
+
+.navigation-item * {
+    display: table-cell;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.navigation-item a {
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+    margin: 0 auto;
+}
+.navigation-item a:hover {
+    background-color: #202020;
+}
+
+#dateRangeBox {
+    float: right;
+    display: flex;
+    /* flex-direction: column; */
+    height: 100%;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: medium;
+}
+
+.dateSelectorBox {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+mark {
+    background-color: darkslateblue;
+    color: aliceblue;
+}
+
+/* For hiding labels */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+/* Indicates that circle and trianlges on the bridge graphic are clickable */
+circle,
+.triangle {
+    cursor: pointer;
+}
+
+.bridge-area {
+    padding: 30px 30px;
+    background-color: #1e1e1e;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    color: black;
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#dataInfo {
+    display: table;
+}
