@@ -175,10 +175,10 @@ def query_sensors(start, stop, sensors):
 
 """
 This method is used to query all sensors
-It takes a start time and a stop time as input.\
+It takes a start time and a stop time as input.
 The format for these times is RFC3339.
 (currently using standard est, daylight savings would be +05:00)
-example: 
+example:
 exportInfluxAsCSV.query_all_sensors(
     '2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
 """
