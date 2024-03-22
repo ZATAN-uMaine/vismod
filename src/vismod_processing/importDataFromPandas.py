@@ -27,7 +27,7 @@ logger_serializer = logging.getLogger(
     "influxdb_client.client.write.dataframe_serializer"
 )
 logger_serializer.setLevel(level=logging.DEBUG)
-handler = logging.FileHandler(file_name)  # This sets the logging filename 
+handler = logging.FileHandler(file_name)  # This sets the logging filename
 handler.setFormatter(logging.Formatter("%(asctime)s | %(message)s"))
 logger_serializer.addHandler(handler)
 
@@ -78,9 +78,9 @@ def upload_data_frame(df, bucket):
                 record=data_frame,
                 # Fields are the columns that are not identified as tags.
                 data_frame_tag_columns=[
-                 #    "External-Wind-Speed",
-                 #    "External-Wind-Direction",
-                 #    "External-Temperature",
+                    #    "External-Wind-Speed",
+                    #    "External-Wind-Direction",
+                    #    "External-Temperature",
                 ],
                 data_frame_measurement_name="PNB_Reading",
             )

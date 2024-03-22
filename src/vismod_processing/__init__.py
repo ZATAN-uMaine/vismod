@@ -1,11 +1,9 @@
 from dotenv import load_dotenv
-import json
 from vismod_processing import pre_processing
 from vismod_processing import importDataFromPandas
 from vismod_processing import exportInfluxAsCSV
 from vismod_processing import config_fetch
 from vismod_processing import data_fetch
-
 
 
 def main():
@@ -23,7 +21,6 @@ def main():
     config = config_fetch.download_config()
     print(config)
     proc = pre_processing.Pre_Processor(config)
-    
 
     for df in data_files:
         data = proc.load_and_process(df)
@@ -34,10 +31,13 @@ def main():
     sensor_list = ["_measurement", "10A-Left", "10A-Right"]
     # call upload script
     importDataFromPandas.upload_data_frame(data, "dev")
-    # call exporting script
-    exportInfluxAsCSV.query_sensors('2023-08-15T04:00:00.000+04:00',
-                                    '2023-08-17T00:00:00.000+04:00',
-                                    sensor_list)
+
+    sensor_list = ["_measurement", "10A-Left", "10A-Right"]
+    exportInfluxAsCSV.query_sensors(
+        "2023-08-15T04:00:00.000+04:00",
+        "2023-08-17T00:00:00.000+04:00",
+        sensor_list,
+    )
 
     # Clean up tmp files
     data_fetch.cleanTmpFiles()
