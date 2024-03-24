@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
-
 from vismod_processing import pre_processing
 from vismod_processing import importDataFromPandas
+from vismod_processing import exportInfluxAsCSV
 from vismod_processing import config_fetch
 from vismod_processing import data_fetch
 
@@ -27,8 +27,17 @@ def main():
         print(data.head())
         print(data.columns)
 
-        # call upload script
-        importDataFromPandas.uploadDataFrame(data, "dev")
+    # sensor list for exporting script
+    sensor_list = ["_measurement", "10A-Left", "10A-Right"]
+    # call upload script
+    importDataFromPandas.upload_data_frame(data, "dev")
+
+    sensor_list = ["_measurement", "10A-Left", "10A-Right"]
+    exportInfluxAsCSV.query_sensors(
+        "2023-08-15T04:00:00.000+04:00",
+        "2023-08-17T00:00:00.000+04:00",
+        sensor_list,
+    )
 
     # Clean up tmp files
     data_fetch.cleanTmpFiles()
