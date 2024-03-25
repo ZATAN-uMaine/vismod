@@ -114,7 +114,33 @@ def list_tdms_files(service):
     return file_list
 
 
-def tdmsDownload() -> list[str]:
+def get_specified_tdms_file(service, file_name):
+    """
+    Finds a specified TDMS file by name.
+    """
+    FOLDER_ID = os.getenv("FOLDER_ID")
+    query = (
+        f"'{FOLDER_ID}' in parents and "
+        "(mimeType='application/octet-stream' or mimeType='text/plain') "
+        "and trashed=false"
+        f"and name ='{file_name}'"
+    )
+    results = exponential_backoff_request(
+        lambda: service.files().list(
+            q=query,
+            spaces="drive",
+            fields="files(id, name, createdTime)",
+            pageSize=2,  # Request only the newest file
+            supportsAllDrives=True,
+        )
+    )
+    results = results.get("files", [])
+    if not results:
+        return []
+    return results
+
+
+def tdmsDownload(target_file=None) -> list[str]:
     """
     Downloads TDMS files from Drive.
     Returns list of string file paths for any new TDMS files.
@@ -128,8 +154,11 @@ def tdmsDownload() -> list[str]:
     previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
-    # Get the list of files
-    data_file_list = list_tdms_files(service)
+    data_file_list = []
+    if target_file is not None:
+        data_file_list = get_specified_tdms_file(service, target_file)
+    else:
+        data_file_list = list_tdms_files(service)
 
     # Create the local storage directory if it doesn't exist
     if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):

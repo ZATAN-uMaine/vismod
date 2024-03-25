@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+import sys
+
 from vismod_processing import pre_processing
 from vismod_processing import importDataFromPandas
 from vismod_processing import exportInfluxAsCSV
@@ -10,7 +12,12 @@ def main():
     """Main function to run the data processing pipeline"""
     load_dotenv()
 
-    data_files = data_fetch.tdmsDownload()
+    target_file = None
+    if len(sys.argv) == 2:
+        target_file = sys.argv[1]
+        print(f"Running with specific TDMS file {target_file}")
+
+    data_files = data_fetch.tdmsDownload(target_file=target_file)
     print(data_files)
 
     if len(data_files) == 0:
