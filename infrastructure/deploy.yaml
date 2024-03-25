@@ -40,6 +40,22 @@
         state: present
         extra_args: --user
 
+    # in the deployment CI pipeline, secrets are made available as ENV vars
+    - name: "Lookup secrets"
+      set_fact:
+        CONFIG_SHEETS_ID: "{{ lookup('env', 'CONFIG_SHEETS_ID')  or 'XXXX' }}"
+        GOOGLE_API_KEY: "{{ lookup('env', 'GOOGLE_API_KEY')  or 'XXXX' }}"
+        PNB_DRIVE_ID: "{{ lookup('env', 'PNB_DRIVE_ID')  or 'XXXX' }}"
+        INFLUXDB_V2_TOKEN: "{{ lookup('env', 'INFLUXDB_V2_TOKEN')  or 'XXXX' }}"
+
+    # secrets are stored in GH
+    - name: "Create Secrets env file"
+      template:
+        src: "secrets"
+        dest: "/home/vismod/vismod.env"
+        owner: "vismod"
+        mode: "600"
+
     - name: "Copy flask service"
       copy:
         src: "flask-web.service"
