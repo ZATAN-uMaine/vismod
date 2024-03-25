@@ -50,20 +50,11 @@ class Pre_Processor:
         self._check_tdms(data)
         return data
 
-    def data_to_influx_shape(self, data: pd.DataFrame) -> pd.DataFrame:
-        data = data.set_index("_time")
-        return data
-
     def averageData(self, tdms_dict: pd.DataFrame):
-        # average the data in 1hr buckets
+        """
+        Average data into buckets.
+        """
         return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
-
-    def calibrate_channel(channel, fun):
-        """
-        This will be a function that generalizes calibration
-        `fun` would be a function/lambda that gets applied to a channel
-        """
-        return None
 
     def apply_calibration(
         self,
@@ -113,7 +104,7 @@ class Pre_Processor:
         """
         data = self.get_local_data_as_dataframe(data_path)
         data = self.apply_calibration(data)
-        data = self.data_to_influx_shape(data)
+        data = data.set_index("_time")
         data = self.averageData(data)
         return data
 
