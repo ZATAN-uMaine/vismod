@@ -16,6 +16,7 @@ config.csv
 data.json
 tdms_files/*
 previous_downloads.txt
+*_logs.txt
 
 # some prettier jsons
 .prettierrc
