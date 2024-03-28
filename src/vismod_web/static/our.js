@@ -146,3 +146,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 })
+
+function sendData() { 
+    var value = selectedSensor
+    $.ajax({ 
+        url: '/download_csv', 
+        type: 'GET', 
+        data: { 'sensor': value }, 
+        success: function(response) { 
+            console.log("CSV INCOMING");
+            const blob = new Blob([response], {type: 'text/csv'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'data.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 
+        error: function(error) { 
+            console.log("ERROR INCOMING")
+            console.log(error); 
+        } 
+    }); 
+} 

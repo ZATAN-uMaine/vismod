@@ -8,6 +8,7 @@ from influxdb_client import InfluxDBClient, Dialect
 # Load environment
 load_dotenv(dotenv_path=Path(".env"))
 
+
 # Load database secrets
 ourToken = os.environ.get("INFLUXDB_V2_TOKEN")
 organization = os.environ.get("INFLUXDB_V2_ORG")
@@ -285,3 +286,19 @@ def query_sensors_10AB(start, stop):
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
     return
+
+
+def string_process(st):
+    return st*2
+
+
+def generate_csv():
+    # Example: Generate CSV content
+    csv_data = [
+        ['Name', 'Age', 'City'],
+        ['John', 30, 'New York'],
+        ['Alice', 25, 'London'],
+        ['Bob', 35, 'Paris']
+    ]
+
+    return csv_data

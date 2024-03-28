@@ -17,6 +17,10 @@
         <link rel="stylesheet" type="text/css" href="static/our.css" />
         <link rel="stylesheet" type="text/css" href="static/theme-dark.css" />
         <script type="text/javascript" src="static/our.js"></script>
+        <script 
+            type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
+        </script>
     </head>
 
     <body class="dark" id="body">
@@ -230,7 +234,10 @@
                     </button>
                 </div>
                 <div class="pure-u-1-4">
-                    <button id="download-node-data" class="pure-button">
+                    <button 
+                        id="download-node-data"
+                        onclick="sendData()"
+                        class="pure-button">
                         DOWNLOAD
                     </button>
                 </div>
