@@ -8,7 +8,7 @@ import pandas as pd
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-# Team Zatan 2024
+# Team ZATAN 2024
 # To learn more about InfluxDB's Python Client API visit:
 """
     Docs:
@@ -104,9 +104,7 @@ def upload_data_frame(data_frame):
                 bucket=zatan_bucket,
                 record=data_frame,
                 # Fields are the columns that are not identified as tags.
-                data_frame_tag_columns=[
-                    "node"
-                ],
+                data_frame_tag_columns=["node"],
                 data_frame_measurement_name="NodeStrain",
             )
 
