@@ -144,9 +144,14 @@ class Pre_Processor:
 
     def load_and_process(self, data_path):
         """
-        Call to process a data file once this class has been initialized
+        Call to process a data file once this class has been initialized.
+        Return None if the data file is invalid.
         """
-        data = self.get_local_data_as_dataframe(data_path)
+        try:
+            data = self.get_local_data_as_dataframe(data_path)
+        except ValueError:
+            print(f"TDMS file {data_path} appears to have invalid format.")
+            return None
         data = self.apply_calibration(data)
         data = data.set_index("_time")
         data = self.averageData(data)
