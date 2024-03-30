@@ -171,7 +171,7 @@ def query_sensors(start, stop, sensors):
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
-    return
+    return file_name
 
 
 """
@@ -186,8 +186,9 @@ exportInfluxAsCSV.query_all_sensors(
 
 
 def query_all_sensors(start, stop):
-
-    file_name = generate_file_name(start, stop)
+    parent = Path("src/vismod_web/")
+    csv_path = Path("user_csvs") / generate_file_name(start, stop)
+    write_to = parent / csv_path
 
     export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
@@ -227,15 +228,15 @@ def query_all_sensors(start, stop):
         # print(output)
         print()
 
-        with open(file_name, mode="w", newline="") as file:
-            print("Writing to file: ", file_name)
+        with open(write_to, mode="w", newline="") as file:
+            print("Writing to file: ", csv_path)
             writer = csv.writer(file)
             for row in output:
                 writer.writerow(row[3:])
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
-    return
+    return csv_path
 
 
 """

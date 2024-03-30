@@ -33,9 +33,12 @@ logger_serializer.addHandler(handler)
 
 # Load database secrets
 zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
+print(f"ZZZZ: ZATAN TOKEN: {zatan_token}")
 organization = os.environ.get("INFLUXDB_V2_ORG")
+print(f"ZZZZ: ZATAN ORG : {organization}")
 link = os.environ.get("INFLUXDB_V2_URL")
 zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
+print(f"ZZZZ: ZATAN BUCKET: {zatan_bucket}")
 
 # set paths for necessary files
 # path_to_file = "../../tests/081523.tdms"

@@ -1,4 +1,4 @@
-var selectedSensor = 'sensor1' // default value
+var selectedSensor = 'sensor2A' // default value
 var selectedStartDay = ''
 var selectedStartHour = ''
 var selectedEndDay = ''
@@ -101,6 +101,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
+    updateDateRangeSelection()
+
     startDaySelector.addEventListener('change', function () {
         endDaySelector.min = this.value
         enforceTimeConstraints()
@@ -148,13 +150,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
 })
 
 function sendData() { 
-    var value = selectedSensor
+    alert("The creation and subsequent download of your csv will occur after you click \"OK\". \nBy clicking \"OK\", you acknowledge that the data downloaded does not reflect the structual integrity of the Penobscot Narrows Bridge.")
     $.ajax({ 
         url: '/download_csv', 
         type: 'GET', 
-        data: { 'sensor': value }, 
+        data: { 
+            'sensor'    :   selectedSensor,
+            'startDay'  :   selectedStartDay,
+            'startHour' :   selectedStartHour,
+            'endDay'    :   selectedEndDay,
+            'endHour'   :   selectedEndHour
+        }, 
         success: function(response) { 
             console.log("CSV INCOMING");
+            // console.log(response)
             const blob = new Blob([response], {type: 'text/csv'});
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
