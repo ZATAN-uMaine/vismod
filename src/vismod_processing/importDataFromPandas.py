@@ -112,6 +112,7 @@ def upload_data_frame(data_frame):
             )
 
             print("Waiting to finish ingesting DataFrame...")
+            InfluxDBClient.close(cli)
 
     print(f"Import finished in: {datetime.now() - start_time}")
     return

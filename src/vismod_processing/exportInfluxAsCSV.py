@@ -198,7 +198,7 @@ def query_all_sensors(start, stop):
                 from(bucket: "{bucket_name}")
                 |> range(start: {start_time},
                   stop: {stopTime})
-                |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
+                |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
                 |> group(columns: ["_measurement",
                   "10A-Left", "10A-Right", "10A-TEMP",
                   "10B-Left", "10B-Right", "10B-TEMP",

@@ -51,8 +51,16 @@ def download_csv():
     start_request = f"{startDay}T{startHour}:00:00.000+4:00"
     end_request = f"{endDay}T{endHour}:00:00.000+4:00"
 
+    print(f"START REQUEST: {start_request}")
+    print(f"END REQUEST: {end_request}")
+
     file = str(query_all_sensors(start=start_request, stop=end_request))
-    return file
+    return send_file(
+        file,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name="data.csv"
+    )
 
 
 @app.route('/test_download', methods=['GET'])
