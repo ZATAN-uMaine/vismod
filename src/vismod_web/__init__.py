@@ -48,11 +48,11 @@ def download_csv():
     endDay = request.args.get('endDay')
     endHour = request.args.get('endHour')
 
-    start_request = f"{startDay}T{startHour}:00:00.000+4:00"
-    end_request = f"{endDay}T{endHour}:00:00.000+4:00"
+    start_request = f'{startDay}T{startHour}:00:00.000+04:00'
+    end_request = f'{endDay}T{endHour}:00:00.000+04:00'
 
-    print(f"START REQUEST: {start_request}")
-    print(f"END REQUEST: {end_request}")
+    # print(f"START REQUEST: {start_request}")
+    # print(f"END REQUEST: {end_request}")
 
     file = str(query_all_sensors(start=start_request, stop=end_request))
     return send_file(
