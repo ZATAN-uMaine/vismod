@@ -68,28 +68,33 @@ def download_csv():
             f"""processing download request for all sensors from \
               {start_request} to {end_request}"""
         )
-        file = str(query_all_sensors(start=start_request, stop=end_request))
+        csv_path = query_all_sensors(start=start_request, stop=end_request)
     else:
         logging.info(
             f"""processing download request for sensor \
               {sensor} from {start_request} to {end_request} """
         )
-        file = str(
-            query_sensors(
-                start=start_request,
-                stop=end_request,
-                sensors=[
-                    sensor,
-                    sensor + "-Left",
-                    sensor + "-Right",
-                    "External-Temperature",
-                    "External-Wind-Direction",
-                    "External-Wind-Speed",
-                ],
-            )
+        csv_path = query_sensors(
+            start=start_request,
+            stop=end_request,
+            sensors=[
+                sensor,
+                sensor + "-Left",
+                sensor + "-Right",
+                "External-Temperature",
+                "External-Wind-Direction",
+                "External-Wind-Speed",
+            ],
         )
 
     logging.info("Finished processing sensor file")
+    if csv_path is None:
+        logging.info("Telling client that no data was found")
+        # HTTP 204 = "No Content"
+        return "No data found", 204
     return send_file(
-        file, mimetype="text/csv", as_attachment=True, download_name="data.csv"
+        csv_path,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="data.csv",
     )

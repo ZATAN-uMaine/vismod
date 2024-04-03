@@ -172,6 +172,9 @@ def query_sensors(start, stop, sensors):
         )
         output = csv_iterator.to_values()
         logging.info(f"Found {len(output)} rows to export")
+        if len(output) == 0 or len(output) == 1:
+            logging.info(f"download_csv found no data from {start} to {stop}")
+            return None
 
         with open(write_to, mode="w", newline="") as file:
             writer = csv.writer(file)
@@ -238,6 +241,9 @@ def query_all_sensors(start, stop):
 
         output = csv_iterator.to_values()
         logging.info(f"Found {len(output)} rows to export")
+        if len(output) == 0 or len(output) == 1:
+            logging.info(f"download_csv found no data from {start} to {stop}")
+            return None
 
         with open(write_to, mode="w", newline="") as file:
             writer = csv.writer(file)
