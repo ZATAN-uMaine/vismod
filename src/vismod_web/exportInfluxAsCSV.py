@@ -1,13 +1,8 @@
 import os
 import csv
 from datetime import datetime
-from dotenv import load_dotenv
 from pathlib import Path
 from influxdb_client import InfluxDBClient, Dialect
-
-# Load environment
-load_dotenv(dotenv_path=Path(".env"))
-
 
 # Load database secrets
 ourToken = os.environ.get("INFLUXDB_V2_TOKEN")
@@ -39,14 +34,12 @@ AUXILIARY_UNITS = {
 }
 ALL_UNITS = {**STRAIN_UNITS, **AUXILIARY_UNITS}
 
-"""
-This method converts a list to a string in Python.
-It takes a list as input.
-"""
-
 
 def list_to_string(list):
-
+    """
+    This method converts a list to a string in Python.
+    It takes a list as input.
+    """
     # initialize an empty string
     string = ""
 
@@ -58,15 +51,12 @@ def list_to_string(list):
     return string
 
 
-"""
-This method generates the file name for the output file
-It takes a start time and a stop time as input.
-The format for these times is RFC3339.
-"""
-
-
 def generate_file_name(start, stop):
-
+    """
+    This method generates the file name for the output file
+    It takes a start time and a stop time as input.
+    The format for these times is RFC3339.
+    """
     # Remove time-related characters from start and stop dates
     fileStartDate = start[:10]  # Extract YYYY-MM-DD from start string
     fileStopDate = stop[:10]  # Extract YYYY-MM-DD from stop string
@@ -81,14 +71,12 @@ def generate_file_name(start, stop):
     return file_name
 
 
-"""
-This method takes the list of sensors as input
-and outputs them into a formatted query string
-to be injected into the query.
-"""
-
-
 def format_sensor_list(sensors):
+    """
+    This method takes the list of sensors as input
+    and outputs them into a formatted query string
+    to be injected into the query.
+    """
     # require that the passed sensors match pre-determined sensors
     received_sensors = [sensor for sensor in sensors if sensor in ALL_SENSORS]
     print("Valid sensors received: ")
@@ -106,35 +94,33 @@ def format_sensor_list(sensors):
     return formatted_sensors
 
 
-"""
-query_sensors is our custom and most up to date
-querying method. It takes a start time, stop time,
-and a list of desired sensors as input.
-
-
-    # Parameterized query for sensors
-    # sensors is a list
-    here is the full list of sensors (as of 3/3/24):
-                ["_measurement",
-                "10A-Left", "10A-Right", "10A-TEMP",
-                "10B-Left", "10B-Right", "10B-TEMP",
-                "17A-Left", "17A-Right", "17A-TEMP",
-                "17B-Left", "17B-Right", "17B-TEMP",
-                "2A-Left", "2A-Right", "2A-TEMP",
-                "2B-Left", "2B-Right", "2B-TEMP",
-                "External-Temperature",
-                "External-Wind-Direction",
-                "External-Wind-Speed"]
-    # to query your sensor follow the following format (EST):
-    # exportInfluxAsCSV.querySensors(
-    # 'YYYY-MM-DDT00:00:00.000+04:00',
-    # 'YYYY-MM-DDT00:00:00.000+04:00',
-    # [<sensorlist>])
-    # INCLUDE "_measurement" as an item in sensor list!!!
-"""
-
-
 def query_sensors(start, stop, sensors):
+    """
+    query_sensors is our custom and most up to date
+    querying method. It takes a start time, stop time,
+    and a list of desired sensors as input.
+
+
+        # Parameterized query for sensors
+        # sensors is a list
+        here is the full list of sensors (as of 3/3/24):
+                    ["_measurement",
+                    "10A-Left", "10A-Right", "10A-TEMP",
+                    "10B-Left", "10B-Right", "10B-TEMP",
+                    "17A-Left", "17A-Right", "17A-TEMP",
+                    "17B-Left", "17B-Right", "17B-TEMP",
+                    "2A-Left", "2A-Right", "2A-TEMP",
+                    "2B-Left", "2B-Right", "2B-TEMP",
+                    "External-Temperature",
+                    "External-Wind-Direction",
+                    "External-Wind-Speed"]
+        # to query your sensor follow the following format (EST):
+        # exportInfluxAsCSV.querySensors(
+        # 'YYYY-MM-DDT00:00:00.000+04:00',
+        # 'YYYY-MM-DDT00:00:00.000+04:00',
+        # [<sensorlist>])
+        # INCLUDE "_measurement" as an item in sensor list!!!
+    """
     parent = Path("src/vismod_web/")
     csv_path = Path("user_csvs") / generate_file_name(start, stop)
     write_to = parent / csv_path
@@ -210,18 +196,16 @@ def query_sensors(start, stop, sensors):
     return csv_path
 
 
-"""
-This method is used to query all sensors
-It takes a start time and a stop time as input.
-The format for these times is RFC3339.
-(currently using standard est, daylight savings would be +05:00)
-example:
-exportInfluxAsCSV.query_all_sensors(
-    '2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
-"""
-
-
 def query_all_sensors(start, stop):
+    """
+    This method is used to query all sensors
+    It takes a start time and a stop time as input.
+    The format for these times is RFC3339.
+    (currently using standard est, daylight savings would be +05:00)
+    example:
+    exportInfluxAsCSV.query_all_sensors(
+        '2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
+    """
     parent = Path("src/vismod_web/")
     csv_path = Path("user_csvs") / generate_file_name(start, stop)
     write_to = parent / csv_path
@@ -280,21 +264,18 @@ def query_all_sensors(start, stop):
     return csv_path
 
 
-"""
-This is the first successful query we wrote, and if needed can serve as
-a template method for querying each sensor individually.
-It takes a start time and a stop time as input.
-The format for these times is RFC3339.
-This method specifically queries node 10 with sensors 10A, 10B,
- and Temp (UTC/GMT). Please see query_all_sensors for EST.
-example: exportInfluxAsCSV.query_sensors_10AB(
-    '2023-08-16T00:00:00.000Z', '2023-08-17T00:00:00.000Z')
-For EST please see query_all_sensors.
-"""
-
-
 def query_sensors_10AB(start, stop):
-
+    """
+    This is the first successful query we wrote, and if needed can serve as
+    a template method for querying each sensor individually.
+    It takes a start time and a stop time as input.
+    The format for these times is RFC3339.
+    This method specifically queries node 10 with sensors 10A, 10B,
+    and Temp (UTC/GMT). Please see query_all_sensors for EST.
+    example: exportInfluxAsCSV.query_sensors_10AB(
+        '2023-08-16T00:00:00.000Z', '2023-08-17T00:00:00.000Z')
+    For EST please see query_all_sensors.
+    """
     export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
         # Query Sensors 10A-Left, 10A-Right, and 10A-Temp
@@ -332,15 +313,3 @@ def query_sensors_10AB(start, stop):
 
 def string_process(st):
     return st * 2
-
-
-def generate_csv():
-    # Example: Generate CSV content
-    csv_data = [
-        ["Name", "Age", "City"],
-        ["John", 30, "New York"],
-        ["Alice", 25, "London"],
-        ["Bob", 35, "Paris"],
-    ]
-
-    return csv_data
