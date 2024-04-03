@@ -127,6 +127,7 @@ def query_sensors(start, stop, sensors):
     csv_path = generate_file_name(start, stop)
     write_to = parent / csv_path
     formatted_sensors = format_sensor_list(sensors)
+    logging.info(f"Querying sensors: {sensors} from {start} to {stop}")
 
     export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
