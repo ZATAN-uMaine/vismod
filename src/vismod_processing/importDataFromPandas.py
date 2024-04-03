@@ -35,12 +35,9 @@ logger_serializer.addHandler(handler)
 
 # Load database secrets
 zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
-print(f"ZZZZ: ZATAN TOKEN: {zatan_token}")
 organization = os.environ.get("INFLUXDB_V2_ORG")
-print(f"ZZZZ: ZATAN ORG : {organization}")
 link = os.environ.get("INFLUXDB_V2_URL")
 zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
-print(f"ZZZZ: ZATAN BUCKET: {zatan_bucket}")
 
 # data fields that are *not* strain levels on a node
 WEATHER_COLUMNS = [
@@ -65,8 +62,8 @@ def df_to_influx_format(data_frame: pd.DataFrame):
 
     results = []
     for col in data_frame.columns:
-        if col in WEATHER_COLUMNS:
-            continue
+        # if col in WEATHER_COLUMNS:
+        #     continue
         print(col)
         sparse_frame = pd.DataFrame(index=data_frame.index)
         sparse_frame["_value"] = data_frame[col]

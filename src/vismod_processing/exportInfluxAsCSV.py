@@ -15,6 +15,28 @@ organization = os.environ.get("INFLUXDB_V2_ORG")
 link = os.environ.get("INFLUXDB_V2_URL")
 zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
+# default values for querying -- these get pruned for specific requests
+STRAIN_SENSORS = [  # easier  to add sensors with comprehension (?)
+    sensor
+    for x in ['2', '10', '17']
+    for sensor in (x+"A-Left", x+"A-Right", x+"B-Left", x+"B-Right")
+]
+AUXILIARY_SENSORS = [
+    "External-Temperature", "External-Wind-Direction", "External-Wind-Speed"
+]
+ALL_SENSORS = STRAIN_SENSORS + AUXILIARY_SENSORS
+
+STRAIN_UNITS = {  # every stay gets the same unit
+    key: "strain (lbs)" for key in STRAIN_SENSORS
+}
+AUXILIARY_UNITS = {
+    "_time": "",
+    "External-Temperature": "degrees (F)",
+    "External-Wind-Direction": "angle (degrees)",
+    "External-Wind-Speed": "feet/second"
+}
+ALL_UNITS = {**STRAIN_UNITS, **AUXILIARY_UNITS}
+
 """
 This method converts a list to a string in Python.
 It takes a list as input.
@@ -46,8 +68,12 @@ def generate_file_name(start, stop):
     # Remove time-related characters from start and stop dates
     fileStartDate = start[:10]  # Extract YYYY-MM-DD from start string
     fileStopDate = stop[:10]  # Extract YYYY-MM-DD from stop string
+    now = datetime.now()
+    time_since_midnight = now - now.replace(
+                                hour=0, minute=0, second=0, microsecond=0)
+    stamp = round(time_since_midnight.total_seconds() * 1000)
 
-    file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}.csv"
+    file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}_{stamp}.csv"
 
     return file_name
 
@@ -60,15 +86,16 @@ to be injected into the query.
 
 
 def format_sensor_list(sensors):
-    received_sensors = sensors
-    print("sensors received: ")
+    # require that the passed sensors match pre-determined sensors
+    received_sensors = [sensor for sensor in sensors if sensor in ALL_SENSORS]
+    print("Valid sensors received: ")
     print(received_sensors)
 
     for index, item in enumerate(received_sensors):
         if index == 0:
-            received_sensors[index] = 'r["_field"] == "' + item + '"'
+            received_sensors[index] = 'r["node"] == "' + item + '"'
         else:
-            received_sensors[index] = ' or r["_field"] == "' + item + '"'
+            received_sensors[index] = ' or r["node"] == "' + item + '"'
     partially_formatted_sensors = list_to_string(received_sensors)
     print("partial format applied: ")
     print(repr(partially_formatted_sensors))
@@ -105,11 +132,10 @@ and a list of desired sensors as input.
 
 
 def query_sensors(start, stop, sensors):
-
+    parent = Path("src/vismod_web/")
+    csv_path = Path("user_csvs") / generate_file_name(start, stop)
+    write_to = parent / csv_path
     formatted_sensors = format_sensor_list(sensors)
-
-    # Generate the file name for the output file
-    file_name = generate_file_name(start, stop)
 
     export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
@@ -131,12 +157,15 @@ def query_sensors(start, stop, sensors):
                 from(bucket: "{bucket_name}")
                 |> range(start: {start_time},
                   stop: {stop_time})
-                |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
+                |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
+                |> filter(fn: (r) => r["_field"] == "_value")
                 |> filter(fn: (r) => {sensor_list})
                 |>pivot(rowKey:["_time"],
-                         columnKey: ["_field"],
+                         columnKey: ["node"],
                          valueColumn: "_value")
-                |> drop(columns: ["result","_start","_stop","_measurement"])
+                |> group()
+                |> drop(columns:
+                    ["result","_start","_stop","_measurement","_field"])
             """.format(
                 bucket_name=str(zatan_bucket),
                 start_time=start,
@@ -155,14 +184,18 @@ def query_sensors(start, stop, sensors):
         print(output)
         print()
 
-        with open(file_name, mode="w", newline="") as file:
-            print("Writing to file: ", file_name)
+        with open(write_to, mode="w", newline="") as file:
+            print("Writing to file: ", csv_path)
             writer = csv.writer(file)
-            # Do not write '','result', nor 'table' columns.
-            for row in output:
-                new_row = row[3:]  # Exclude the first three columns
-                # print(row)
-                writer.writerow(new_row)
+
+            header_row = output[0][3:]
+            writer.writerow(header_row)
+
+            units = [ALL_UNITS[column] for column in header_row]
+            writer.writerow(units)
+
+            for row in output[1:]:  # the rest of the output
+                writer.writerow(row[3:])
 
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
@@ -171,7 +204,7 @@ def query_sensors(start, stop, sensors):
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
-    return file_name
+    return csv_path
 
 
 """
@@ -189,6 +222,7 @@ def query_all_sensors(start, stop):
     parent = Path("src/vismod_web/")
     csv_path = Path("user_csvs") / generate_file_name(start, stop)
     write_to = parent / csv_path
+    formatted_sensors = format_sensor_list(ALL_SENSORS)
 
     export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
@@ -199,22 +233,19 @@ def query_all_sensors(start, stop):
                 |> range(start: {start_time},
                   stop: {stopTime})
                 |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
-                |> group(columns: ["_measurement",
-                  "10A-Left", "10A-Right", "10A-TEMP",
-                  "10B-Left", "10B-Right", "10B-TEMP",
-                  "17A-Left", "17A-Right", "17A-TEMP",
-                  "17B-Left", "17B-Right", "17B-TEMP",
-                  "2A-Left", "2A-Right", "2A-TEMP",
-                  "2B-Left", "2B-Right", "2B-TEMP",
-                  "External-Temperature",
-                  "External-Wind-Direction",
-                  "External-Wind-Speed"])
+                |> filter(fn: (r) => r["_field"] == "_value")
+                |> filter(fn: (r) => {sensor_list})
                 |>pivot(rowKey:["_time"],
-                         columnKey: ["_field"],
+                         columnKey: ["node"],
                          valueColumn: "_value")
-                |> drop(columns: ["result","_start","_stop","_measurement"])
+                |> group()
+                |> drop(columns:
+                        ["result","_start","_stop","_measurement","_field"])
             """.format(
-                bucket_name=str(zatan_bucket), start_time=start, stopTime=stop
+                bucket_name=str(zatan_bucket), 
+                start_time=start, 
+                stopTime=stop,
+                sensor_list=formatted_sensors
             ),
             dialect=Dialect(
                 header=True,
@@ -231,7 +262,14 @@ def query_all_sensors(start, stop):
         with open(write_to, mode="w", newline="") as file:
             print("Writing to file: ", csv_path)
             writer = csv.writer(file)
-            for row in output:
+
+            header_row = output[0][3:]
+            writer.writerow(header_row)
+
+            units = [ALL_UNITS[column] for column in header_row]
+            writer.writerow(units)
+
+            for row in output[1:]:  # the rest of the output
                 writer.writerow(row[3:])
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
@@ -290,16 +328,16 @@ def query_sensors_10AB(start, stop):
 
 
 def string_process(st):
-    return st*2
+    return st * 2
 
 
 def generate_csv():
     # Example: Generate CSV content
     csv_data = [
-        ['Name', 'Age', 'City'],
-        ['John', 30, 'New York'],
-        ['Alice', 25, 'London'],
-        ['Bob', 35, 'Paris']
+        ["Name", "Age", "City"],
+        ["John", 30, "New York"],
+        ["Alice", 25, "London"],
+        ["Bob", 35, "Paris"],
     ]
 
     return csv_data

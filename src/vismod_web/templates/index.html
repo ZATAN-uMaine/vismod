@@ -96,7 +96,8 @@
 
                     <!-- Clickable things -->
                     <circle
-                        id="sensor17A"
+                        id="17A"
+                        class="sensor"
                         cx="178.94"
                         cy="92.199997"
                         r="4.7600002"
@@ -112,7 +113,8 @@
                     />
 
                     <circle
-                        id="sensor10A"
+                        id="10A"
+                        class="sensor"
                         cx="208.84"
                         cy="92.199997"
                         r="4.7600002"
@@ -128,7 +130,8 @@
                     />
 
                     <circle
-                        id="sensor2A"
+                        id="2A"
+                        class="sensor"
                         cx="229.06"
                         cy="92.199997"
                         r="4.7600002"
@@ -144,7 +147,8 @@
                     />
 
                     <circle
-                        id="sensor2B"
+                        id="2B"
+                        class="sensor"
                         cx="260.04999"
                         cy="92.199997"
                         r="4.7600002"
@@ -160,7 +164,8 @@
                     />
 
                     <circle
-                        id="sensor10B"
+                        id="10B"
+                        class="sensor"
                         cx="280.42999"
                         cy="92.199997"
                         r="4.7600002"
@@ -176,7 +181,8 @@
                     />
 
                     <circle
-                        id="sensor17B"
+                        id="17B"
+                        class="sensor"
                         cx="309.26001"
                         cy="92.199997"
                         r="4.7600002"
@@ -192,7 +198,8 @@
                     />
 
                     <path
-                        id="sensorwind"
+                        id="wind"
+                        class="sensor"
                         class="triangle"
                         d="M 320.92881,88.45174 314.8609,77.940346 h 12.1392 z"
                         style="
@@ -208,8 +215,16 @@
                     />
                 </g>
             </svg>
+            <div id="downloadAllButtonBay" class="pure-g">
+                <button
+                    id="downloadAllButton"
+                    onclick="requestCSV(all_sensors=true)"
+                    class="pure-button"
+                    >
+                    Download All Sensor Data
+                </button>
+            </div>
         </div>
-
         <div id="plotBay" class="pure-g"></div>
 
         <!-- The Modal -->
@@ -236,7 +251,7 @@
                 <div class="pure-u-1-4">
                     <button 
                         id="download-node-data"
-                        onclick="sendData()"
+                        onclick="requestCSV()"
                         class="pure-button">
                         DOWNLOAD
                     </button>

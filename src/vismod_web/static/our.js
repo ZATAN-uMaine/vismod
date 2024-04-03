@@ -131,7 +131,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Get the <span> element that closes the modal
     var span = document.getElementsByClassName('close')[0]
 
-    const circles = document.querySelectorAll('[id^="sensor"]')
+    // const circles = document.querySelectorAll('[id^="sensor"]')
+    const circles = document.querySelectorAll('.sensor')
+
     circles.forEach((circle) => {
         circle.addEventListener('click', () => createModal(circle.id, modal))
     })
@@ -149,13 +151,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 })
 
-function sendData() { 
+function requestCSV(all_sensors=false) { 
+    let dataSensor = selectedSensor
+    if(all_sensors){
+        dataSensor = 'all'
+    }
     alert("The creation and subsequent download of your csv will occur after you click \"OK\". \nBy clicking \"OK\", you acknowledge that the data downloaded does not reflect the structual integrity of the Penobscot Narrows Bridge.")
     $.ajax({ 
         url: '/download_csv', 
         type: 'GET', 
         data: { 
-            'sensor'    :   selectedSensor,
+            'sensor'    :   dataSensor,
             'startDay'  :   selectedStartDay,
             'startHour' :   selectedStartHour,
             'endDay'    :   selectedEndDay,
