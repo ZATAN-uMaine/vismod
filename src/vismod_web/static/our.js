@@ -1,4 +1,4 @@
-var selectedSensor = 'sensor1' // default value
+var selectedSensor = 'sensor2A' // default value
 var selectedStartDay = ''
 var selectedStartHour = ''
 var selectedEndDay = ''
@@ -101,6 +101,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
+    updateDateRangeSelection()
+
     startDaySelector.addEventListener('change', function () {
         endDaySelector.min = this.value
         enforceTimeConstraints()
@@ -129,7 +131,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Get the <span> element that closes the modal
     var span = document.getElementsByClassName('close')[0]
 
-    const circles = document.querySelectorAll('[id^="sensor"]')
+    // const circles = document.querySelectorAll('[id^="sensor"]')
+    const circles = document.querySelectorAll('.sensor')
+
     circles.forEach((circle) => {
         circle.addEventListener('click', () => createModal(circle.id, modal))
     })
@@ -146,3 +150,40 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 })
+
+function requestCSV(all_sensors=false) { 
+    let dataSensor = selectedSensor
+    if(all_sensors){
+        dataSensor = 'all'
+    }
+    alert("The creation and subsequent download of your csv will occur after you click \"OK\". \nBy clicking \"OK\", you acknowledge that the data downloaded does not reflect the structual integrity of the Penobscot Narrows Bridge.")
+    $.ajax({ 
+        url: '/download_csv', 
+        type: 'GET', 
+        data: { 
+            'sensor'    :   dataSensor,
+            'startDay'  :   selectedStartDay,
+            'startHour' :   selectedStartHour,
+            'endDay'    :   selectedEndDay,
+            'endHour'   :   selectedEndHour
+        }, 
+        success: function(response) { 
+            console.log("CSV INCOMING");
+            // console.log(response)
+            const blob = new Blob([response], {type: 'text/csv'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'data.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 
+        error: function(error) { 
+            console.log("ERROR INCOMING")
+            console.log(error); 
+        } 
+    }); 
+} 

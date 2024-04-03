@@ -3,9 +3,12 @@ from os import environ
 from logging import INFO
 
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, request, send_file
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from vismod_processing.exportInfluxAsCSV import string_process
+from vismod_processing.exportInfluxAsCSV import query_all_sensors
+from vismod_processing.exportInfluxAsCSV import query_sensors  # noqa
 
 load_dotenv(dotenv_path=Path(".env"))
 
@@ -29,3 +32,61 @@ else:
 @app.route("/")
 def hello():
     return render_template("index.html")
+
+
+@app.route("/process", methods=["POST", "GET"])
+def process():
+    data = request.form.get("sensor")
+    # process the data using Python code
+    return string_process(data)
+
+
+@app.route("/download_csv", methods=["GET", "POST"])
+def download_csv():
+    sensor = request.args.get("sensor")
+    startDay = request.args.get("startDay")
+    startHour = request.args.get("startHour")
+    endDay = request.args.get("endDay")
+    endHour = request.args.get("endHour")
+    start_request = f"{startDay}T{startHour}:00:00.000+04:00"
+    end_request = f"{endDay}T{endHour}:00:00.000+04:00"
+
+    # print(f"START REQUEST: {start_request}")
+    # print(f"END REQUEST: {end_request}")
+
+    if sensor == "all":
+        print("ALL SENSORS ARE GO")
+        file = str(query_all_sensors(start=start_request, stop=end_request))
+    else:
+        file = str(
+            query_sensors(
+                start=start_request,
+                stop=end_request,
+                sensors=[
+                    sensor,
+                    sensor + "-Left",
+                    sensor + "-Right",
+                    "External-Temperature",
+                    "External-Wind-Direction",
+                    "External-Wind-Speed",
+                ],
+            )
+        )
+        print(f"Single sensor {sensor}")
+        # file = str(query_all_sensors(start=start_request, stop=end_request))
+
+    return send_file(
+        file, mimetype="text/csv", as_attachment=True, download_name="data.csv"
+    )
+
+
+@app.route("/test_download", methods=["GET"])
+def test_download():
+    file_path = "user_csvs/test.csv"
+
+    return send_file(
+        file_path,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="data.csv",
+    )

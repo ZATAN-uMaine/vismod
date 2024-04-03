@@ -62,8 +62,8 @@ def df_to_influx_format(data_frame: pd.DataFrame):
 
     results = []
     for col in data_frame.columns:
-        if col in WEATHER_COLUMNS:
-            continue
+        # if col in WEATHER_COLUMNS:
+        #     continue
         print(col)
         sparse_frame = pd.DataFrame(index=data_frame.index)
         sparse_frame["_value"] = data_frame[col]
@@ -109,6 +109,7 @@ def upload_data_frame(data_frame):
             )
 
             print("Waiting to finish ingesting DataFrame...")
+            InfluxDBClient.close(cli)
 
     print(f"Import finished in: {datetime.now() - start_time}")
     return

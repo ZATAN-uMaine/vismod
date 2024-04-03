@@ -129,6 +129,8 @@ circle,
     justify-content: center;
 }
 
-#dataInfo {
-    display: table;
+#data-info {
+    /* display: table; */
+    display: flex;
+    flex-direction: column;
 }

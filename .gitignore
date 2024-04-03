@@ -17,6 +17,7 @@ data.json
 tdms_files/*
 previous_downloads.txt
 *_logs.txt
+src/vismod_web/user_csvs/*
 
 # some prettier jsons
 .prettierrc
