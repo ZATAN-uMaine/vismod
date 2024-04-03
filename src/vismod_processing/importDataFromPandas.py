@@ -1,43 +1,19 @@
 import os
-import logging
 from datetime import datetime
-from dotenv import load_dotenv
-from pathlib import Path
+import logging
 
 import pandas as pd
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-# Team ZATAN 2024
-# To learn more about InfluxDB's Python Client API visit:
 """
+    # Team ZATAN 2024
+    # To learn more about InfluxDB's Python Client API visit:
     Docs:
     https://influxdb-client.readthedocs.io/en/stable/api.html#writeapi
     Repo Readme:
     https://github.com/influxdata/influxdb-client-python/blob/master/README.md#writes
 """
-
-# Load environment
-load_dotenv(dotenv_path=Path(".env"))
-
-# Get the current date
-current_date = datetime.now().date()
-file_name = "{log_date}_influx_db_logs.txt".format(log_date=current_date)
-
-# Enable logging for DataFrame serializer
-logger_serializer = logging.getLogger(
-    "influxdb_client.client.write.dataframe_serializer"
-)
-logger_serializer.setLevel(level=logging.DEBUG)
-handler = logging.FileHandler(file_name)  # This sets the logging filename
-handler.setFormatter(logging.Formatter("%(asctime)s | %(message)s"))
-logger_serializer.addHandler(handler)
-
-# Load database secrets
-zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
-organization = os.environ.get("INFLUXDB_V2_ORG")
-link = os.environ.get("INFLUXDB_V2_URL")
-zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
 # data fields that are *not* strain levels on a node
 WEATHER_COLUMNS = [
@@ -62,9 +38,6 @@ def df_to_influx_format(data_frame: pd.DataFrame):
 
     results = []
     for col in data_frame.columns:
-        # if col in WEATHER_COLUMNS:
-        #     continue
-        print(col)
         sparse_frame = pd.DataFrame(index=data_frame.index)
         sparse_frame["_value"] = data_frame[col]
         sparse_frame["node"] = col
@@ -72,6 +45,7 @@ def df_to_influx_format(data_frame: pd.DataFrame):
             sparse_frame[w] = data_frame[w]
         results.append(sparse_frame)
 
+    logging.info(f"Processed data frame ({data_frame.shape}) for influx")
     return results
 
 
@@ -90,12 +64,18 @@ def upload_data_frame(data_frame):
                     "External-Wind-Direction",
                     "External-Wind-Speed"
     """
+    # Load database secrets
+    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
+    organization = os.environ.get("INFLUXDB_V2_ORG")
+    link = os.environ.get("INFLUXDB_V2_URL")
+    zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
+
+    if link is None:
+        logging.error("$INFLUXDB_V2_URL not found")
+        return
 
     # Initialize Database Client
-    print("=== Received data_frame ===")
-    print()
-    print("=== Ingesting DataFrame via batching API ===")
-    print()
+    logging.info("=== Ingesting DataFrame via batching API ===")
     start_time = datetime.now()
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         # Use batching API
@@ -108,8 +88,7 @@ def upload_data_frame(data_frame):
                 data_frame_measurement_name="NodeStrain",
             )
 
-            print("Waiting to finish ingesting DataFrame...")
+            logging.debug("Waiting to finish ingesting DataFrame...")
             InfluxDBClient.close(cli)
 
-    print(f"Import finished in: {datetime.now() - start_time}")
-    return
+    logging.info(f"Import finished in: {datetime.now() - start_time}")
