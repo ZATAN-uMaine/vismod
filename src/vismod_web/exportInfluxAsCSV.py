@@ -1,8 +1,10 @@
 import os
 import csv
+import logging
 from datetime import datetime
 from pathlib import Path
 from influxdb_client import InfluxDBClient, Dialect
+
 
 # Load database secrets
 ourToken = os.environ.get("INFLUXDB_V2_TOKEN")
@@ -66,7 +68,6 @@ def generate_file_name(start, stop):
         hour=0, minute=0, second=0, microsecond=0
     )
     stamp = round(time_since_midnight.total_seconds() * 1000)
-
     file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}_{stamp}.csv"
 
     return file_name
@@ -80,8 +81,7 @@ def format_sensor_list(sensors):
     """
     # require that the passed sensors match pre-determined sensors
     received_sensors = [sensor for sensor in sensors if sensor in ALL_SENSORS]
-    print("Valid sensors received: ")
-    print(received_sensors)
+    logging.debug(f"Valid sensors received: {received_sensors}")
 
     for index, item in enumerate(received_sensors):
         if index == 0:
@@ -89,8 +89,9 @@ def format_sensor_list(sensors):
         else:
             received_sensors[index] = ' or r["node"] == "' + item + '"'
     partially_formatted_sensors = list_to_string(received_sensors)
-    print("partial format applied: ")
-    print(repr(partially_formatted_sensors))
+    logging.debug(
+        f"partial format applied: {repr(partially_formatted_sensors)}"
+    )
     formatted_sensors = partially_formatted_sensors.replace('"', '"')
     return formatted_sensors
 
@@ -170,12 +171,9 @@ def query_sensors(start, stop, sensors):
             ),
         )
         output = csv_iterator.to_values()
-        print("here is our output")
-        print(output)
-        print()
+        logging.info(f"Found {len(output)} rows to export")
 
         with open(write_to, mode="w", newline="") as file:
-            print("Writing to file: ", csv_path)
             writer = csv.writer(file)
 
             header_row = output[0][3:]
@@ -187,13 +185,7 @@ def query_sensors(start, stop, sensors):
             for row in output[1:]:  # the rest of the output
                 writer.writerow(row[3:])
 
-    print()
-    print(f"Export finished in: {datetime.now() - export_start_time}")
-    print()
-
-    print()
-    print(f"Export finished in: {datetime.now() - export_start_time}")
-    print()
+    logging.info(f"Export finished in: {datetime.now() - export_start_time}")
     return write_to
 
 
@@ -210,6 +202,7 @@ def query_all_sensors(start, stop):
     parent = Path(CSV_TMP_PATH)
     csv_path = generate_file_name(start, stop)
     write_to = parent / csv_path
+    logging.info(f"exporting data from all sensors to {write_to}")
     formatted_sensors = format_sensor_list(ALL_SENSORS)
 
     export_start_time = datetime.now()
@@ -244,9 +237,9 @@ def query_all_sensors(start, stop):
         )
 
         output = csv_iterator.to_values()
+        logging.info(f"Found {len(output)} rows to export")
 
         with open(write_to, mode="w", newline="") as file:
-            print("Writing to file: ", csv_path)
             writer = csv.writer(file)
 
             header_row = output[0][3:]
@@ -257,12 +250,15 @@ def query_all_sensors(start, stop):
 
             for row in output[1:]:  # the rest of the output
                 writer.writerow(row[3:])
-    print()
-    print(f"Export finished in: {datetime.now() - export_start_time}")
-    print()
+    logging.info(f"Export finished in: {datetime.now() - export_start_time}")
     return write_to
 
 
+def string_process(st):
+    return st * 2
+
+
+'''
 def query_sensors_10AB(start, stop):
     """
     This is the first successful query we wrote, and if needed can serve as
@@ -308,7 +304,4 @@ def query_sensors_10AB(start, stop):
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
     return
-
-
-def string_process(st):
-    return st * 2
+'''
