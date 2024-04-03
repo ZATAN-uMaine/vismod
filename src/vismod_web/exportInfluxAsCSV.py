@@ -33,6 +33,7 @@ AUXILIARY_UNITS = {
     "External-Wind-Speed": "feet/second",
 }
 ALL_UNITS = {**STRAIN_UNITS, **AUXILIARY_UNITS}
+CSV_TMP_PATH = "/tmp"
 
 
 def list_to_string(list):
@@ -121,8 +122,8 @@ def query_sensors(start, stop, sensors):
         # [<sensorlist>])
         # INCLUDE "_measurement" as an item in sensor list!!!
     """
-    parent = Path("src/vismod_web/")
-    csv_path = Path("user_csvs") / generate_file_name(start, stop)
+    parent = Path(CSV_TMP_PATH)
+    csv_path = generate_file_name(start, stop)
     write_to = parent / csv_path
     formatted_sensors = format_sensor_list(sensors)
 
@@ -193,7 +194,7 @@ def query_sensors(start, stop, sensors):
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
-    return csv_path
+    return write_to
 
 
 def query_all_sensors(start, stop):
@@ -206,8 +207,8 @@ def query_all_sensors(start, stop):
     exportInfluxAsCSV.query_all_sensors(
         '2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
     """
-    parent = Path("src/vismod_web/")
-    csv_path = Path("user_csvs") / generate_file_name(start, stop)
+    parent = Path(CSV_TMP_PATH)
+    csv_path = generate_file_name(start, stop)
     write_to = parent / csv_path
     formatted_sensors = format_sensor_list(ALL_SENSORS)
 
@@ -243,8 +244,6 @@ def query_all_sensors(start, stop):
         )
 
         output = csv_iterator.to_values()
-        # print(output)
-        print()
 
         with open(write_to, mode="w", newline="") as file:
             print("Writing to file: ", csv_path)
@@ -261,7 +260,7 @@ def query_all_sensors(start, stop):
     print()
     print(f"Export finished in: {datetime.now() - export_start_time}")
     print()
-    return csv_path
+    return write_to
 
 
 def query_sensors_10AB(start, stop):
