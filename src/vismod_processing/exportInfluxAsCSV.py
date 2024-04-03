@@ -18,11 +18,13 @@ zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 # default values for querying -- these get pruned for specific requests
 STRAIN_SENSORS = [  # easier  to add sensors with comprehension (?)
     sensor
-    for x in ['2', '10', '17']
-    for sensor in (x+"A-Left", x+"A-Right", x+"B-Left", x+"B-Right")
+    for x in ["2", "10", "17"]
+    for sensor in (x + "A-Left", x + "A-Right", x + "B-Left", x + "B-Right")
 ]
 AUXILIARY_SENSORS = [
-    "External-Temperature", "External-Wind-Direction", "External-Wind-Speed"
+    "External-Temperature",
+    "External-Wind-Direction",
+    "External-Wind-Speed",
 ]
 ALL_SENSORS = STRAIN_SENSORS + AUXILIARY_SENSORS
 
@@ -33,7 +35,7 @@ AUXILIARY_UNITS = {
     "_time": "",
     "External-Temperature": "degrees (F)",
     "External-Wind-Direction": "angle (degrees)",
-    "External-Wind-Speed": "feet/second"
+    "External-Wind-Speed": "feet/second",
 }
 ALL_UNITS = {**STRAIN_UNITS, **AUXILIARY_UNITS}
 
@@ -70,7 +72,8 @@ def generate_file_name(start, stop):
     fileStopDate = stop[:10]  # Extract YYYY-MM-DD from stop string
     now = datetime.now()
     time_since_midnight = now - now.replace(
-                                hour=0, minute=0, second=0, microsecond=0)
+        hour=0, minute=0, second=0, microsecond=0
+    )
     stamp = round(time_since_midnight.total_seconds() * 1000)
 
     file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}_{stamp}.csv"
@@ -242,10 +245,10 @@ def query_all_sensors(start, stop):
                 |> drop(columns:
                         ["result","_start","_stop","_measurement","_field"])
             """.format(
-                bucket_name=str(zatan_bucket), 
-                start_time=start, 
+                bucket_name=str(zatan_bucket),
+                start_time=start,
                 stopTime=stop,
-                sensor_list=formatted_sensors
+                sensor_list=formatted_sensors,
             ),
             dialect=Dialect(
                 header=True,
