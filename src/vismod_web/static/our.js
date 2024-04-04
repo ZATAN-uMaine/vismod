@@ -35,11 +35,13 @@ function createPlotIFrame() {
     var htmlcode = `
     <body><h1 style="text-align: center; color: green;"}>Plot of ${selectedSensor}'s data from ${selectedStartHour}:00 on ${selectedStartDay} to ${selectedEndHour}:00 on ${selectedEndDay}</h1></body>
     `
-
+    var dashboard_code ="http://localhost:3000/d-solo/d2f8a0d4-6934-4f30-a434-768cf5407dd7/test-3-30-24?orgId=1&from=1711684800000&to=1711900799000&showCategory=Override+1&panelId=19"
+    plotIFrame.setAttribute('src', dashboard_code);
     document.getElementById('plotBay').appendChild(plotIFrame)
     plotIFrame.setAttribute('style', 'height:100%;width:100%;')
     plotIFrame.contentWindow.document.open()
-    plotIFrame.contentWindow.document.write(htmlcode)
+    plotIFrame.contentWindow.document.write(dashboard_code)
+    // plotIFrame.contentWindow.document.write(htmlcode)
     plotIFrame.contentWindow.document.close()
 
     var modal = document.getElementById('myModal')
