@@ -50,8 +50,8 @@ def download_csv():
     startHour = request.args.get("startHour")
     endDay = request.args.get("endDay")
     endHour = request.args.get("endHour")
-    start_request = f"{startDay}T{startHour}:00:00.000+04:00"
-    end_request = f"{endDay}T{endHour}:00:00.000+04:00"
+    start_request = f"{startDay}T{startHour:02}:00:00.000+04:00"
+    end_request = f"{endDay}T{endHour:02}:00:00.000+04:00"
 
     if sensor is None:
         return "Missing parameter 'sensor'", 400
