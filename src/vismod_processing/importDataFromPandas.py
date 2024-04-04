@@ -100,6 +100,7 @@ def upload_data_frame(data_frame):
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         # Use batching API
         with cli.write_api(write_options=SYNCHRONOUS) as write_api:
+            print(data_frame)
             write_api.write(
                 bucket=zatan_bucket,
                 record=data_frame,

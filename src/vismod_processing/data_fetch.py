@@ -2,6 +2,7 @@ import io
 import os
 import random
 import time
+import datetime
 import re
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
@@ -90,8 +91,8 @@ def list_tdms_files(service):
         lambda: service.files().list(
             q=query,
             spaces="drive",
-            fields="files(id, name, createdTime)",
-            orderBy="createdTime desc",
+            fields="files(id, name, createdTime, modifiedTime)",
+            orderBy="modifiedTime desc",
             pageSize=2,  # Request only the newest file
             supportsAllDrives=True,
         )
@@ -106,7 +107,7 @@ def list_tdms_files(service):
     file_name_regex = re.compile("^.*\\.tdms$")
     file_list = []
     for file in results:
-        name = file["name"]
+        name = file["modifiedTime"]
         if file_name_regex.match(name):
             file_list.append(file)
 
@@ -129,7 +130,7 @@ def get_specified_tdms_file(service, file_name):
         lambda: service.files().list(
             q=query,
             spaces="drive",
-            fields="files(id, name, createdTime)",
+            fields="files(id, name, createdTime, modifiedTime)",
             pageSize=2,  # Request only the newest file
             supportsAllDrives=True,
         )
@@ -151,6 +152,8 @@ def tdmsDownload(target_file=None) -> list[str]:
         print("$GOOGLE_API_KEY not available from environment")
         return []
 
+
+    # Rewrite this part to write and read frm influx instead
     previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
@@ -168,7 +171,7 @@ def tdmsDownload(target_file=None) -> list[str]:
     local_files = []
     if len(data_file_list) > 0:
         item = data_file_list[0]
-        if item["name"] not in previous_downloads:
+        if item["modifiedTime"] != datetime.datetime.now(): # replace current date with stored date for file
             print(f"Downloading {item['name']}...")
             file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
             fh = io.FileIO(file_path, "wb")
@@ -204,5 +207,15 @@ def tdmsDownload(target_file=None) -> list[str]:
 # Allow this file to be run standalone
 if __name__ == "__main__":
     load_dotenv()
-    new_files = tdmsDownload()
+    # Create the google api service
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    if not GOOGLE_API_KEY or len(GOOGLE_API_KEY) < 5:
+        print("$GOOGLE_API_KEY not available from environment")
+    
+    #service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
+    #items = get_specified_tdms_file(service, "040124.tdms")
+    #print(items[0])
+
+    
+    new_files = tdmsDownload(target_file="040124.tdms")
     print(new_files)
