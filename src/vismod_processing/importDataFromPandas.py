@@ -74,6 +74,20 @@ def df_to_influx_format(data_frame: pd.DataFrame):
 
     return results
 
+def write_row(dictionary):
+    """
+    Write any dict. to the influx database, new keys create new rows
+    """
+    with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
+        with cli.write_api(write_options=SYNCHRONOUS) as write_api:
+            write_api.write(
+                bucket=zatan_bucket,
+                record=dictionary,
+            )
+            print("recording changes...")
+            InfluxDBClient.close(cli)
+
+def get_row(rowname):
 
 def upload_data_frame(data_frame):
     """

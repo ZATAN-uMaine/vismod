@@ -2,12 +2,11 @@ import io
 import os
 import random
 import time
-import datetime
 import re
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, HttpError
-
+from vismod_processing import importDataFromPandas as db
 # Constants for the file paths and names
 LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt"  # TODO: Change this to a more permanent location # noqa
 LOCAL_TDMS_STORAGE_DIR = "/tmp/vismod_tdms_files"
@@ -93,7 +92,7 @@ def list_tdms_files(service):
             spaces="drive",
             fields="files(id, name, createdTime, modifiedTime)",
             orderBy="modifiedTime desc",
-            pageSize=2,  # Request only the newest file
+            pageSize=22,  # Request only the newest file
             supportsAllDrives=True,
         )
     )
@@ -131,7 +130,7 @@ def get_specified_tdms_file(service, file_name):
             q=query,
             spaces="drive",
             fields="files(id, name, createdTime, modifiedTime)",
-            pageSize=2,  # Request only the newest file
+            pageSize=22,  # Request only the newest file
             supportsAllDrives=True,
         )
     )
@@ -170,34 +169,34 @@ def tdmsDownload(target_file=None) -> list[str]:
     # Download the newest file if it hasn't been downloaded before
     local_files = []
     if len(data_file_list) > 0:
-        item = data_file_list[0]
-        if item["modifiedTime"] != datetime.datetime.now(): # replace current date with stored date for file
-            print(f"Downloading {item['name']}...")
-            file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
-            fh = io.FileIO(file_path, "wb")
-            media = service.files().get_media(fileId=item["id"])
-            downloader = MediaIoBaseDownload(fh, media)
-            done = False
+        for item in data_file_list:
+            if item["modifiedTime"] != datetime.datetime.now(): # replace current date with stored date for file
+                print(f"Downloading {item['name']}...")
+                file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
+                fh = io.FileIO(file_path, "wb")
+                media = service.files().get_media(fileId=item["id"])
+                downloader = MediaIoBaseDownload(fh, media)
+                done = False
 
-            # Download the file
-            while not done:
-                try:
-                    status, done = downloader.next_chunk()
-                    print(
-                        f"Download {int(status.progress() * 100)}% complete."
-                    )  # noqa
+                # Download the file
+                while not done:
+                    try:
+                        status, done = downloader.next_chunk()
+                        print(
+                            f"Download {int(status.progress() * 100)}% complete."
+                        )  # noqa
 
-                # Catch API request errors
-                except HttpError as e:
-                    print(f"Failed to download {item['name']}: {e}")
-                    fh.close()
-                    os.remove(file_path)
-                    break
+                    # Catch API request errors
+                    except HttpError as e:
+                        print(f"Failed to download {item['name']}: {e}")
+                        fh.close()
+                        os.remove(file_path)
+                        break
 
-            # If the download was successful, update the local file
-            if done:
-                update_downloads_file(item["name"])
-                local_files.append(file_path)
+                # If download successful, update the last-modified timestamp
+                if done:
+                    timestamp ={item['id']:item['modifiedTime']}
+                    db.write_dict()
     else:
         print("No new files to download.")
 
