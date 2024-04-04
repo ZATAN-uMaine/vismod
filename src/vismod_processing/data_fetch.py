@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, HttpError
 from vismod_processing import importDataFromPandas as db
+
 # Constants for the file paths and names
 LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt"  # TODO: Change this to a more permanent location # noqa
 LOCAL_TDMS_STORAGE_DIR = "/tmp/vismod_tdms_files"
@@ -151,9 +152,6 @@ def tdmsDownload(target_file=None) -> list[str]:
         print("$GOOGLE_API_KEY not available from environment")
         return []
 
-
-    # Rewrite this part to write and read frm influx instead
-    previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
     data_file_list = []
@@ -170,7 +168,10 @@ def tdmsDownload(target_file=None) -> list[str]:
     local_files = []
     if len(data_file_list) > 0:
         for item in data_file_list:
-            if item["modifiedTime"] != datetime.datetime.now(): # replace current date with stored date for file
+            last_modif_stamp = db.get_row(item["id"])
+            if (
+                item["modifiedTime"] != last_modif_stamp
+            ):  # replace current date with stored date for file
                 print(f"Downloading {item['name']}...")
                 file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
                 fh = io.FileIO(file_path, "wb")
@@ -182,10 +183,9 @@ def tdmsDownload(target_file=None) -> list[str]:
                 while not done:
                     try:
                         status, done = downloader.next_chunk()
-                        print(
-                            f"Download {int(status.progress() * 100)}% complete."
-                        )  # noqa
-
+                        progress = int(status.progress() * 100)
+                        print(f"Download {progress}% complete.")
+                        # noqa
                     # Catch API request errors
                     except HttpError as e:
                         print(f"Failed to download {item['name']}: {e}")
@@ -195,8 +195,8 @@ def tdmsDownload(target_file=None) -> list[str]:
 
                 # If download successful, update the last-modified timestamp
                 if done:
-                    timestamp ={item['id']:item['modifiedTime']}
-                    db.write_dict()
+                    timestamp = {item["id"]: item["modifiedTime"]}
+                    db.write_dict(timestamp)
     else:
         print("No new files to download.")
 
@@ -210,11 +210,10 @@ if __name__ == "__main__":
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     if not GOOGLE_API_KEY or len(GOOGLE_API_KEY) < 5:
         print("$GOOGLE_API_KEY not available from environment")
-    
-    #service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
-    #items = get_specified_tdms_file(service, "040124.tdms")
-    #print(items[0])
 
-    
+    # service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
+    # items = get_specified_tdms_file(service, "040124.tdms")
+    # print(items[0])
+
     new_files = tdmsDownload(target_file="040124.tdms")
     print(new_files)

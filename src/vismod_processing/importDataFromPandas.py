@@ -74,6 +74,7 @@ def df_to_influx_format(data_frame: pd.DataFrame):
 
     return results
 
+
 def write_row(dictionary):
     """
     Write any dict. to the influx database, new keys create new rows
@@ -87,7 +88,10 @@ def write_row(dictionary):
             print("recording changes...")
             InfluxDBClient.close(cli)
 
+
 def get_row(rowname):
+    print()
+
 
 def upload_data_frame(data_frame):
     """
