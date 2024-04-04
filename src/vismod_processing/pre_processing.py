@@ -1,6 +1,7 @@
 from nptdms import TdmsFile
 import pandas as pd
 import json
+import logging
 
 
 def fix_tdms_col_name(name: str) -> str:
@@ -150,7 +151,9 @@ class Pre_Processor:
         try:
             data = self.get_local_data_as_dataframe(data_path)
         except ValueError:
-            print(f"TDMS file {data_path} appears to have invalid format.")
+            logging.warn(
+                f"TDMS file {data_path} appears to have invalid format."
+            )
             return None
         data = self.apply_calibration(data)
         data = data.set_index("_time")
@@ -161,6 +164,7 @@ class Pre_Processor:
 # Allow this file to be run standalone
 # THIS IS JUST FOR TESTING!
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     # Load the calibration data from data.json
     with open("data.json", "r") as file:
         calibration_data = json.load(file)

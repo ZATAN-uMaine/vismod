@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from io import StringIO
 from dotenv import load_dotenv
 import requests
@@ -10,9 +11,15 @@ def config_to_json(csv_content: str, save_file=False):
     """
     Turns CSV config file (as string) into the standard
     JSON representation. Can optionally save a copy as data.json.
+
+    Returns None and logs warning if invalid.
     """
     # Set the header row to the row containing the column names
-    config_df = pd.read_csv(StringIO(csv_content), header=2)
+    try:
+        config_df = pd.read_csv(StringIO(csv_content), header=2)
+    except UnicodeError:
+        logging.warn("Could not read downloaded file as CSV")
+        return None
 
     # Contact information is stored in the first column below row 4
     contactinfo = config_df.iloc[1:, 0].dropna().tolist()
@@ -68,7 +75,7 @@ def config_to_json(csv_content: str, save_file=False):
 
     # Write JSON data to file
     if save_file:
-        print("Saving config to data.json")
+        logging.info("Saving config to data.json")
         with open("data.json", "w") as file:
             file.write(json_data)
 
@@ -83,7 +90,7 @@ def download_config(save_file=False):
     """
     CONFIG_ID = os.getenv("CONFIG_ID")
     if not CONFIG_ID or len(CONFIG_ID) < 5:
-        print("$CONFIG_ID not provided by environment")
+        logging.error("$CONFIG_ID not provided by environment")
         return None
 
     # Construct the URL for exporting the sheet as a CSV
@@ -92,22 +99,26 @@ def download_config(save_file=False):
         "export?format=csv"
     )
 
-    print(f"Attempting to fetch config file from {url}")
+    logging.info(f"Attempting to fetch config file from {url}")
     # Request the file from the URL
     try:
         response = requests.get(url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
+        logging.warn(f"Request failed: {e}")
         return None
 
-    print("File downloaded successfully")
-    str_content = response.content.decode("utf-8")
-    print("CSV extracted from file")
-    return config_to_json(str_content, save_file=save_file)
+    logging.info("Config file downloaded successfully")
+    try:
+        str_content = response.content.decode("utf-8")
+        return config_to_json(str_content, save_file=save_file)
+    except UnicodeError:
+        logging.warn("Could not decode downloaded config file as utf-8")
+        return None
 
 
 # Allow this file to be run standalone
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     load_dotenv()
     nested_dictionaries = download_config(save_file=True)

@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import sys
+import logging
 
 from vismod_processing import pre_processing
 from vismod_processing import importDataFromPandas
@@ -11,21 +12,30 @@ def main():
     """Main function to run the data processing pipeline"""
     load_dotenv()
 
+    # Enable logging
+    handler = logging.basicConfig(level=logging.DEBUG, force=True)
+    # capture logs from Influx dataframe_serializer module
+    logger_serializer = logging.getLogger(
+        "influxdb_client.client.write.dataframe_serializer"
+    )
+    logger_serializer.setLevel(level=logging.DEBUG)
+    # handler.setFormatter(logging.Formatter("%(asctime)s | %(message)s"))
+    logger_serializer.addHandler(handler)
+
     target_file = None
     if len(sys.argv) == 2:
         target_file = sys.argv[1]
-        print(f"Running with specific TDMS file {target_file}")
+        logging.info(f"Running with specific TDMS file {target_file}")
 
     data_files = data_fetch.tdmsDownload(target_file=target_file)
-    print(data_files)
 
     if len(data_files) == 0:
-        print("No new data files")
+        logging.info("No new data files")
         return
 
     # download the config from drive
     config = config_fetch.download_config()
-    print(config)
+    logging.debug(config)
     proc = pre_processing.Pre_Processor(config)
 
     for df in data_files:
@@ -37,8 +47,8 @@ def main():
         # call upload script
         frames = importDataFromPandas.df_to_influx_format(data)
         for frame in frames:
-            print(frame.head())
-            print(frame.columns)
+            logging.info(frame.head())
+            logging.info(frame.columns)
             importDataFromPandas.upload_data_frame(frame)
 
     # Clean up tmp files
