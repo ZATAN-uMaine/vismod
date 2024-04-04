@@ -81,7 +81,9 @@ circle,
 
 .bridge-area {
     padding: 30px 30px;
-    background-color: #1e1e1e;
+    /* Defaults to this without dark mode */
+    background-color: #CCC;
+    flex-direction: column;
 }
 
 /* The Modal (background) */
@@ -134,3 +136,21 @@ circle,
     display: flex;
     flex-direction: column;
 }
+
+#sun-icon {
+    display: block;
+}
+
+.dark #sun-icon {
+    display: none;
+}
+
+/* Hides moon-icon without dark mode */
+#moon-icon {
+    display: none; 
+}
+  
+.dark #moon-icon {
+    display: block;
+}
+  

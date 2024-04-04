@@ -77,7 +77,7 @@ class Pre_Processor:
         Average data into buckets.
         """
         # Average the data in 1hr buckets
-        return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
+        return tdms_dict.groupby(pd.Grouper(freq="2min")).mean()
 
     def loadcell_offset(self, temp, loadcell_id):
         """

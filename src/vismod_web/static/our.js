@@ -131,6 +131,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Get the <span> element that closes the modal
     var span = document.getElementsByClassName('close')[0]
 
+    // Toggles dark mode + sun mode and hides/shows the appropriate icon
+    var themeToggle = document.getElementById('theme-toggle')
+
     // const circles = document.querySelectorAll('[id^="sensor"]')
     const circles = document.querySelectorAll('.sensor')
 
@@ -141,6 +144,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // When the user clicks on <span> (x), close the modal
     span.onclick = function () {
         modal.style.display = 'none'
+    }
+
+    themeToggle.onclick = function () {
+        document.body.classList.toggle("dark")
     }
 
     // When the user clicks anywhere outside of the modal, close it
