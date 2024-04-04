@@ -7,8 +7,11 @@ from flask import Flask, render_template, request, send_file
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from vismod_web.exportInfluxAsCSV import string_process
-from vismod_web.exportInfluxAsCSV import query_all_sensors
-from vismod_web.exportInfluxAsCSV import query_sensors  # noqa
+from vismod_web.exportInfluxAsCSV import (
+    query_all_sensors_for_CSV,
+    query_sensors_for_plot,
+)
+from vismod_web.exportInfluxAsCSV import query_sensors_for_CSV  # noqa
 
 load_dotenv(dotenv_path=Path(".env"))
 
@@ -68,14 +71,16 @@ def download_csv():
             f"""processing download request for all sensors from \
               {start_request} to {end_request}"""
         )
-        file = str(query_all_sensors(start=start_request, stop=end_request))
+        file = str(
+            query_all_sensors_for_CSV(start=start_request, stop=end_request)
+        )
     else:
         logging.info(
             f"""processing download request for sensor \
               {sensor} from {start_request} to {end_request} """
         )
         file = str(
-            query_sensors(
+            query_sensors_for_CSV(
                 start=start_request,
                 stop=end_request,
                 sensors=[
@@ -92,4 +97,13 @@ def download_csv():
     logging.info("Finished processing sensor file")
     return send_file(
         file, mimetype="text/csv", as_attachment=True, download_name="data.csv"
+    )
+
+
+@app.route("/display_plot", methods=["GET"])
+def display_plot():
+    query_sensors_for_plot(
+        "2024-03-29T00:00:00.000+04:00",
+        "2024-03-29T00:00:00.000+04:00",
+        ["a", "b"],
     )

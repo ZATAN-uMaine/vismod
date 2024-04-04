@@ -1,6 +1,8 @@
 import os
 import csv
 import logging
+import plotly.express as px
+import plotly.graph_objs as go
 from datetime import datetime
 from pathlib import Path
 from influxdb_client import InfluxDBClient, Dialect
@@ -35,7 +37,9 @@ AUXILIARY_UNITS = {
     "External-Wind-Speed": "feet/second",
 }
 ALL_UNITS = {**STRAIN_UNITS, **AUXILIARY_UNITS}
+
 CSV_TMP_PATH = "/tmp"
+PLOT_TMP_PATH = "/tmp"
 
 
 def list_to_string(list):
@@ -54,7 +58,7 @@ def list_to_string(list):
     return string
 
 
-def generate_file_name(start, stop):
+def generate_file_name(start, stop, file_type):
     """
     This method generates the file name for the output file
     It takes a start time and a stop time as input.
@@ -63,12 +67,18 @@ def generate_file_name(start, stop):
     # Remove time-related characters from start and stop dates
     fileStartDate = start[:10]  # Extract YYYY-MM-DD from start string
     fileStopDate = stop[:10]  # Extract YYYY-MM-DD from stop string
+
+    extension = {"Reading": "csv", "Plot": "html"}.get(file_type)
+
+    # stamping with milliseconds
     now = datetime.now()
     time_since_midnight = now - now.replace(
         hour=0, minute=0, second=0, microsecond=0
     )
     stamp = round(time_since_midnight.total_seconds() * 1000)
-    file_name = f"PNB_Reading_{fileStartDate}_to_{fileStopDate}_{stamp}.csv"
+    file_name = (
+        f"PNB_{file_type}_{fileStartDate}_to_{fileStopDate}_{stamp}.{extension}"
+    )
 
     return file_name
 
@@ -96,9 +106,9 @@ def format_sensor_list(sensors):
     return formatted_sensors
 
 
-def query_sensors(start, stop, sensors):
+def query_sensors_for_CSV(start, stop, sensors):
     """
-    query_sensors is our custom and most up to date
+    query_sensors_for_CSV is our custom and most up to date
     querying method. It takes a start time, stop time,
     and a list of desired sensors as input.
 
@@ -124,7 +134,7 @@ def query_sensors(start, stop, sensors):
         # INCLUDE "_measurement" as an item in sensor list!!!
     """
     parent = Path(CSV_TMP_PATH)
-    csv_path = generate_file_name(start, stop)
+    csv_path = generate_file_name(start, stop, "Reading")
     write_to = parent / csv_path
     formatted_sensors = format_sensor_list(sensors)
     logging.info(f"Querying sensors: {sensors} from {start} to {stop}")
@@ -190,7 +200,7 @@ def query_sensors(start, stop, sensors):
     return write_to
 
 
-def query_all_sensors(start, stop):
+def query_all_sensors_for_CSV(start, stop):
     """
     This method is used to query all sensors
     It takes a start time and a stop time as input.
@@ -201,7 +211,7 @@ def query_all_sensors(start, stop):
         '2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
     """
     parent = Path(CSV_TMP_PATH)
-    csv_path = generate_file_name(start, stop)
+    csv_path = generate_file_name(start, stop, "Reading")
     write_to = parent / csv_path
     logging.info(f"exporting data from all sensors to {write_to}")
     formatted_sensors = format_sensor_list(ALL_SENSORS)
@@ -306,3 +316,47 @@ def query_sensors_10AB(start, stop):
     print()
     return
 '''
+
+
+def query_sensors_for_plot(start, stop, sensors):
+    """
+    This function is very similar to
+    query_sensors_for_CSV, but writes an HTML file
+    containing a plotly plot.
+    """
+    parent = Path(PLOT_TMP_PATH)
+    plot_path = generate_file_name(start, stop, "Plot")
+    write_to = parent / plot_path
+    formatted_sensors = format_sensor_list(sensors)
+
+    # TESTING
+    start = "2024-03-29T00:00:00.000+04:00"
+    stop = "2024-03-30T00:00:00.000+04:00"
+    formatted_sensors = 'r["node"] == "10A-Left or r["node"] == "External-Temperature"'
+    # DELETE LATER
+
+    logging.info(f"Querying sensors: {sensors} from {start} to {stop}")
+
+    with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
+        plot_query = """
+                from(bucket: "{bucket_name}")
+                |> range(start: {start_time},
+                  stop: {stop_time})
+                |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
+                |> filter(fn: (r) => r["_field"] == "_value")
+                |> filter(fn: (r) => {sensor_list})
+                |>pivot(rowKey:["_time"],
+                         columnKey: ["node"],
+                         valueColumn: "_value")
+                |> group()
+                |> drop(columns:
+                    ["result","_start","_stop","_measurement","_field"])
+            """.format(
+                bucket_name=str(zatan_bucket),
+                start_time=start,
+                stop_time=stop,
+                sensor_list=formatted_sensors,
+            )
+        
+        result = client.query_api().query(plot_query)
+        print(result)

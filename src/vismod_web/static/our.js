@@ -29,6 +29,7 @@ function createModal(sensorId, modal) {
 }
 
 function createPlotIFrame() {
+    requestPlot()
     console.log('ZALGO')
     var plotIFrame = document.createElement('iframe')
 
@@ -194,3 +195,25 @@ function requestCSV(all_sensors=false) {
         } 
     }); 
 } 
+
+function requestPlot() {
+    alert("The creation and subsequent download of your plot will occur after you click \"OK\". \nBy clicking \"OK\", you acknowledge that the data downloaded does not reflect the structual integrity of the Penobscot Narrows Bridge.")
+    $.ajax({ 
+        url: '/display_plot', 
+        type: 'GET', 
+        data: { 
+            'sensor'    :   selectedSensor,
+            'startDay'  :   selectedStartDay,
+            'startHour' :   selectedStartHour,
+            'endDay'    :   selectedEndDay,
+            'endHour'   :   selectedEndHour
+        }, 
+        success: function(response) { 
+            console.log("mazel_tav");
+        }, 
+        error: function(error) { 
+            console.log("ERROR INCOMING")
+            console.log(error); 
+        } 
+    }); 
+}
