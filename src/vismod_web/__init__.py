@@ -10,6 +10,8 @@ from vismod_web.exportInfluxAsCSV import (
     query_all_sensors_for_CSV,
     query_sensors_for_plot,
     get_sensor_data_range,
+    query_all_sensors_for_plot,
+
 )
 from vismod_web.exportInfluxAsCSV import query_sensors_for_CSV  # noqa
 
@@ -125,16 +127,22 @@ def display_plot():
             {sensor} from {start_request} to {end_request} """
     )
     plot_html = str(
-        query_sensors_for_plot(
-            start=start_request,
-            stop=end_request,
-            sensors=[
-                sensor,
-                sensor + "-Left",
-                sensor + "-Right",
-                "External-Temperature",
-            ],
-        )
+        # query_sensors_for_plot(
+        #     start=start_request,
+        #     stop=end_request,
+        #     sensors=[
+        #         sensor,
+        #         sensor + "-Left",
+        #         sensor + "-Right",
+        #         "External-Temperature",
+        #     ],
+        # )
+        query_all_sensors_for_plot(start=start_request, stop=end_request,
+                                   sensors=[sensor,
+                                            sensor + "-Left",
+                                            sensor + "-Right",
+                                            "External_Temperature",
+                                            ])
     )
 
     return plot_html
