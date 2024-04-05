@@ -3,13 +3,13 @@ from os import environ
 import logging
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from vismod_web.exportInfluxAsCSV import string_process
 from vismod_web.exportInfluxAsCSV import (
     query_all_sensors_for_CSV,
     query_sensors_for_plot,
+    get_sensor_data_range,
 )
 from vismod_web.exportInfluxAsCSV import query_sensors_for_CSV  # noqa
 
@@ -43,7 +43,7 @@ def hello():
 def process():
     data = request.form.get("sensor")
     # process the data using Python code
-    return string_process(data)
+    return data * 2
 
 
 @app.route("/download_csv", methods=["GET", "POST"])
@@ -138,3 +138,9 @@ def display_plot():
     )
 
     return plot_html
+
+
+@app.route("/available_data", methods=["POST"])
+def available_data():
+    (start, end, count) = get_sensor_data_range()
+    return jsonify({"start": start, "end": end, "count": count})

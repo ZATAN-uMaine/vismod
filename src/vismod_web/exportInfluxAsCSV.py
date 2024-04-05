@@ -106,6 +106,63 @@ def format_sensor_list(sensors):
     return formatted_sensors
 
 
+def get_sensor_data_range():
+    """
+     Returns a tuple of timestamps and float,
+    (first reading, last reading, reading count).
+     If there's an error, return None.
+    """
+    with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
+        fdq_results = client.query_api().query(
+            f"""
+              from(bucket: "{zatan_bucket}")
+              |> range(start: 0)
+              |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
+              |> group()
+              |> first()
+            """
+        )
+        flat_fdq_res = fdq_results.to_values(columns=["_time"])
+        if flat_fdq_res is None or len(flat_fdq_res) != 1:
+            logging.error("Failed to find time of first reading")
+            return None
+        first_reading_time = flat_fdq_res[0][0]
+        ldq_results = client.query_api().query(
+            f"""
+              from(bucket: "{zatan_bucket}")
+              |> range(start: 0)
+              |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
+              |> group()
+              |> last()
+            """
+        )
+        flat_ldq_res = ldq_results.to_values(columns=["_time"])
+        if flat_ldq_res is None or len(flat_ldq_res) != 1:
+            logging.error("Failed to find time of last reading")
+            return None
+        last_reading_time = flat_ldq_res[0][0]
+        len_results = client.query_api().query(
+            f"""
+              from(bucket: "{zatan_bucket}")
+                |> range(start: 0)
+                |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
+                |> filter(fn: (r) => r["_field"] == "_value")
+                |> filter(fn: (r) => r["node"] == "2A-Left")
+                |> group()
+                |> count()
+            """
+        )
+        flat_len_res = len_results.to_values(columns=["_value"])
+        if flat_len_res is not None and len(flat_len_res) == 1:
+            reading_count = flat_len_res[0][0]
+        else:
+            reading_count = 0
+        logging.debug(
+            f"fetched summary statistics {first_reading_time} {last_reading_time} {reading_count}"  # noqa
+        )
+        return (first_reading_time, last_reading_time, reading_count)
+
+
 def query_sensors_for_CSV(start, stop, sensors):
     """
     query_sensors_for_CSV is our custom and most up to date
