@@ -329,6 +329,7 @@ def create_plot(results_dict, filtered_sensors):
     data results_dict is formatted in a particular
     way, based on the Flask route.
     """
+    print("filtered sensors passed to plot creation: {filtered_sensors}", filtered_sensors)
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     # get first and last timestamps from the _time column
@@ -387,6 +388,18 @@ def create_plot(results_dict, filtered_sensors):
         ),
         secondary_y=True,
     )
+
+    fig.add_trace(
+        go.Scatter(
+            mode="lines+markers",
+            x=results_dict["_time"],
+            y=results_dict[filtered_sensors[-1]],
+            name="External Temperature (F)",
+            marker=dict(color="red", symbol="diamond", size=8),
+            line=dict(dash="dash"),
+        ),
+        secondary_y=False,
+    )    
 
     # returns a huge string containing all the HTML needed
     # to display the plot
