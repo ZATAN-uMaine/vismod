@@ -265,59 +265,6 @@ def query_all_sensors_for_CSV(start, stop):
     return write_to
 
 
-def string_process(st):
-    return st * 2
-
-
-'''
-def query_sensors_10AB(start, stop):
-    """
-    This is the first successful query we wrote, and if needed can serve as
-    a template method for querying each sensor individually.
-    It takes a start time and a stop time as input.
-    The format for these times is RFC3339.
-    This method specifically queries node 10 with sensors 10A, 10B,
-    and Temp (UTC/GMT). Please see query_all_sensors for EST.
-    example: exportInfluxAsCSV.query_sensors_10AB(
-        '2023-08-16T00:00:00.000Z', '2023-08-17T00:00:00.000Z')
-    For EST please see query_all_sensors.
-    """
-    export_start_time = datetime.now()
-    with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
-        # Query Sensors 10A-Left, 10A-Right, and 10A-Temp
-        csv_iterator = client.query_api().query_csv(
-            """from(bucket: "{bucket_name}")
-                |> range(start: {start_time},
-                  stop: {stopTime})
-                |> filter(fn: (r) => r["_measurement"] == "PNB_Reading")
-                |> group(columns: ["_measurement",
-                  "10A-Left", "10A-Right", "10A-TEMP"])""".format(
-                bucket_name=str(zatan_bucket), start_time=start, stopTime=stop
-            ),
-            dialect=Dialect(
-                header=True,
-                annotations=[],
-                date_time_format="RFC3339",
-                delimiter=",",
-            ),
-        )
-
-        output = csv_iterator.to_values()
-        # print(output)
-        print()
-
-        with open("test.csv", mode="w", newline="") as file:
-            print("writing to file")
-            writer = csv.writer(file)
-            writer.writerows(output)
-
-    print()
-    print(f"Export finished in: {datetime.now() - export_start_time}")
-    print()
-    return
-'''
-
-
 def query_sensors_for_plot(start, stop, sensors):
     """
     This function is very similar to
@@ -326,9 +273,6 @@ def query_sensors_for_plot(start, stop, sensors):
     This string gets passed to the front end
     and written into an iframe.
     """
-    # parent = Path(PLOT_TMP_PATH)
-    # plot_path = generate_file_name(start, stop, "Plot")
-    # write_to = parent / plot_path
     formatted_sensors = format_sensor_list(sensors)
 
     logging.info(

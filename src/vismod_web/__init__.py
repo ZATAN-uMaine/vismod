@@ -100,7 +100,7 @@ def download_csv():
     )
 
 
-@app.route("/display_plot", methods=["GET"])
+@app.route("/display_plot", methods=["GET", "POST"])
 def display_plot():
     sensor = request.args.get("sensor")
     startDay = request.args.get("startDay")
