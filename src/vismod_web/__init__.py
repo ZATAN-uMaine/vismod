@@ -37,8 +37,11 @@ else:
 
 
 @app.route("/")
-def hello():
-    return render_template("index.html")
+def index():
+    (start, stop, count) = get_sensor_data_range()
+    return render_template(
+        "index.html", data={"start": start, "stop": stop, "count": count}
+    )
 
 
 @app.route("/process", methods=["POST", "GET"])

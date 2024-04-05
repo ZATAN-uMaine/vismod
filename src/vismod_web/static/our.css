@@ -10,8 +10,20 @@ body * {
     font-family: 'open sans', Helvetica, sans-serif;
 }
 
+figure {
+    margin: 0;
+}
+
+figcaption {
+    margin: 0.5rem 1rem;
+}
+
+.p-em {
+    font-weight: bold;
+}
+
 /*****
-Navigation Bat
+Navigation Bar
 */
 
 #navigation-bar {
@@ -24,18 +36,18 @@ Navigation Bat
 }
 
 @media (max-width: 800px) {
-  #navigation-bar {
-    flex-direction: column;
-  }
+    #navigation-bar {
+        flex-direction: column;
+    }
 }
 
-#navigation-bar > nav {
+#navigation-bar>nav {
     display: flex;
     min-width: 50%;
     justify-content: space-around;
 }
 
-#navigation-bar > h1 {
+#navigation-bar>h1 {
     padding: 0;
     margin: 0;
 }
@@ -56,33 +68,51 @@ Navigation Bat
     text-decoration: none;
     margin: 0 auto;
 }
+
 .navigation-item a:hover {
     background-color: #202020;
 }
 
-#dateRangeBox {
-    float: right;
+/***** 
+Main layout
+**/
+
+#selection-controls {
     display: flex;
-    /* flex-direction: column; */
-    height: 100%;
+}
+
+#selection-controls>section {
     flex: 1;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
+}
+
+#selection-info {
+    padding: 1rem;
+}
+
+#dateRangeBox {
+    display: flex;
+    flex-direction: column;
     font-size: medium;
+    margin-bottom: 1rem;
+    gap: 0.25rem;
 }
 
 .dateSelectorBox {
     display: flex;
     height: 100%;
     align-items: center;
-    justify-content: center;
-    gap: 3px;
+    margin-left: 1rem;
 }
 
-mark {
+.dataSelectorBox>mark {
     background-color: darkslateblue;
     color: aliceblue;
+}
+
+.plot-button-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 /* For hiding labels */
@@ -96,6 +126,7 @@ mark {
     clip: rect(0, 0, 0, 0);
     border: 0;
 }
+
 /* Indicates that circle and trianlges on the bridge graphic are clickable */
 circle,
 .triangle {
@@ -103,33 +134,48 @@ circle,
 }
 
 .bridge-area {
-    padding: 30px 30px;
     /* Defaults to this without dark mode */
-    background-color: #CCC;
+    background-color: #e7e7e7;
+    display: flex;
     flex-direction: column;
+    justify-content: space-around;
+}
+
+.bridge-area>caption {
+    padding: 1rem;
 }
 
 /* The Modal (background) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
 }
 
 /* Modal Content/Box */
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 15% auto;
+    /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
+    width: 80%;
+    /* Could be more or less, depending on screen size */
     color: black;
 }
 
@@ -148,7 +194,7 @@ circle,
     cursor: pointer;
 }
 
-.modal-content > div {
+.modal-content>div {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -170,10 +216,9 @@ circle,
 
 /* Hides moon-icon without dark mode */
 #moon-icon {
-    display: none; 
+    display: none;
 }
-  
+
 .dark #moon-icon {
     display: block;
 }
-  

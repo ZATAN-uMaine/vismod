@@ -153,6 +153,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         modal.style.display = 'none'
     }
 
+    document.body.classList.toggle("dark");
     themeToggle.onclick = function () {
         document.body.classList.toggle("dark")
     }
