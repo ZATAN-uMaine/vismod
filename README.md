@@ -26,7 +26,6 @@ run from a local workstation with a firewall.
 1. A Debian-based Python container for development work. This contains all of the dependencies for our code. VSCode is running as user `work` within the container.
 Port 4000 + 5000 are exposed to localhost so you can access Flask and Python debugging.
 2. InfluxDB with some example data, on port 8086.
-3. Grafana with some pre-configured dashboards, on port 3000.
 
 Development also uses [dotenv](https://dev.to/jakewitcher/using-env-files-for-environment-variables-in-python-applications-55a1)
 for managing environment variables and secrets. You will need to copy the
@@ -96,14 +95,6 @@ To use the Influx CLI (this is mostly good for database admin, not querying):
 
 1. From the `.devcontainer` directory...
 2. Run `docker compose exec influx <YOUR COMMAND HERE>`
-
-
-#### Grafana
-
-To use Grafana
-
-1. Visit http://localhost:3000
-2. Credentials are admin / admin
 
 
 #### Python
