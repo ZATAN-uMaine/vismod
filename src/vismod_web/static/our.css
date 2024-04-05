@@ -10,11 +10,34 @@ body * {
     font-family: 'open sans', Helvetica, sans-serif;
 }
 
+/*****
+Navigation Bat
+*/
+
 #navigation-bar {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    min-height: 4rem;
     border-bottom: thick double #202020;
     font-size: large;
+    padding: 0.5rem 2rem;
+}
+
+@media (max-width: 800px) {
+  #navigation-bar {
+    flex-direction: column;
+  }
+}
+
+#navigation-bar > nav {
+    display: flex;
+    min-width: 50%;
+    justify-content: space-around;
+}
+
+#navigation-bar > h1 {
+    padding: 0;
+    margin: 0;
 }
 
 .navigation-item {
