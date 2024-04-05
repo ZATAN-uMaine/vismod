@@ -93,7 +93,7 @@ def list_tdms_files(service):
             spaces="drive",
             fields="files(id, name, createdTime, modifiedTime)",
             orderBy="modifiedTime desc",
-            pageSize=22,  # Request only the newest file
+            pageSize=12,  # Request only the newest file
             supportsAllDrives=True,
         )
     )
@@ -107,7 +107,7 @@ def list_tdms_files(service):
     file_name_regex = re.compile("^.*\\.tdms$")
     file_list = []
     for file in results:
-        name = file["modifiedTime"]
+        name = file["name"]
         if file_name_regex.match(name):
             file_list.append(file)
 
@@ -131,7 +131,7 @@ def get_specified_tdms_file(service, file_name):
             q=query,
             spaces="drive",
             fields="files(id, name, createdTime, modifiedTime)",
-            pageSize=22,  # Request only the newest file
+            pageSize=12,  # Request only the newest file
             supportsAllDrives=True,
         )
     )
@@ -167,36 +167,41 @@ def tdmsDownload(target_file=None) -> list[str]:
     # Download the newest file if it hasn't been downloaded before
     local_files = []
     if len(data_file_list) > 0:
-        for item in data_file_list:
-            last_modif_stamp = db.get_row(item["id"])
-            if (
-                item["modifiedTime"] != last_modif_stamp
-            ):  # replace current date with stored date for file
-                print(f"Downloading {item['name']}...")
-                file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
-                fh = io.FileIO(file_path, "wb")
-                media = service.files().get_media(fileId=item["id"])
-                downloader = MediaIoBaseDownload(fh, media)
-                done = False
+        item = data_file_list[5]
+        item_id = item['id']
+        last_modif_stamp = db.get_row(f"{item_id}-lastModified")
+        if (
+            item["modifiedTime"] != last_modif_stamp 
+            or last_modif_stamp == None
+        ):  # replace current date with stored date for file
+            print(f"Downloading {item['name']}...")
+            file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
+            fh = io.FileIO(file_path, "wb")
+            media = service.files().get_media(fileId=item["id"])
+            downloader = MediaIoBaseDownload(fh, media)
+            done = False
 
-                # Download the file
-                while not done:
-                    try:
-                        status, done = downloader.next_chunk()
-                        progress = int(status.progress() * 100)
-                        print(f"Download {progress}% complete.")
-                        # noqa
-                    # Catch API request errors
-                    except HttpError as e:
-                        print(f"Failed to download {item['name']}: {e}")
-                        fh.close()
-                        os.remove(file_path)
-                        break
+            # Download the file
+            while not done:
+                try:
+                    status, done = downloader.next_chunk()
+                    progress = int(status.progress() * 100)
+                    print(f"Download {progress}% complete.")
+                    # noqa
+                # Catch API request errors
+                except HttpError as e:
+                    print(f"Failed to download {item['name']}: {e}")
+                    fh.close()
+                    os.remove(file_path)
+                    break
 
-                # If download successful, update the last-modified timestamp
-                if done:
-                    timestamp = {item["id"]: item["modifiedTime"]}
-                    db.write_dict(timestamp)
+            # If download successful, update the last-modified timestamp
+            if done:
+                timestamp = {f"{item_id}-lastModified": item["modifiedTime"]}
+                #db.write_row(timestamp)
+
+                update_downloads_file(timestamp[f"{item_id}-lastModified"])
+                local_files.append(file_path)
     else:
         print("No new files to download.")
 
