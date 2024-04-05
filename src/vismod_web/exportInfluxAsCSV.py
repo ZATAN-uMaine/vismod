@@ -1,8 +1,8 @@
 import os
 import csv
 import logging
-import plotly.express as px
 import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 from datetime import datetime
 from pathlib import Path
 from influxdb_client import InfluxDBClient, Dialect
@@ -31,7 +31,7 @@ STRAIN_UNITS = {  # every stay gets the same unit
     key: "strain (lbs)" for key in STRAIN_SENSORS
 }
 AUXILIARY_UNITS = {
-    "_time": "",
+    "_time": "UTC",
     "External-Temperature": "degrees (F)",
     "External-Wind-Direction": "angle (degrees)",
     "External-Wind-Speed": "feet/second",
@@ -75,9 +75,9 @@ def generate_file_name(start, stop, file_type):
     time_since_midnight = now - now.replace(
         hour=0, minute=0, second=0, microsecond=0
     )
-    stamp = round(time_since_midnight.total_seconds() * 1000)
+    ms = round(time_since_midnight.total_seconds() * 1000)
     file_name = (
-        f"PNB_{file_type}_{fileStartDate}_to_{fileStopDate}_{stamp}.{extension}"
+        f"PNB_{file_type}_{fileStartDate}_to_{fileStopDate}_{ms}.{extension}"
     )
 
     return file_name
@@ -162,7 +162,7 @@ def query_sensors_for_CSV(start, stop, sensors):
                 |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
                 |> filter(fn: (r) => r["_field"] == "_value")
                 |> filter(fn: (r) => {sensor_list})
-                |>pivot(rowKey:["_time"],
+                |> pivot(rowKey:["_time"],
                          columnKey: ["node"],
                          valueColumn: "_value")
                 |> group()
@@ -321,21 +321,19 @@ def query_sensors_10AB(start, stop):
 def query_sensors_for_plot(start, stop, sensors):
     """
     This function is very similar to
-    query_sensors_for_CSV, but writes an HTML file
-    containing a plotly plot.
+    query_sensors_for_CSV, but writes an HTML
+    as a string, containing a plotly plot.
+    This string gets passed to the front end
+    and written into an iframe.
     """
-    parent = Path(PLOT_TMP_PATH)
-    plot_path = generate_file_name(start, stop, "Plot")
-    write_to = parent / plot_path
+    # parent = Path(PLOT_TMP_PATH)
+    # plot_path = generate_file_name(start, stop, "Plot")
+    # write_to = parent / plot_path
     formatted_sensors = format_sensor_list(sensors)
 
-    # TESTING
-    start = "2024-03-29T00:00:00.000+04:00"
-    stop = "2024-03-30T00:00:00.000+04:00"
-    formatted_sensors = 'r["node"] == "10A-Left or r["node"] == "External-Temperature"'
-    # DELETE LATER
-
-    logging.info(f"Querying sensors: {sensors} from {start} to {stop}")
+    logging.info(
+        f"Querying sensors: {formatted_sensors} from {start} to {stop}"
+    )
 
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
         plot_query = """
@@ -352,11 +350,103 @@ def query_sensors_for_plot(start, stop, sensors):
                 |> drop(columns:
                     ["result","_start","_stop","_measurement","_field"])
             """.format(
-                bucket_name=str(zatan_bucket),
-                start_time=start,
-                stop_time=stop,
-                sensor_list=formatted_sensors,
-            )
-        
-        result = client.query_api().query(plot_query)
-        print(result)
+            bucket_name=str(zatan_bucket),
+            start_time=start,
+            stop_time=stop,
+            sensor_list=formatted_sensors,
+        )
+
+        result = client.query_api().query(plot_query, org=organization)
+        filtered_sensors = [
+            sensor for sensor in sensors if sensor in ALL_SENSORS
+        ]
+
+        results_dict = {  # _time join to the sensors, each key gets empty list
+            key: [] for key in ["_time"] + filtered_sensors
+        }
+
+        # this should be the _time column + sensors
+        column_keys = list(results_dict.keys())
+
+        for table in result:
+            for record in table.records:  # each row
+                for k in column_keys:
+                    results_dict[k].append(record[k])
+
+        plot_html = create_plot(results_dict, filtered_sensors)
+        return plot_html
+
+
+def create_plot(results_dict, filtered_sensors):
+    """
+    Auxiliary function for handling the details
+    of plot creation with plotly.
+    Be careful -- this function assumes that the
+    data results_dict is formatted in a particular
+    way, based on the Flask route.
+    """
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # get first and last timestamps from the _time column
+    start_stamp = results_dict["_time"][0].strftime("%Y %b %d %H:%M")
+    end_stamp = results_dict["_time"][-1].strftime("%Y %b %d %H:%M")
+
+    plot_title = "Stay {name} strain from {st} to {et}".format(
+        name=filtered_sensors[0].split("-")[0], st=start_stamp, et=end_stamp
+    )
+    layout = go.Layout(
+        title=plot_title,
+        template="plotly_dark",
+        xaxis=dict(title="Time-stamp"),
+        yaxis=dict(title="Strain (lbs)"),
+        yaxis2=dict(title="Temperature (F)", overlaying="y", side="right"),
+    )
+
+    fig.update_layout(layout)
+
+    # this assumes that we only have two channels (Left, Right)
+    # and that they are in the zeroeth and first indices of
+    # filtered_sensors
+    # TODO: Generalize this to handle an arbitrary number of channels
+    averaged_lr_data = [
+        (g + h) / 2.0
+        for g, h in zip(
+            results_dict[filtered_sensors[0]],  # Left sensor
+            results_dict[filtered_sensors[1]],  # right sensor
+        )
+    ]
+
+    # draw the strain
+    # TODO: Make method for getting name of this data cleaner
+    fig.add_trace(
+        go.Scatter(
+            mode="lines+markers",
+            x=results_dict["_time"],
+            y=averaged_lr_data,
+            name="Strain (lbs.)",
+            marker=dict(color="green", symbol="square", size=8),
+        ),
+        secondary_y=False,
+    )
+
+    # draw the external temperature
+    # assumes that the External-Temp sensor is in the last
+    # index of the filered_sensors list
+    fig.add_trace(
+        go.Scatter(
+            mode="lines+markers",
+            x=results_dict["_time"],
+            y=results_dict[filtered_sensors[-1]],
+            name="External Temperature (F)",
+            marker=dict(color="red", symbol="diamond", size=8),
+            line=dict(dash="dash"),
+        ),
+        secondary_y=True,
+    )
+
+    # returns a huge string containing all the HTML needed
+    # to display the plot
+    return fig.to_html(include_plotlyjs="cdn")
+
+    # saves the html for the plot to a file in tmp
+    # fig.write_html(write_to, include_plotlyjs="cdn")

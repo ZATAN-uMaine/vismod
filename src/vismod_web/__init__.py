@@ -53,8 +53,8 @@ def download_csv():
     startHour = request.args.get("startHour")
     endDay = request.args.get("endDay")
     endHour = request.args.get("endHour")
-    start_request = f"{startDay}T{startHour}:00:00.000+04:00"
-    end_request = f"{endDay}T{endHour}:00:00.000+04:00"
+    start_request = f"{startDay}T{startHour:02}:00:00.000+00:00"
+    end_request = f"{endDay}T{endHour:02}:00:00.000+00:00"
 
     if sensor is None:
         return "Missing parameter 'sensor'", 400
@@ -102,8 +102,39 @@ def download_csv():
 
 @app.route("/display_plot", methods=["GET"])
 def display_plot():
-    query_sensors_for_plot(
-        "2024-03-29T00:00:00.000+04:00",
-        "2024-03-29T00:00:00.000+04:00",
-        ["a", "b"],
+    sensor = request.args.get("sensor")
+    startDay = request.args.get("startDay")
+    startHour = request.args.get("startHour")
+    endDay = request.args.get("endDay")
+    endHour = request.args.get("endHour")
+    start_request = f"{startDay}T{startHour:02}:00:00.000+00:00"
+    end_request = f"{endDay}T{endHour:02}:00:00.000+00:00"
+
+    if sensor is None:
+        return "Missing parameter 'sensor'", 400
+    if (
+        startDay is None
+        or endDay is None
+        or startHour is None
+        or endHour is None
+    ):
+        return "Missing time range parameteres", 400
+
+    logging.info(
+        f"""processing download request for sensor \
+            {sensor} from {start_request} to {end_request} """
     )
+    plot_html = str(
+        query_sensors_for_plot(
+            start=start_request,
+            stop=end_request,
+            sensors=[
+                sensor,
+                sensor + "-Left",
+                sensor + "-Right",
+                "External-Temperature",
+            ],
+        )
+    )
+
+    return plot_html

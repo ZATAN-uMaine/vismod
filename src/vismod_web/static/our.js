@@ -28,17 +28,23 @@ function createModal(sensorId, modal) {
     modal.style.display = 'block'
 }
 
-function createPlotIFrame() {
-    requestPlot()
+function createPlotIFrame(htmlcode) {
     console.log('ZALGO')
-    var plotIFrame = document.createElement('iframe')
+    const plotIFrame = document.createElement('iframe')
+    // plotIFrame.srcdoc = src
 
-    var htmlcode = `
-    <body><h1 style="text-align: center; color: green;"}>Plot of ${selectedSensor}'s data from ${selectedStartHour}:00 on ${selectedStartDay} to ${selectedEndHour}:00 on ${selectedEndDay}</h1></body>
-    `
+    // var htmlcode = `
+    // <body><h1 style="text-align: center; color: green;"}>Plot of ${selectedSensor}'s data from ${selectedStartHour}:00 on ${selectedStartDay} to ${selectedEndHour}:00 on ${selectedEndDay}</h1></body>
+    // `
+
+    plotIFrame.setAttribute('scrolling', 'no')
+    plotIFrame.setAttribute('style', 'border:none;')
+    plotIFrame.setAttribute('seamless', 'seamless')
+    plotIFrame.setAttribute('height', '525')
+    plotIFrame.setAttribute('width', '100%')
 
     document.getElementById('plotBay').appendChild(plotIFrame)
-    plotIFrame.setAttribute('style', 'height:100%;width:100%;')
+    
     plotIFrame.contentWindow.document.open()
     plotIFrame.contentWindow.document.write(htmlcode)
     plotIFrame.contentWindow.document.close()
@@ -210,6 +216,10 @@ function requestPlot() {
         }, 
         success: function(response) { 
             console.log("mazel_tav");
+            // const plotContainer = document.createElement('div')
+            // plotContainer.innerHTML = response
+            // document.getElementById('plotBay').appendChild(plotContainer)
+            createPlotIFrame(response)
         }, 
         error: function(error) { 
             console.log("ERROR INCOMING")
