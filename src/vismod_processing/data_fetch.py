@@ -3,6 +3,7 @@ import os
 import random
 import time
 import re
+import logging
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, HttpError
@@ -37,18 +38,18 @@ def exponential_backoff_request(
         except HttpError as e:
             if e.resp.status in [500, 502, 503, 504]:
                 wait_time = min((2**n) + random.random(), max_backoff)
-                print(
+                logging.warn(
                     f"Request failed with status {e.resp.status}, "
                     f"retrying in {wait_time} seconds..."
                 )
                 time.sleep(wait_time)
             else:
-                print(
+                logging.warn(
                     f"Request failed with status {e.resp.status}, "
                     f"error: {e}"
                 )
                 return None
-    print("Maximum retries reached, giving up.")
+    logging.warn("Maximum retries reached, giving up.")
     return None
 
 
@@ -68,7 +69,9 @@ def update_downloads_file(filename):
     """
     with open(LOCAL_PREVIOUS_DOWNLOADS_FILE, "a") as file:
         file.write(filename + "\n")
-    print(f"Updated local file with download: {filename}")
+    logging.debug(
+        f"Updated {LOCAL_PREVIOUS_DOWNLOADS_FILE} with download: {filename}"
+    )
 
 
 def list_tdms_files(service):
@@ -78,7 +81,7 @@ def list_tdms_files(service):
     """
     FOLDER_ID = os.getenv("FOLDER_ID")
     if not FOLDER_ID or len(FOLDER_ID) < 5:
-        print("$FOLDER_ID not provided by environment")
+        logging.error("$FOLDER_ID not provided by environment")
         return None
 
     query = (
@@ -137,6 +140,7 @@ def get_specified_tdms_file(service, file_name):
     )
     results = results.get("files", [])
     if not results:
+        logging.warn("Could not find drive TDMS data file called {file_name}")
         return []
     return results
 
@@ -149,7 +153,7 @@ def tdmsDownload(target_file=None) -> list[str]:
     # Create the google api service
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     if not GOOGLE_API_KEY or len(GOOGLE_API_KEY) < 5:
-        print("$GOOGLE_API_KEY not available from environment")
+        logging.error("$GOOGLE_API_KEY not available from environment")
         return []
 
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
@@ -174,7 +178,7 @@ def tdmsDownload(target_file=None) -> list[str]:
             item["modifiedTime"] != last_modif_stamp 
             or last_modif_stamp == None
         ):  # replace current date with stored date for file
-            print(f"Downloading {item['name']}...")
+            logging.info(f"Downloading {item['name']}...")
             file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
             fh = io.FileIO(file_path, "wb")
             media = service.files().get_media(fileId=item["id"])
@@ -185,12 +189,13 @@ def tdmsDownload(target_file=None) -> list[str]:
             while not done:
                 try:
                     status, done = downloader.next_chunk()
-                    progress = int(status.progress() * 100)
-                    print(f"Download {progress}% complete.")
-                    # noqa
+                    logging.debug(
+                        f"Download {int(status.progress() * 100)}% complete."
+                    )  # noqa
+
                 # Catch API request errors
                 except HttpError as e:
-                    print(f"Failed to download {item['name']}: {e}")
+                    logging.warn(f"Failed to download {item['name']}: {e}")
                     fh.close()
                     os.remove(file_path)
                     break
@@ -203,13 +208,14 @@ def tdmsDownload(target_file=None) -> list[str]:
                 update_downloads_file(timestamp[f"{item_id}-lastModified"])
                 local_files.append(file_path)
     else:
-        print("No new files to download.")
+        logging.info("No new TDMS data files to download.")
 
     return local_files
 
 
 # Allow this file to be run standalone
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     load_dotenv()
     # Create the google api service
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
