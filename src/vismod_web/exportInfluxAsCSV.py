@@ -508,8 +508,8 @@ def create_plot(results_dict, filtered_sensors):
         print("adding sensor: {sensor}".format(
               sensor=filtered_sensors[i]))
 
-        # print("color value: {iterator}"
-        #      .format(iterator=trace_color_list[i % 8]))
+        print("color value: {iterator}"
+              .format(iterator=trace_color_list[i % 8]))
 
         fig.add_trace(
             go.Scatter(
@@ -537,12 +537,12 @@ def create_plot(results_dict, filtered_sensors):
                 #    sensor=STRAIN_SENSORS[i]))
                 # print("i index: {index}".format(index=i))
                 index = -(i % 8)
-                if (index == -8):
-                    index = 0
-                # print("color index: {index}".format(index=index))
+                # if (index == -8):
+                #     index = 0
+                print("color index: {index}".format(index=index))
 
-                # print("color value: {iterator}"
-                #      .format(iterator=trace_color_list[index]))   
+                print("color value: {iterator}"
+                      .format(iterator=trace_color_list[index]))   
                              
                 fig.add_trace(
                         go.Scatter(
