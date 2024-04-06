@@ -8,12 +8,10 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from vismod_web.exportInfluxAsCSV import (
     query_all_sensors_for_CSV,
-    query_sensors_for_plot,
+    query_sensors_for_CSV,
     get_sensor_data_range,
     query_all_sensors_for_plot,
-
 )
-from vismod_web.exportInfluxAsCSV import query_sensors_for_CSV  # noqa
 
 load_dotenv(dotenv_path=Path(".env"))
 
@@ -34,6 +32,8 @@ if (
     )
 else:
     logging.info("Flask running in development mode.")
+    # will reload HTML / CSS / JS after change without restarting the server
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
 @app.route("/")
@@ -53,22 +53,14 @@ def process():
 
 @app.route("/download_csv", methods=["GET", "POST"])
 def download_csv():
-    sensor = request.args.get("sensor")
-    startDay = request.args.get("startDay")
-    startHour = request.args.get("startHour")
-    endDay = request.args.get("endDay")
-    endHour = request.args.get("endHour")
-    start_request = f"{startDay}T{startHour:02}:00:00.000+00:00"
-    end_request = f"{endDay}T{endHour:02}:00:00.000+00:00"
+    sensor = request.values.get("sensor")
+    start_request = request.values.get("start")
+    end_request = request.values.get("end")
+    print((start_request, end_request))
 
     if sensor is None:
         return "Missing parameter 'sensor'", 400
-    if (
-        startDay is None
-        or endDay is None
-        or startHour is None
-        or endHour is None
-    ):
+    if start_request is None or end_request is None:
         return "Missing time range parameteres", 400
 
     if sensor == "all":
@@ -98,6 +90,8 @@ def download_csv():
                 ],
             )
         )
+        if file is None:
+            return "No data found", 204
 
     logging.info("Finished processing sensor file")
     return send_file(
@@ -107,22 +101,13 @@ def download_csv():
 
 @app.route("/display_plot", methods=["GET", "POST"])
 def display_plot():
-    sensor = request.args.get("sensor")
-    startDay = request.args.get("startDay")
-    startHour = request.args.get("startHour")
-    endDay = request.args.get("endDay")
-    endHour = request.args.get("endHour")
-    start_request = f"{startDay}T{startHour:02}:00:00.000+00:00"
-    end_request = f"{endDay}T{endHour:02}:00:00.000+00:00"
+    sensor = request.values.get("sensor")
+    start_request = request.values.get("start")
+    end_request = request.values.get("end")
 
     if sensor is None:
         return "Missing parameter 'sensor'", 400
-    if (
-        startDay is None
-        or endDay is None
-        or startHour is None
-        or endHour is None
-    ):
+    if start_request is None or end_request is None:
         return "Missing time range parameteres", 400
 
     logging.info(
@@ -130,22 +115,16 @@ def display_plot():
             {sensor} from {start_request} to {end_request} """
     )
     plot_html = str(
-        # query_sensors_for_plot(
-        #     start=start_request,
-        #     stop=end_request,
-        #     sensors=[
-        #         sensor,
-        #         sensor + "-Left",
-        #         sensor + "-Right",
-        #         "External-Temperature",
-        #     ],
-        # )
-        query_all_sensors_for_plot(start=start_request, stop=end_request,
-                                   sensors=[sensor,
-                                            sensor + "-Left",
-                                            sensor + "-Right",
-                                            "External_Temperature",
-                                            ])
+        query_all_sensors_for_plot(
+            start=start_request,
+            stop=end_request,
+            sensors=[
+                sensor,
+                sensor + "-Left",
+                sensor + "-Right",
+                "External_Temperature",
+            ],
+        )
     )
 
     return plot_html

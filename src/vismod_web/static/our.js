@@ -1,230 +1,362 @@
-var selectedSensor = 'sensor2A' // default value
-var selectedStartDay = ''
-var selectedStartHour = ''
-var selectedEndDay = ''
-var selectedEndHour = ''
+/**
+ * This callback type is called `modalCallback` and is displayed as a global symbol.
+ * @callback modalCallback
+ */
 
-function updateDateRangeSelection() {
-    selectedStartDay = document.getElementById('startDate').value
-    selectedStartHour = document.getElementById('startHour').value
-    selectedEndDay = document.getElementById('endDate').value
-    selectedEndHour = document.getElementById('endHour').value
+/**
+ * Convert a JS Date into the format for an HTML input
+ * @param {Date} date 
+ * @returns date representation (`String`)
+ */
+function formatDate(date) {
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    return `${year}-${month}-${day}`
 }
 
-function createModal(sensorId, modal) {
-    // update variables
-    selectedSensor = sensorId
-    updateDateRangeSelection()
-
-    // inform user of selected sensor (rename later, probably)
-    modalSensor = document.getElementById('modal-sensor')
-    modalSensor.textContent = `${selectedSensor}`
-
-    // inform user of selected range
-    modalRange = document.getElementById('modal-range')
-    modalRange.textContent = `(${selectedStartDay}, ${selectedStartHour}:00) to (${selectedEndDay}, ${selectedEndHour}:00)`
-
-    // show modal popup
-    modal.style.display = 'block'
+/**
+ * Converts the time part of a JS date into the format for
+ * an <input type="time" />
+ * @param {Date} date
+ * @returns time representation (`String`)
+ */
+function formatTime(date) {
+    const hours = ('0' + date.getHours()).slice(-2);
+    const minutes = ('0' + date.getMinutes()).slice(-2);
+    return `${hours}:${minutes}`;
 }
 
-function createPlotIFrame(htmlcode) {
-    console.log('ZALGO')
-    const plotIFrame = document.createElement('iframe')
-    // plotIFrame.srcdoc = src
-
-    // var htmlcode = `
-    // <body><h1 style="text-align: center; color: green;"}>Plot of ${selectedSensor}'s data from ${selectedStartHour}:00 on ${selectedStartDay} to ${selectedEndHour}:00 on ${selectedEndDay}</h1></body>
-    // `
-
-    plotIFrame.setAttribute('scrolling', 'no')
-    plotIFrame.setAttribute('style', 'border:none;')
-    plotIFrame.setAttribute('seamless', 'seamless')
-    plotIFrame.setAttribute('height', '525')
-    plotIFrame.setAttribute('width', '100%')
-
-    document.getElementById('plotBay').appendChild(plotIFrame)
-    
-    plotIFrame.contentWindow.document.open()
-    plotIFrame.contentWindow.document.write(htmlcode)
-    plotIFrame.contentWindow.document.close()
-
-    var modal = document.getElementById('myModal')
-    modal.style.display = 'none'
+/**
+ * @param {String} date 
+ * @param {String} time 
+ * @returns `String` in form YYYY-MM-DDTHH:mm
+ */
+function formatDateString(date, time) {
+    return `${date}T${time}:00`;
 }
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    // Set default dates
-    const now = new Date()
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const minDate = '2023-08-01' // TODO: fix later to actual minimum date
+/**
+ * Used to generate filenames for export.
+ * @param {Date} date 
+ * @returns string YYYY-MM-DD
+ */
+function prettyPrintDate(date) {
+    return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+}
 
-    const formatDate = (date) => {
-        const year = date.getFullYear()
-        const month = (date.getMonth() + 1).toString().padStart(2, '0')
-        const day = date.getDate().toString().padStart(2, '0')
-        return `${year}-${month}-${day}`
+
+/**
+ * Handle the state of the sensor and time range select controls.
+ */
+class SensorSelection {
+    curSensors = [];
+    // one week ago
+    startTime = new Date((new Date()).getTime() - 7 * 24 * 60 * 60 * 1000);
+    // right now
+    endTime = new Date();
+
+    get selectedSensors() {
+        return this.curSensors;
     }
 
-    const startDaySelector = document.getElementById('startDate')
-    const endDaySelector = document.getElementById('endDate')
-    const startHourSelector = document.getElementById('startHour')
-    const endHourSelector = document.getElementById('endHour')
-
-    startDaySelector.setAttribute('min', minDate)
-    startDaySelector.setAttribute('max', formatDate(now))
-    endDaySelector.setAttribute('min', minDate)
-    endDaySelector.setAttribute('max', formatDate(now))
-
-    // Populate the hour <select> elements
-    for (let i = 0; i < 24; i++) {
-        const hourValue = i.toString().padStart(2, '0') + ':00'
-        const option = new Option(hourValue, i)
-        startHourSelector.add(option.cloneNode(true))
-        endHourSelector.add(option.cloneNode(true))
+    get selectedRange() {
+        return { "start": this.startTime, "end": this.endTime };
     }
 
-    // Set default values for dates
-    startDaySelector.value = formatDate(oneWeekAgo)
-    endDaySelector.value = formatDate(now)
+    constructor() {
+        this.createEventHandlers = this.createEventHandlers.bind(this);
+        this.updateSelectedDate = this.updateSelectedDate.bind(this);
+        document.addEventListener("DOMContentLoaded", this.createEventHandlers);
+    }
 
-    // Set default values for hours
-    startHourSelector.value = oneWeekAgo.getHours()
-    endHourSelector.value = now.getHours()
+    /**
+     * Run after DomContentLoaded.
+     */
+    createEventHandlers() {
+        // date picker
+        const startDaySelector = document.getElementById('startDate');
+        const endDaySelector = document.getElementById('endDate');
+        const startHourSelector = document.getElementById('startHour');
+        const endHourSelector = document.getElementById('endHour');
 
-    // Enforce date constraints
-    startDaySelector.max = endDaySelector.value
-    endDaySelector.min = startDaySelector.value
+        startDaySelector.addEventListener("change", this.updateSelectedDate);
+        endDaySelector.addEventListener("change", this.updateSelectedDate);
+        startHourSelector.addEventListener("change", this.updateSelectedDate);
+        endHourSelector.addEventListener("change", this.updateSelectedDate);
 
-    // Enforce time constraints
-    const enforceTimeConstraints = () => {
-        const startHour = parseInt(startHourSelector.value, 10)
-        const endHour = parseInt(endHourSelector.value, 10)
-        if (
-            startDaySelector.value === endDaySelector.value &&
-            startHour > endHour
-        ) {
-            endHourSelector.value = startHour
+        startDaySelector.value = formatDate(this.startTime);
+        endDaySelector.value = formatDate(this.endTime);
+        startHourSelector.value = "00:00";
+        endHourSelector.value = formatTime(this.endTime);
+        endDaySelector.max = endDaySelector.value;
+        startDaySelector.max = endDaySelector.max;
+
+        // sensor points on diagram
+        const circles = document.querySelectorAll('.sensor');
+        circles.forEach((circle) => {
+            circle.addEventListener('click', () => this.updateSelectedSensors([circle.id]));
+        });
+        this.updateSelectedSensors([]);
+    }
+
+    /**
+     * updates all dates in the date range from their `<input>`s
+     */
+    updateSelectedDate() {
+        const startDaySelector = document.getElementById('startDate');
+        const startHourSelector = document.getElementById('startHour');
+        const startDateString = formatDateString(startDaySelector.value, startHourSelector.value);
+        this.startTime = new Date(startDateString);
+        const endDaySelector = document.getElementById('endDate');
+        const endHourSelector = document.getElementById('endHour');
+        const endDateString = formatDateString(endDaySelector.value, endHourSelector.value);
+        this.endTime = new Date(endDateString);
+        startDaySelector.max = endDaySelector.value;
+    }
+
+    /**
+     * Updates which sensors are selected for plotting.
+     * 
+     * @param {String[]} sensor 
+     */
+    updateSelectedSensors(sensors) {
+        this.curSensors = sensors;
+        const plotButton = document.getElementById("plot-data-button");
+        const downloadButton = document.getElementById("download-data-button");
+        plotButton.disabled = (this.curSensors.length === 0);
+        downloadButton.disabled = (this.curSensors.length === 0);
+
+        const sensorInfoPanel = document.getElementById("cur-sensor-info-panel");
+        if (this.curSensors.length == 0) {
+            sensorInfoPanel.innerHTML = "";
+        } else {
+            sensorInfoPanel.innerHTML = `Current sensors: ${this.curSensors}`;
         }
     }
+}
 
-    updateDateRangeSelection()
+window.sensorSelectSingleton = new SensorSelection();
 
-    startDaySelector.addEventListener('change', function () {
-        endDaySelector.min = this.value
-        enforceTimeConstraints()
-        updateDateRangeSelection()
-    })
 
-    endDaySelector.addEventListener('change', function () {
-        startDaySelector.max = this.value
-        enforceTimeConstraints()
-        updateDateRangeSelection()
-    })
+/**
+ * Allows display of a pop-up with arbitrary messages
+ */
+class Modal {
+    modalHolder = null;
+    onConfirm = null;
+    onCancel = () => { };
 
-    startHourSelector.addEventListener('change', function () {
-        enforceTimeConstraints()
-        updateDateRangeSelection()
-    })
-
-    endHourSelector.addEventListener('change', function () {
-        enforceTimeConstraints()
-        updateDateRangeSelection()
-    })
-
-    // Get the modal
-    var modal = document.getElementById('myModal')
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName('close')[0]
-
-    // Toggles dark mode + sun mode and hides/shows the appropriate icon
-    var themeToggle = document.getElementById('theme-toggle')
-
-    // const circles = document.querySelectorAll('[id^="sensor"]')
-    const circles = document.querySelectorAll('.sensor')
-
-    circles.forEach((circle) => {
-        circle.addEventListener('click', () => createModal(circle.id, modal))
-    })
-
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function () {
-        modal.style.display = 'none'
+    constructor() {
+        this.createEventHandlers = this.createEventHandlers.bind(this);
+        this.showModal = this.showModal.bind(this);
+        document.addEventListener("DOMContentLoaded", this.createEventHandlers);
     }
 
+    createEventHandlers() {
+        this.modalHolder = document.getElementById("modal");
+        this.modalHolder.classList.add("visually-hidden");
+
+        const confirmer = document.getElementById("modal-confirm-button");
+        const canceller = document.getElementById("modal-cancel-button");
+
+        confirmer.addEventListener("click", () => {
+            this.modalHolder.classList.add("visually-hidden");
+            if (this.onConfirm) {
+                this.onConfirm();
+            }
+        });
+        canceller.addEventListener("click", () => {
+            this.modalHolder.classList.add("visually-hidden");
+            this.onCancel();
+        });
+    }
+
+    /**
+     * Shows the modal.
+     * @param {string} message 
+     * @param {modalCallback} onCancel 
+     * @param {modalCallback=} onConfirm 
+     * @returns 
+     */
+    showModal(message, onCancel, onConfirm) {
+        if (!onCancel) {
+            return;
+        }
+        if (!onConfirm) {
+            this.onConfirm = null;
+            document.getElementById("modal-confirm-button").classList.add("visually-hidden");
+        } else {
+            document.getElementById("modal-confirm-button").classList.remove("visually-hidden");
+        }
+        document.getElementById("modal-content").innerHTML = message;
+        this.modalHolder.classList.remove("visually-hidden");
+    }
+}
+
+window.modalSingleton = new Modal();
+
+// misc event handlers
+document.addEventListener('DOMContentLoaded', (event) => {
+    // theme
+    const themeToggle = document.getElementById('theme-toggle')
     document.body.classList.toggle("dark");
     themeToggle.onclick = function () {
         document.body.classList.toggle("dark")
     }
 
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = 'none'
+    //download indiv button
+    const downloadButton = document.getElementById("download-data-button");
+    downloadButton.addEventListener("click", () => {
+        const { start, end } = window.sensorSelectSingleton.selectedRange;
+        const sensors = window.sensorSelectSingleton.selectedSensors;
+        // if there are no selected sensors, don't send invalid request
+        if (sensors.length === 0) {
+            return;
         }
-    }
-})
+        // if the start date is after the end date, don't send invalid request
+        if (start.getTime() > end.getTime()) {
+            return;
+        }
+        fetchCSV(sensors, start, end)
+            .then((blob) => {
+                forceBlobDownload(
+                    blob,
+                    `pnb-export-${sensors[0]}-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
+                );
+            }).catch((err) => {
+                const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                window.modalSingleton.showModal(errString, () => { });
+            });
+    });
 
-function requestCSV(all_sensors=false) { 
-    let dataSensor = selectedSensor
-    if(all_sensors){
-        dataSensor = 'all'
-    }
-    alert("The creation and subsequent download of your csv will occur after you click \"OK\". \nBy clicking \"OK\", you acknowledge that the data downloaded does not reflect the structual integrity of the Penobscot Narrows Bridge.")
-    $.ajax({ 
-        url: '/download_csv', 
-        type: 'GET', 
-        data: { 
-            'sensor'    :   dataSensor,
-            'startDay'  :   selectedStartDay,
-            'startHour' :   selectedStartHour,
-            'endDay'    :   selectedEndDay,
-            'endHour'   :   selectedEndHour
-        }, 
-        success: function(response) { 
-            console.log("CSV INCOMING");
-            // console.log(response)
-            const blob = new Blob([response], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'data.csv';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }, 
-        error: function(error) { 
-            console.log("ERROR INCOMING")
-            console.log(error); 
-        } 
-    }); 
-} 
+    //download all button
+    const downloadAllButton = document.getElementById("downloadAllButton");
+    downloadAllButton.addEventListener("click", () => {
+        const { start, end } = window.sensorSelectSingleton.selectedRange;
+        const sensors = ["all"];
+        // if the start date is after the end date, don't send invalid request
+        if (start.getTime() > end.getTime()) {
+            return;
+        }
+        fetchCSV(sensors, start, end)
+            .then((blob) => {
+                forceBlobDownload(
+                    blob,
+                    `pnb-export-all-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
+                );
+            }).catch((err) => {
+                const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                window.modalSingleton.showModal(errString, () => { });
+            });
+    })
 
-function requestPlot() {
-    alert("The creation and subsequent download of your plot will occur after you click \"OK\". \nBy clicking \"OK\", you acknowledge that the data downloaded does not reflect the structual integrity of the Penobscot Narrows Bridge.")
-    $.ajax({ 
-        url: '/display_plot', 
-        type: 'GET', 
-        data: { 
-            'sensor'    :   selectedSensor,
-            'startDay'  :   selectedStartDay,
-            'startHour' :   selectedStartHour,
-            'endDay'    :   selectedEndDay,
-            'endHour'   :   selectedEndHour
-        }, 
-        success: function(response) { 
-            console.log("mazel_tav");
-            // const plotContainer = document.createElement('div')
-            // plotContainer.innerHTML = response
-            // document.getElementById('plotBay').appendChild(plotContainer)
-            createPlotIFrame(response)
-        }, 
-        error: function(error) { 
-            console.log("ERROR INCOMING")
-            console.log(error); 
-        } 
-    }); 
+    //plot button
+    const plotButton = document.getElementById("plot-data-button");
+    plotButton.addEventListener("click", () => {
+        const { start, end } = window.sensorSelectSingleton.selectedRange;
+        const sensors = window.sensorSelectSingleton.selectedSensors;
+        // if there are no selected sensors, don't send invalid request
+        if (sensors.length === 0) {
+            return;
+        }
+        // if the start date is after the end date, don't send invalid request
+        if (start.getTime() > end.getTime()) {
+            return;
+        }
+        fetchPlot(sensors, start, end)
+            .catch((err) => {
+                const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                window.modalSingleton.showModal(errString, () => { });
+            });
+    });
+
+});
+
+/**
+ * 
+ * @param sensors list of sensor names
+ * @param {Date} start 
+ * @param {Date} end 
+ * @returns `Blob` of csv for download
+ */
+async function fetchCSV(sensors, start, end) {
+    const body = new FormData();
+    body.append("start", start.toISOString());
+    body.append("end", end.toISOString());
+    // TODO: support a lost of sensors
+    body.append("sensor", sensors[0]);
+    const req = await fetch("/download_csv", {
+        method: "POST",
+        mode: "same-origin",
+        body,
+    });
+    if (req.status == 200) {
+        return req.blob();
+    } else if (req.status == 204) {
+        throw new Error("No data found for selected date range.");
+    }
+    else {
+        throw new Error(req.text);
+    }
+}
+
+/**
+ * Fetches the HTML for a plotly plot
+ * and then places it in the DOM.
+ * @param sensors list of sensor names
+ * @param {Date} start 
+ * @param {Date} end 
+ */
+async function fetchPlot(sensors, start, end) {
+    // show loading indicator
+    const loadInd = document.getElementById("plot-bay-loading");
+    loadInd.classList.remove("visually-hidden");
+    let plotIFrame = document.getElementById("plot-frame");
+    if (!plotIFrame) {
+        plotIFrame = document.createElement('iframe');
+        plotIFrame.setAttribute("id", "plot-frame");
+        document.getElementById('plotBay').appendChild(plotIFrame);
+        plotIFrame.setAttribute('scrolling', 'no');
+        plotIFrame.setAttribute('style', 'border:none;');
+        plotIFrame.setAttribute('seamless', 'seamless');
+        plotIFrame.setAttribute('height', '525');
+        plotIFrame.setAttribute('width', '100%');
+    }
+    plotIFrame.contentWindow.document.open();
+    plotIFrame.contentWindow.document.write("");
+    plotIFrame.contentWindow.document.close();
+
+    const location = new URL("/display_plot", window.location.origin);
+    location.searchParams.append("start", start.toISOString());
+    location.searchParams.append("end", end.toISOString());
+    location.searchParams.append("sensor", sensors[0]);
+    const req = await fetch(location);
+    if (req.status != 200) {
+        loadInd.classList.add("visually-hidden");
+        throw new Error(req.text);
+    }
+    const plotHTML = await req.text();
+
+    plotIFrame.contentWindow.document.open();
+    plotIFrame.contentWindow.document.write(plotHTML);
+    plotIFrame.contentWindow.document.close();
+    loadInd.classList.add("visually-hidden");
+}
+
+/**
+ * forces the user's browser to download the content of a Blob
+ * @param {Blob} blob 
+ * @param {string} filename
+ */
+function forceBlobDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 }

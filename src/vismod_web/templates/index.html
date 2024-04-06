@@ -1,19 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <!-- <meta http-equiv="content-type" content="text/html; charset=UTF-8"> -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PNB Portal</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css" />
 
     <link rel="stylesheet" type="text/css" href="static/our.css" />
     <link rel="stylesheet" type="text/css" href="static/theme-dark.css" />
     <script type="text/javascript" src="static/our.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">
-    </script>
 </head>
 
 <body class="dark" id="body">
@@ -40,32 +35,35 @@
                     from {{data.start.strftime("%B %d, %Y")}} to
                     {{data.stop.strftime("%B %d, %Y")}}.
                 </p>
-                <div id="dateRangeBox" class="pure-u-sm-1 pure-u-lg-7-12">
+                <div id="dateRangeBox">
                     <div>
                         <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
                     </div>
                     <div class="dateSelectorBox">
                         <label for="startDate">Start Date:</label>
-                        <input type="date" id="startDate" name="start-date" /><br />
+                        <input type="date" id="startDate" name="start-date" />
                         <label for="startHour" class="visually-hidden">Start Hour:</label>
-                        <select id="startHour" name="start-hour"></select><br /><br />
+                        <input type="time" id="startHour" name="start-hour"></select>
                     </div>
 
                     <div class="dateSelectorBox">
                         <label for="endDate">End Date:</label>
-                        <input type="date" id="endDate" name="end-date" /><br />
+                        <input type="date" id="endDate" name="end-date" />
                         <label for="endHour" class="visually-hidden">End Hour:</label>
-                        <select id="endHour" name="end-hour"></select><br /><br />
+                        <input type="time" id="endHour" name="end-hour"></select>
                     </div>
                 </div>
+                <div id="cur-sensor-info-panel">
+                    <!-- Contains information about the current sensor, if one is selected. -->
+                </div>
                 <div class="plot-button-box">
-                    <button disabled id="" class="pure-button">
+                    <button disabled id="plot-data-button">
                         Plot Data
                     </button>
-                    <button disabled class="pure-button">
+                    <button disabled id="download-data-button">
                         Download Data
                     </button>
-                    <button id="downloadAllButton" onclick="requestCSV(all_sensors=true)" class="pure-button">
+                    <button id="downloadAllButton">
                         Download All Sensor Data
                     </button>
                 </div>
@@ -202,64 +200,26 @@
             </section>
 
         </article>
-        <!-- The Modal -->
-        <div id="myModal" class="modal">
-            <!-- Modal content -->
-            <div class="modal-content pure-g">
-                <div id="data-info" class="pure-u-3-8">
-                    <div>
-                        <p>SENSOR: <span id="modal-sensor"></span></p>
-                    </div>
-                    <div>
-                        <p>DATE: <span id="modal-range"></span></p>
-                    </div>
-                </div>
-                <div class="pure-u-1-4">
-                    <button id="plot-node-data" onclick="requestPlot()" class="pure-button">
-                        PLOT
-                    </button>
-                </div>
-                <div class="pure-u-1-4">
-                    <button id="download-node-data" onclick="requestCSV()" class="pure-button">
-                        DOWNLOAD
-                    </button>
-                </div>
-                <div class="pure-u-1/8">
-                    <span class="close">&times;</span>
-                </div>
-            </div>
-        </div>
 
-        </div>
-        <div id="plotBay" class="pure-g"></div>
+        <section id="plotBay">
+            <aside id="plot-bay-loading" class="visually-hidden load-indicator-text">
+                Plot loading...
+            </aside>
+        </section>
 
         <!-- The Modal -->
-        <div id="myModal" class="modal">
+        <section id="modal" class="visually-hidden">
             <!-- Modal content -->
-            <div class="modal-content pure-g">
-                <div id="data-info" class="pure-u-3-8">
-                    <div>
-                        <p>SENSOR: <span id="modal-sensor"></span></p>
-                    </div>
-                    <div>
-                        <p>DATE: <span id="modal-range"></span></p>
-                    </div>
+            <div id="modal-body">
+                <div id="modal-content">
+                    <!-- Gets filled by JS -->
                 </div>
-                <div class="pure-u-1-4">
-                    <button id="plot-node-data" onclick="requestPlot()" class="pure-button">
-                        PLOT
-                    </button>
-                </div>
-                <div class="pure-u-1-4">
-                    <button id="download-node-data" onclick="requestCSV()" class="pure-button">
-                        DOWNLOAD
-                    </button>
-                </div>
-                <div class="pure-u-1/8">
-                    <span class="close">&times;</span>
+                <div id="modal-buttons">
+                    <button id="modal-confirm-button">Confirm</button>
+                    <button id="modal-cancel-button">Cancel</button>
                 </div>
             </div>
-        </div>
+        </section>
 
     </main>
 </body>

@@ -247,6 +247,8 @@ def query_sensors_for_CSV(start, stop, sensors):
         )
         output = csv_iterator.to_values()
         logging.info(f"Found {len(output)} rows to export")
+        if len(output) == 0:
+            return None
 
         with open(write_to, mode="w", newline="") as file:
             writer = csv.writer(file)
@@ -383,7 +385,7 @@ def query_sensors_for_plot(start, stop, sensors):
 
         plot_html = create_plot(results_dict, filtered_sensors)
         return plot_html
-    
+
 
 def query_all_sensors_for_plot(start, stop, sensors):
     """
@@ -396,9 +398,7 @@ def query_all_sensors_for_plot(start, stop, sensors):
 
     formatted_sensors = format_sensor_list(STRAIN_SENSORS)
 
-    logging.info(
-        f"Querying all sensors from {start} to {stop}"
-    )
+    logging.info(f"Querying all sensors from {start} to {stop}")
 
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
         plot_query = """
@@ -441,6 +441,7 @@ def query_all_sensors_for_plot(start, stop, sensors):
         plot_html = create_plot(results_dict, filtered_sensors)
         return plot_html
 
+
 # WIP: need to better parameterize strain and weather nodes to simplify logic
 
 
@@ -452,11 +453,18 @@ def create_plot(results_dict, filtered_sensors):
     data results_dict is formatted in a particular
     way, based on the Flask route.
     """
-    print("filtered sensors passed to plot creation: {filtered_sensors}"
-          .format(filtered_sensors=filtered_sensors))
-    fig = make_subplots(specs=[[{"secondary_y": True}]], rows=1, cols=1,
-                        shared_xaxes=True,
-                        shared_yaxes=True)
+    print(
+        "filtered sensors passed to plot creation: {filtered_sensors}".format(
+            filtered_sensors=filtered_sensors
+        )
+    )
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+        rows=1,
+        cols=1,
+        shared_xaxes=True,
+        shared_yaxes=True,
+    )
     # get first and last timestamps from the _time column
     start_stamp = results_dict["_time"][0].strftime("%Y %b %d %H:%M")
     end_stamp = results_dict["_time"][-1].strftime("%Y %b %d %H:%M")
@@ -498,80 +506,98 @@ def create_plot(results_dict, filtered_sensors):
     #     ),
     #     secondary_y=False,
     # )
-    
-    trace_color_list = ["red", "blue", "green", "yellow", "purple", "orange",
-                        "pink"]
+
+    trace_color_list = [
+        "red",
+        "blue",
+        "green",
+        "yellow",
+        "purple",
+        "orange",
+        "pink",
+    ]
     color_buffer = itertools.cycle(trace_color_list)
     color_iterator = 0
     sensor_length = len(STRAIN_SENSORS)
 
-    print("filtered sensor length: {number_of_sensors}".format(
-        number_of_sensors=sensor_length))
-    print("filtered sensors: {sensors}".format(
-        sensors=filtered_sensors))
-    print("ALL STRAIN SENSORS: {sensors}".format(
-        sensors=STRAIN_SENSORS))
+    print(
+        "filtered sensor length: {number_of_sensors}".format(
+            number_of_sensors=sensor_length
+        )
+    )
+    print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
+    print("ALL STRAIN SENSORS: {sensors}".format(sensors=STRAIN_SENSORS))
     for plot_color in color_buffer:
-        if (color_iterator > sensor_length):
+        if color_iterator > sensor_length:
             break
         else:
             for i, sensor in enumerate(filtered_sensors):
-                if (sensor != filtered_sensors[-1]):
-                    print("adding sensor: {sensor}".format(
-                        sensor=filtered_sensors[i]
-                    ))
+                if sensor != filtered_sensors[-1]:
+                    print(
+                        "adding sensor: {sensor}".format(
+                            sensor=filtered_sensors[i]
+                        )
+                    )
                     fig.add_trace(
                         go.Scatter(
                             mode="lines",
                             x=results_dict["_time"],
                             y=results_dict[filtered_sensors[i]],
                             name=sensor,
-                            marker=dict(color=plot_color,
-                                        symbol="diamond", size=2),
+                            marker=dict(
+                                color=plot_color, symbol="diamond", size=2
+                            ),
                             line=dict(dash="solid"),
                         ),
                         secondary_y=False,
                     )
                     color_iterator += 1
-                    print("color iterator value: {iterator}"
-                          .format(iterator=color_iterator))
+                    print(
+                        "color iterator value: {iterator}".format(
+                            iterator=color_iterator
+                        )
+                    )
 
             for i, sensor in enumerate(STRAIN_SENSORS):
-                if (sensor in filtered_sensors):
+                if sensor in filtered_sensors:
                     continue
                 else:
                     fig.add_trace(
-                            go.Scatter(
-                                mode="lines",
-                                x=results_dict["_time"],
-                                y=results_dict[STRAIN_SENSORS[i]],
-                                name=sensor,
-                                marker=dict(color=plot_color,
-                                            symbol="diamond", size=2),
-                                line=dict(dash="solid"),
-                                visible="legendonly"
+                        go.Scatter(
+                            mode="lines",
+                            x=results_dict["_time"],
+                            y=results_dict[STRAIN_SENSORS[i]],
+                            name=sensor,
+                            marker=dict(
+                                color=plot_color, symbol="diamond", size=2
                             ),
-                            secondary_y=False,
-                        )
+                            line=dict(dash="solid"),
+                            visible="legendonly",
+                        ),
+                        secondary_y=False,
+                    )
                     color_iterator += 1
-                    print("color iterator value: {iterator}"
-                          .format(iterator=color_iterator))        
+                    print(
+                        "color iterator value: {iterator}".format(
+                            iterator=color_iterator
+                        )
+                    )
 
     # draw the external temperature
     # assumes that the External-Temp sensor is in the last
     # index of the filered_sensors list
     fig.add_trace(
-         go.Scatter(
-             mode="lines+markers",
-             x=results_dict["_time"],
-             y=results_dict[filtered_sensors[-1]],
-             name="External Temperature (F)",
-             marker=dict(color="lightblue", symbol="diamond", size=2),
-             line=dict(dash="dash"),
-             visible="legendonly"
-         ),
-         secondary_y=True,
-     )
+        go.Scatter(
+            mode="lines+markers",
+            x=results_dict["_time"],
+            y=results_dict[filtered_sensors[-1]],
+            name="External Temperature (F)",
+            marker=dict(color="lightblue", symbol="diamond", size=2),
+            line=dict(dash="dash"),
+            visible="legendonly",
+        ),
+        secondary_y=True,
+    )
 
     # returns a huge string containing all the HTML needed
     # to display the plot
