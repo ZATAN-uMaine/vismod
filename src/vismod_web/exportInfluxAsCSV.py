@@ -396,7 +396,7 @@ def query_all_sensors_for_plot(start, stop, sensors):
     and written into an iframe.
     """
 
-    formatted_sensors = format_sensor_list(STRAIN_SENSORS)
+    formatted_sensors = format_sensor_list(ALL_SENSORS)
 
     logging.info(f"Querying all sensors from {start} to {stop}")
 
@@ -427,7 +427,7 @@ def query_all_sensors_for_plot(start, stop, sensors):
         ]
 
         results_dict = {  # _time join to the sensors, each key gets empty list
-            key: [] for key in ["_time"] + STRAIN_SENSORS
+            key: [] for key in ["_time"] + ALL_SENSORS
         }
 
         # this should be the _time column + sensors
@@ -453,18 +453,11 @@ def create_plot(results_dict, filtered_sensors):
     data results_dict is formatted in a particular
     way, based on the Flask route.
     """
-    print(
-        "filtered sensors passed to plot creation: {filtered_sensors}".format(
-            filtered_sensors=filtered_sensors
-        )
-    )
-    fig = make_subplots(
-        specs=[[{"secondary_y": True}]],
-        rows=1,
-        cols=1,
-        shared_xaxes=True,
-        shared_yaxes=True,
-    )
+    print("filtered sensors passed to plot creation: {filtered_sensors}"
+          .format(filtered_sensors=filtered_sensors))
+    fig = make_subplots(specs=[[{"secondary_y": True}]], rows=1, cols=1,
+                        shared_xaxes=True,
+                        shared_yaxes=False)
     # get first and last timestamps from the _time column
     start_stamp = results_dict["_time"][0].strftime("%Y %b %d %H:%M")
     end_stamp = results_dict["_time"][-1].strftime("%Y %b %d %H:%M")
@@ -479,126 +472,132 @@ def create_plot(results_dict, filtered_sensors):
         yaxis=dict(title="Strain (lbs)"),
         yaxis2=dict(title="Temperature (F)", overlaying="y", side="right"),
     )
-
-    fig.update_layout(layout)
-
-    # this assumes that we only have two channels (Left, Right)
-    # and that they are in the zeroeth and first indices of
-    # filtered_sensors
-    # TODO: Generalize this to handle an arbitrary number of channels
-    # averaged_lr_data = [
-    #     (g + h) / 2.0
-    #     for g, h in zip(
-    #         results_dict[filtered_sensors[0]],  # Left sensor
-    #         results_dict[filtered_sensors[1]],  # right sensor
-    #     )
-    # ]
-
-    # draw the strain
-    # TODO: Make method for getting name of this data cleaner
-    # fig.add_trace(
-    #     go.Scatter(
-    #         mode="lines+markers",
-    #         x=results_dict["_time"],
-    #         y=filtered_sensors[0],
-    #         name="Strain (lbs.)",
-    #         marker=dict(color="green", symbol="square", size=8),
-    #     ),
-    #     secondary_y=False,
-    # )
-
-    trace_color_list = [
-        "red",
-        "blue",
-        "green",
-        "yellow",
-        "purple",
-        "orange",
-        "pink",
-    ]
-    color_buffer = itertools.cycle(trace_color_list)
-    color_iterator = 0
-    sensor_length = len(STRAIN_SENSORS)
-
-    print(
-        "filtered sensor length: {number_of_sensors}".format(
-            number_of_sensors=sensor_length
-        )
+    weather_layout = go.Layout(
+        title=plot_title,
+        template="plotly_dark",
+        xaxis=dict(title="Time-stamp"),
+        yaxis=dict(title="Temperature (F)"),
+        yaxis2=dict(title="Feet per Second", overlaying="y", side="right"),
+        yaxis3=dict(title="Degrees", overlaying="y", side="right")
     )
-    print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
-    print("ALL STRAIN SENSORS: {sensors}".format(sensors=STRAIN_SENSORS))
-    for plot_color in color_buffer:
-        if color_iterator > sensor_length:
-            break
-        else:
-            for i, sensor in enumerate(filtered_sensors):
-                if sensor != filtered_sensors[-1]:
-                    print(
-                        "adding sensor: {sensor}".format(
-                            sensor=filtered_sensors[i]
-                        )
-                    )
-                    fig.add_trace(
-                        go.Scatter(
-                            mode="lines",
-                            x=results_dict["_time"],
-                            y=results_dict[filtered_sensors[i]],
-                            name=sensor,
-                            marker=dict(
-                                color=plot_color, symbol="diamond", size=2
-                            ),
-                            line=dict(dash="solid"),
-                        ),
-                        secondary_y=False,
-                    )
-                    color_iterator += 1
-                    print(
-                        "color iterator value: {iterator}".format(
-                            iterator=color_iterator
-                        )
-                    )
 
-            for i, sensor in enumerate(STRAIN_SENSORS):
-                if sensor in filtered_sensors:
-                    continue
-                else:
-                    fig.add_trace(
+    if ((filtered_sensors[0] not in AUXILIARY_SENSORS)):
+        fig.update_layout(layout)
+    else:
+        fig.update_layout(weather_layout)
+
+    trace_color_list = ["red", "blue", "green", "yellow", "purple", "orange",
+                        "pink", "gray"]
+    # sensor_length = len(STRAIN_SENSORS)
+
+    # print("filtered sensor length: {number_of_sensors}".format(
+    #     number_of_sensors=sensor_length))
+    # print("filtered sensors: {sensors}".format(
+    #     sensors=filtered_sensors))
+    # print("ALL STRAIN SENSORS: {sensors}".format(
+    #     sensors=STRAIN_SENSORS))
+
+    for i, sensor in enumerate(filtered_sensors):
+        print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
+        if ((sensor in AUXILIARY_SENSORS) and
+            (sensor != "External-Temperature")):
+            continue
+        # print("adding sensor: {sensor}".format(
+        #      sensor=filtered_sensors[i]))
+
+        # print("color value: {iterator}"
+        #      .format(iterator=trace_color_list[i % 8]))
+
+        fig.add_trace(
+            go.Scatter(
+                mode="lines+markers",
+                x=results_dict["_time"],
+                y=results_dict[filtered_sensors[i]],
+                name=sensor,
+                marker=dict(color=trace_color_list[i % 8],
+                            symbol="diamond", size=5),
+                line=dict(dash="solid"),
+            ),
+            secondary_y=False,
+        )
+
+    for i, sensor in enumerate(STRAIN_SENSORS):
+        if (sensor in filtered_sensors):
+            continue
+        
+        else:
+            if (
+             (filtered_sensors[0] in AUXILIARY_SENSORS)):
+                continue
+            else:
+                # print("adding sensor: {sensor}".format(
+                #    sensor=STRAIN_SENSORS[i]))
+                # print("i index: {index}".format(index=i))
+                index = -(i % 8)
+                if (index == -8):
+                    index = 0
+                # print("color index: {index}".format(index=index))
+
+                # print("color value: {iterator}"
+                #      .format(iterator=trace_color_list[index]))   
+                             
+                fig.add_trace(
                         go.Scatter(
-                            mode="lines",
+                            mode="lines+markers",
                             x=results_dict["_time"],
                             y=results_dict[STRAIN_SENSORS[i]],
                             name=sensor,
-                            marker=dict(
-                                color=plot_color, symbol="diamond", size=2
-                            ),
+                            marker=dict(color=trace_color_list[index],
+                                        symbol="diamond", size=5),
                             line=dict(dash="solid"),
-                            visible="legendonly",
+                            visible="legendonly"
                         ),
                         secondary_y=False,
-                    )
-                    color_iterator += 1
-                    print(
-                        "color iterator value: {iterator}".format(
-                            iterator=color_iterator
-                        )
                     )
 
     # draw the external temperature
     # assumes that the External-Temp sensor is in the last
     # index of the filered_sensors list
-    fig.add_trace(
-        go.Scatter(
-            mode="lines+markers",
-            x=results_dict["_time"],
-            y=results_dict[filtered_sensors[-1]],
-            name="External Temperature (F)",
-            marker=dict(color="lightblue", symbol="diamond", size=2),
-            line=dict(dash="dash"),
-            visible="legendonly",
-        ),
-        secondary_y=True,
-    )
-
+    if ((filtered_sensors[0] not in AUXILIARY_SENSORS)):
+        fig.add_trace(
+            go.Scatter(
+                mode="lines+markers",
+                x=results_dict["_time"],
+                y=results_dict[filtered_sensors[-1]],
+                name="External Temperature (F)",
+                marker=dict(color="lightblue", symbol="diamond", size=2),
+                line=dict(dash="dash"),
+                visible="legendonly"
+            ),
+            secondary_y=True,
+        )
+    else:
+        fig.add_trace(
+            go.Scatter(
+                mode="lines+markers",
+                x=results_dict["_time"],
+                y=results_dict[filtered_sensors[-2]],
+                name="Wind Speed (F/S)",
+                marker=dict(color="DarkSlateBlue", symbol="diamond", size=2),
+                line=dict(dash="dash"),
+                visible="legendonly"
+            ),
+            secondary_y=True,
+        )
+        fig.add_trace(
+            go.Scatter(
+                mode="lines+markers",
+                x=results_dict["_time"],
+                y=results_dict[filtered_sensors[-3]],
+                name="Wind Direction (Degrees)",
+                marker=dict(color="fuchsia", symbol="diamond", size=2),
+                line=dict(dash="dash"),
+                visible="legendonly",
+                yaxis="y3",
+                autoshift=True
+            ),
+            secondary_y=True,
+        )
     # returns a huge string containing all the HTML needed
     # to display the plot
     return fig.to_html(include_plotlyjs="cdn")

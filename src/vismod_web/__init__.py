@@ -115,16 +115,24 @@ def display_plot():
             {sensor} from {start_request} to {end_request} """
     )
     plot_html = str(
-        query_all_sensors_for_plot(
-            start=start_request,
-            stop=end_request,
-            sensors=[
-                sensor,
-                sensor + "-Left",
-                sensor + "-Right",
-                "External_Temperature",
-            ],
-        )
+        # query_sensors_for_plot(
+        #     start=start_request,
+        #     stop=end_request,
+        #     sensors=[
+        #         sensor,
+        #         sensor + "-Left",
+        #         sensor + "-Right",
+        #         "External-Temperature",
+        #     ],
+        # )
+        query_all_sensors_for_plot(start=start_request, stop=end_request,
+                                   sensors=[sensor,
+                                            sensor + "-Left",
+                                            sensor + "-Right",
+                                            "External-Wind-Direction",
+                                            "External-Wind-Speed",
+                                            "External-Temperature",
+                                            ])
     )
 
     return plot_html
