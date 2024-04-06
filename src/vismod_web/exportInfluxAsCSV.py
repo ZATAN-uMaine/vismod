@@ -483,8 +483,10 @@ def create_plot(results_dict, filtered_sensors):
 
     if ((filtered_sensors[0] not in AUXILIARY_SENSORS)):
         fig.update_layout(layout)
+        strain_flag = True
     else:
         fig.update_layout(weather_layout)
+        strain_flag = False
 
     trace_color_list = ["red", "blue", "green", "yellow", "purple", "orange",
                         "pink", "gray"]
@@ -499,11 +501,12 @@ def create_plot(results_dict, filtered_sensors):
 
     for i, sensor in enumerate(filtered_sensors):
         print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
-        if ((sensor in AUXILIARY_SENSORS) and
-            (sensor != "External-Temperature")):
+        print("filtered sensor at 0: {zero}".format(zero=filtered_sensors[0]))
+        if (((sensor in AUXILIARY_SENSORS) and (strain_flag)) or
+            sensor == "External-Wind-Speed"):
             continue
-        # print("adding sensor: {sensor}".format(
-        #      sensor=filtered_sensors[i]))
+        print("adding sensor: {sensor}".format(
+              sensor=filtered_sensors[i]))
 
         # print("color value: {iterator}"
         #      .format(iterator=trace_color_list[i % 8]))
@@ -572,29 +575,16 @@ def create_plot(results_dict, filtered_sensors):
             secondary_y=True,
         )
     else:
+        print("adding second weather axis")
         fig.add_trace(
             go.Scatter(
                 mode="lines+markers",
                 x=results_dict["_time"],
-                y=results_dict[filtered_sensors[-2]],
+                y=results_dict[filtered_sensors[0]],
                 name="Wind Speed (F/S)",
-                marker=dict(color="DarkSlateBlue", symbol="diamond", size=2),
+                marker=dict(color="darksalmon", symbol="diamond", size=2),
                 line=dict(dash="dash"),
                 visible="legendonly"
-            ),
-            secondary_y=True,
-        )
-        fig.add_trace(
-            go.Scatter(
-                mode="lines+markers",
-                x=results_dict["_time"],
-                y=results_dict[filtered_sensors[-3]],
-                name="Wind Direction (Degrees)",
-                marker=dict(color="fuchsia", symbol="diamond", size=2),
-                line=dict(dash="dash"),
-                visible="legendonly",
-                yaxis="y3",
-                autoshift=True
             ),
             secondary_y=True,
         )
