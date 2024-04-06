@@ -42,7 +42,7 @@ function formatDateString(date, time) {
  * @param {Date} date 
  * @returns string
  */
-function dateToISOUTC(date) {
+function browserLocalToIso(date) {
     const base = date.toISOString();
     const baseMinusUTC = base.slice(0, -1);
     const offset = date.getTimezoneOffset();
@@ -53,6 +53,7 @@ function dateToISOUTC(date) {
     const offsetString = `${baseMinusUTC}+${offsetHoursString}:${offsetMinutesString}`;
     return offsetString;
 }
+
 
 /**
  * Used to generate filenames for export.
@@ -302,8 +303,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
  */
 async function fetchCSV(sensors, start, end) {
     const body = new FormData();
-    body.append("start", dateToISOUTC(start));
-    body.append("end", dateToISOUTC(end));
+    body.append("start", browserLocalToIso(start));
+    body.append("end", browserLocalToIso(end));
     // TODO: support a lost of sensors
     body.append("sensor", sensors[0]);
     const req = await fetch("/download_csv", {
@@ -348,8 +349,8 @@ async function fetchPlot(sensors, start, end) {
     plotIFrame.contentWindow.document.close();
 
     const location = new URL("/display_plot", window.location.origin);
-    location.searchParams.append("start", dateToISOUTC(start));
-    location.searchParams.append("end", dateToISOUTC(end));
+    location.searchParams.append("start", browserLocalToIso(start));
+    location.searchParams.append("end", browserLocalToIso(end));
     location.searchParams.append("sensor", sensors[0]);
     const req = await fetch(location);
     if (req.status != 200) {

@@ -106,6 +106,7 @@ def display_plot():
     sensor = request.values.get("sensor")
     start_request = request.values.get("start")
     end_request = request.values.get("end")
+    time_zone = request.values.get("tz")
 
     if sensor is None:
         return "Missing parameter 'sensor'", 400
