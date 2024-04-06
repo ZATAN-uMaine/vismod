@@ -453,11 +453,18 @@ def create_plot(results_dict, filtered_sensors):
     data results_dict is formatted in a particular
     way, based on the Flask route.
     """
-    print("filtered sensors passed to plot creation: {filtered_sensors}"
-          .format(filtered_sensors=filtered_sensors))
-    fig = make_subplots(specs=[[{"secondary_y": True}]], rows=1, cols=1,
-                        shared_xaxes=True,
-                        shared_yaxes=False)
+    print(
+        "filtered sensors passed to plot creation: {filtered_sensors}".format(
+            filtered_sensors=filtered_sensors
+        )
+    )
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+        rows=1,
+        cols=1,
+        shared_xaxes=True,
+        shared_yaxes=False,
+    )
     # get first and last timestamps from the _time column
     start_stamp = results_dict["_time"][0].strftime("%Y %b %d %H:%M")
     end_stamp = results_dict["_time"][-1].strftime("%Y %b %d %H:%M")
@@ -478,19 +485,32 @@ def create_plot(results_dict, filtered_sensors):
         xaxis=dict(title="Time-stamp"),
         yaxis=dict(title="Temperature (F)"),
         yaxis2=dict(title="Feet per Second", overlaying="y", side="right"),
-        yaxis3=dict(title="Degrees", overlaying="y", side="right")
+        yaxis3=dict(title="Degrees", overlaying="y", side="right"),
     )
 
-    if ((filtered_sensors[0] not in AUXILIARY_SENSORS)):
+    if filtered_sensors[0] not in AUXILIARY_SENSORS:
         fig.update_layout(layout)
         strain_flag = True
     else:
         fig.update_layout(weather_layout)
         strain_flag = False
 
-    trace_color_list = ["red", "blue", "green", "yellow", "purple", "orange",
-                        "olive", "gray", "aqua", "fuchsia", "chartreuse",
-                        "indigo", "gold", "mediumaquamarine"]
+    trace_color_list = [
+        "red",
+        "blue",
+        "green",
+        "yellow",
+        "purple",
+        "orange",
+        "olive",
+        "gray",
+        "aqua",
+        "fuchsia",
+        "chartreuse",
+        "indigo",
+        "gold",
+        "mediumaquamarine",
+    ]
     # sensor_length = len(STRAIN_SENSORS)
 
     # print("filtered sensor length: {number_of_sensors}".format(
@@ -503,14 +523,15 @@ def create_plot(results_dict, filtered_sensors):
     for i, sensor in enumerate(filtered_sensors):
         print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
         print("filtered sensor at 0: {zero}".format(zero=filtered_sensors[0]))
-        if (((sensor in AUXILIARY_SENSORS) and (strain_flag)) or
-            sensor == "External-Wind-Speed"):
+        if (
+            (sensor in AUXILIARY_SENSORS) and (strain_flag)
+        ) or sensor == "External-Wind-Speed":
             continue
-        print("adding sensor: {sensor}".format(
-              sensor=filtered_sensors[i]))
+        print("adding sensor: {sensor}".format(sensor=filtered_sensors[i]))
 
-        print("color value: {iterator}"
-              .format(iterator=trace_color_list[i % 14]))
+        print(
+            "color value: {iterator}".format(iterator=trace_color_list[i % 14])
+        )
 
         fig.add_trace(
             go.Scatter(
@@ -518,20 +539,20 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[i]],
                 name=sensor,
-                marker=dict(color=trace_color_list[i % 14],
-                            symbol="diamond", size=4),
+                marker=dict(
+                    color=trace_color_list[i % 14], symbol="diamond", size=4
+                ),
                 line=dict(dash="solid"),
             ),
             secondary_y=False,
         )
 
     for i, sensor in enumerate(STRAIN_SENSORS):
-        if (sensor in filtered_sensors):
+        if sensor in filtered_sensors:
             continue
-        
+
         else:
-            if (
-             (filtered_sensors[0] in AUXILIARY_SENSORS)):
+            if filtered_sensors[0] in AUXILIARY_SENSORS:
                 continue
             else:
                 # print("adding sensor: {sensor}".format(
@@ -542,27 +563,33 @@ def create_plot(results_dict, filtered_sensors):
                 #     index = 0
                 print("color index: {index}".format(index=index))
 
-                print("color value: {iterator}"
-                      .format(iterator=trace_color_list[index]))   
-                             
-                fig.add_trace(
-                        go.Scatter(
-                            mode="lines+markers",
-                            x=results_dict["_time"],
-                            y=results_dict[STRAIN_SENSORS[i]],
-                            name=sensor,
-                            marker=dict(color=trace_color_list[index],
-                                        symbol="diamond", size=4),
-                            line=dict(dash="solid"),
-                            visible="legendonly"
-                        ),
-                        secondary_y=False,
+                print(
+                    "color value: {iterator}".format(
+                        iterator=trace_color_list[index]
                     )
+                )
+
+                fig.add_trace(
+                    go.Scatter(
+                        mode="lines+markers",
+                        x=results_dict["_time"],
+                        y=results_dict[STRAIN_SENSORS[i]],
+                        name=sensor,
+                        marker=dict(
+                            color=trace_color_list[index],
+                            symbol="diamond",
+                            size=4,
+                        ),
+                        line=dict(dash="solid"),
+                        visible="legendonly",
+                    ),
+                    secondary_y=False,
+                )
 
     # draw the external temperature
     # assumes that the External-Temp sensor is in the last
     # index of the filered_sensors list
-    if ((filtered_sensors[0] not in AUXILIARY_SENSORS)):
+    if filtered_sensors[0] not in AUXILIARY_SENSORS:
         fig.add_trace(
             go.Scatter(
                 mode="lines+markers",
@@ -571,7 +598,7 @@ def create_plot(results_dict, filtered_sensors):
                 name="External Temperature (F)",
                 marker=dict(color="lightblue", symbol="diamond", size=4),
                 line=dict(dash="solid"),
-                visible="legendonly"
+                visible="legendonly",
             ),
             secondary_y=True,
         )
@@ -585,13 +612,15 @@ def create_plot(results_dict, filtered_sensors):
                 name="Wind Speed (F/S)",
                 marker=dict(color="darksalmon", symbol="diamond", size=4),
                 line=dict(dash="solid"),
-                visible="legendonly"
+                visible="legendonly",
             ),
             secondary_y=True,
         )
     # returns a huge string containing all the HTML needed
     # to display the plot
-    return fig.to_html(include_plotlyjs="cdn")
+    return fig.to_html(
+        include_plotlyjs="static/plotly-2.30.0.min.js"
+    )
 
     # saves the html for the plot to a file in tmp
     # fig.write_html(write_to, include_plotlyjs="cdn")
