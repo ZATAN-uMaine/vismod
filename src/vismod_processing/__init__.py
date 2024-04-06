@@ -47,7 +47,6 @@ def main():
         # call upload script
         frames = importDataFromPandas.df_to_influx_format(data)
         for frame in frames:
-            logging.info(frame.head())
             logging.info(frame.columns)
             importDataFromPandas.upload_data_frame(frame)
 
