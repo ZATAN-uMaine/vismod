@@ -129,7 +129,6 @@ def display_plot():
                                    sensors=[sensor,
                                             sensor + "-Left",
                                             sensor + "-Right",
-                                            "External-Wind-Direction",
                                             "External-Wind-Speed",
                                             "External-Temperature",
                                             ])
