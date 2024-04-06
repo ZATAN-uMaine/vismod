@@ -582,9 +582,9 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[-1]],
                 name="External Temperature (F)",
-                marker=dict(color="lightblue", symbol="diamond", size=2),
+                marker=dict(color="lightblue", symbol="diamond", size=3),
                 line=dict(dash="dash"),
-                visible="legendonly",
+                visible="legendonly"
             ),
             secondary_y=True,
         )
@@ -596,9 +596,9 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[0]],
                 name="Wind Speed (F/S)",
-                marker=dict(color="darksalmon", symbol="diamond", size=2),
+                marker=dict(color="darksalmon", symbol="diamond", size=3),
                 line=dict(dash="dash"),
-                visible="legendonly",
+                visible="legendonly"
             ),
             secondary_y=True,
         )
