@@ -42,8 +42,8 @@ function formatDateString(date, time) {
  * @param {Date} date 
  * @returns string
  */
-function browserLocalToIso(date) {
-    const base = date.toISOString();
+function dateToIso(date) {
+    /*const base = date.toISOString();
     const baseMinusUTC = base.slice(0, -1);
     const offset = date.getTimezoneOffset();
     const offsetHours = Math.floor(offset / 60);
@@ -51,7 +51,8 @@ function browserLocalToIso(date) {
     const offsetHoursString = (new String(offsetHours)).padStart(2, "0");
     const offsetMinutesString = (new String(offsetMinutes)).padStart(2, "0");
     const offsetString = `${baseMinusUTC}+${offsetHoursString}:${offsetMinutesString}`;
-    return offsetString;
+    return offsetString;*/
+    return date.toISOString()
 }
 
 
@@ -303,8 +304,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
  */
 async function fetchCSV(sensors, start, end) {
     const body = new FormData();
-    body.append("start", browserLocalToIso(start));
-    body.append("end", browserLocalToIso(end));
+    body.append("start", dateToIso(start));
+    body.append("end", dateToIso(end));
     // TODO: support a lost of sensors
     body.append("sensor", sensors[0]);
     const req = await fetch("/download_csv", {
@@ -349,8 +350,8 @@ async function fetchPlot(sensors, start, end) {
     plotIFrame.contentWindow.document.close();
 
     const location = new URL("/display_plot", window.location.origin);
-    location.searchParams.append("start", browserLocalToIso(start));
-    location.searchParams.append("end", browserLocalToIso(end));
+    location.searchParams.append("start", dateToIso(start));
+    location.searchParams.append("end", dateToIso(end));
     location.searchParams.append("sensor", sensors[0]);
     const req = await fetch(location);
     if (req.status != 200) {

@@ -45,23 +45,12 @@ def index():
     )
 
 
-@app.route("/process", methods=["POST", "GET"])
-def process():
-    data = request.form.get("sensor")
-    # process the data using Python code
-    return data * 2
-
-
 @app.route("/download_csv", methods=["GET", "POST"])
 def download_csv():
-    sensor = request.values.get("sensor")
-    start_request = request.values.get("start")
-    end_request = request.values.get("end")
+    sensor = request.values["sensor"]
+    start_request = request.values["start"]
+    end_request = request.values["end"]
 
-    if sensor is None:
-        return "Missing parameter 'sensor'", 400
-    if start_request is None or end_request is None:
-        return "Missing time range parameteres", 400
     if not (validate_dates(start_request, end_request)):
         return f"Date range {start_request} to {end_request} was invalid.", 400
 
@@ -103,15 +92,10 @@ def download_csv():
 
 @app.route("/display_plot", methods=["GET", "POST"])
 def display_plot():
-    sensor = request.values.get("sensor")
-    start_request = request.values.get("start")
-    end_request = request.values.get("end")
-    time_zone = request.values.get("tz")
+    sensor = request.values["sensor"]
+    start_request = request.values["start"]
+    end_request = request.values["end"]
 
-    if sensor is None:
-        return "Missing parameter 'sensor'", 400
-    if start_request is None or end_request is None:
-        return "Missing time range parameteres", 400
     if not (validate_dates(start_request, end_request)):
         return "Date format was incorrect", 400
 
@@ -120,23 +104,17 @@ def display_plot():
             {sensor} from {start_request} to {end_request} """
     )
     plot_html = str(
-        # query_sensors_for_plot(
-        #     start=start_request,
-        #     stop=end_request,
-        #     sensors=[
-        #         sensor,
-        #         sensor + "-Left",
-        #         sensor + "-Right",
-        #         "External-Temperature",
-        #     ],
-        # )
-        query_all_sensors_for_plot(start=start_request, stop=end_request,
-                                   sensors=[sensor,
-                                            sensor + "-Left",
-                                            sensor + "-Right",
-                                            "External-Wind-Speed",
-                                            "External-Temperature",
-                                            ])
+        query_all_sensors_for_plot(
+            start=start_request,
+            stop=end_request,
+            sensors=[
+                sensor,
+                sensor + "-Left",
+                sensor + "-Right",
+                "External-Wind-Speed",
+                "External-Temperature",
+            ],
+        )
     )
 
     return plot_html

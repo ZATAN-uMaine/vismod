@@ -13,7 +13,9 @@ def validate_dates(start, end):
         parsed_end = datetime.fromisoformat(end)
         # make the new date a bit in the future just to be safe
         now = datetime.now().replace(
-            tzinfo=timezone(offset=timedelta(hours=2))
+            tzinfo=timezone(offset=timedelta(hours=0))
+        ) + timedelta(
+            hours=1
         )  # noqa
         if now < parsed_end:
             logging.warning(f"date {end} appears to be in the future")
@@ -27,4 +29,3 @@ def validate_dates(start, end):
         )
         return False
     return True
-
