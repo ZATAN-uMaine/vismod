@@ -412,6 +412,7 @@ def query_all_sensors_for_plot(start, stop, sensors):
                          columnKey: ["node"],
                          valueColumn: "_value")
                 |> group()
+                |> timeShift(duration: -4h)
                 |> drop(columns:
                     ["result","_start","_stop","_measurement","_field"])
             """.format(

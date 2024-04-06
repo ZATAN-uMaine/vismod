@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from vismod_web.utils import validate_dates
 from vismod_web.exportInfluxAsCSV import (
     query_all_sensors_for_CSV,
     query_sensors_for_CSV,
@@ -56,12 +57,13 @@ def download_csv():
     sensor = request.values.get("sensor")
     start_request = request.values.get("start")
     end_request = request.values.get("end")
-    print((start_request, end_request))
 
     if sensor is None:
         return "Missing parameter 'sensor'", 400
     if start_request is None or end_request is None:
         return "Missing time range parameteres", 400
+    if not (validate_dates(start_request, end_request)):
+        return f"Date range {start_request} to {end_request} was invalid.", 400
 
     if sensor == "all":
         logging.info(
@@ -109,6 +111,8 @@ def display_plot():
         return "Missing parameter 'sensor'", 400
     if start_request is None or end_request is None:
         return "Missing time range parameteres", 400
+    if not (validate_dates(start_request, end_request)):
+        return "Date format was incorrect", 400
 
     logging.info(
         f"""processing download request for sensor \

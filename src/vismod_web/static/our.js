@@ -37,6 +37,24 @@ function formatDateString(date, time) {
 }
 
 /**
+ * Converts a Date into an ISO 8601 with correct timezone offset.
+ * See https://www.reddit.com/r/javascript/comments/3uaemf/how_to_really_get_a_utc_date_object/
+ * @param {Date} date 
+ * @returns string
+ */
+function dateToISOUTC(date) {
+    const base = date.toISOString();
+    const baseMinusUTC = base.slice(0, -1);
+    const offset = date.getTimezoneOffset();
+    const offsetHours = Math.floor(offset / 60);
+    const offsetMinutes = offset % 60;
+    const offsetHoursString = (new String(offsetHours)).padStart(2, "0");
+    const offsetMinutesString = (new String(offsetMinutes)).padStart(2, "0");
+    const offsetString = `${baseMinusUTC}+${offsetHoursString}:${offsetMinutesString}`;
+    return offsetString;
+}
+
+/**
  * Used to generate filenames for export.
  * @param {Date} date 
  * @returns string YYYY-MM-DD
@@ -273,7 +291,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 window.modalSingleton.showModal(errString, () => { });
             });
     });
-
 });
 
 /**
@@ -285,8 +302,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
  */
 async function fetchCSV(sensors, start, end) {
     const body = new FormData();
-    body.append("start", start.toISOString());
-    body.append("end", end.toISOString());
+    body.append("start", dateToISOUTC(start));
+    body.append("end", dateToISOUTC(end));
     // TODO: support a lost of sensors
     body.append("sensor", sensors[0]);
     const req = await fetch("/download_csv", {
@@ -300,7 +317,7 @@ async function fetchCSV(sensors, start, end) {
         throw new Error("No data found for selected date range.");
     }
     else {
-        throw new Error(req.text);
+        throw new Error(await req.text());
     }
 }
 
@@ -331,13 +348,13 @@ async function fetchPlot(sensors, start, end) {
     plotIFrame.contentWindow.document.close();
 
     const location = new URL("/display_plot", window.location.origin);
-    location.searchParams.append("start", start.toISOString());
-    location.searchParams.append("end", end.toISOString());
+    location.searchParams.append("start", dateToISOUTC(start));
+    location.searchParams.append("end", dateToISOUTC(end));
     location.searchParams.append("sensor", sensors[0]);
     const req = await fetch(location);
     if (req.status != 200) {
         loadInd.classList.add("visually-hidden");
-        throw new Error(req.text);
+        throw new Error(await req.text());
     }
     const plotHTML = await req.text();
 
