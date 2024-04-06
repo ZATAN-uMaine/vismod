@@ -619,6 +619,7 @@ def create_plot(results_dict, filtered_sensors):
     # returns a huge string containing all the HTML needed
     # to display the plot
     return fig.to_html(
+        include_mathjax=False,
         include_plotlyjs="static/plotly-2.30.0.min.js"
     )
 
