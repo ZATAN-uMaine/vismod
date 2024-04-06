@@ -199,11 +199,14 @@ window.modalSingleton = new Modal();
 // misc event handlers
 document.addEventListener('DOMContentLoaded', (event) => {
     // theme
-    const themeToggle = document.getElementById('theme-toggle')
+    const themeToggles = document.querySelectorAll('.theme-toggle')
     document.body.classList.toggle("dark");
-    themeToggle.onclick = function () {
-        document.body.classList.toggle("dark")
-    }
+    themeToggles.forEach((toggle) => {
+        toggle.addEventListener('click', () => document.body.classList.toggle("dark"))
+    })
+    // themeToggle.onclick = function () {
+    //     document.body.classList.toggle("dark")
+    // }
 
     //download indiv button
     const downloadButton = document.getElementById("download-data-button");

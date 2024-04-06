@@ -98,7 +98,7 @@ Navigation Bar
 }
 
 .navigation-item a:hover {
-    background-color: #202020;
+    background-color: #DDD;
 }
 
 /***** 
@@ -238,6 +238,14 @@ circle,
     flex-direction: column;
 }
 
+#theme-square {
+    fill: #fff;
+}
+
+.dark #theme-square {
+    fill: #000;
+}
+
 #sun-icon {
     display: block;
 }
@@ -258,4 +266,22 @@ circle,
 .load-indicator-text {
     padding: 1rem;
     font-style: italic;
+}
+
+#bridge-frame {
+    fill: #f0f8ff;
+    stroke: #000;
+}
+
+#bridge-path {
+    stroke: #000;
+}
+
+.dark #bridge-frame {
+    stroke: #f0f8ff;
+    fill: #000;
+}
+
+.dark #bridge-path {
+    fill: #f0f8ff;
 }
