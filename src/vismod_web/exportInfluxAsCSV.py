@@ -489,7 +489,8 @@ def create_plot(results_dict, filtered_sensors):
         strain_flag = False
 
     trace_color_list = ["red", "blue", "green", "yellow", "purple", "orange",
-                        "pink", "gray"]
+                        "olive", "gray", "aqua", "fuchsia", "chartreuse",
+                        "indigo", "gold", "mediumaquamarine"]
     # sensor_length = len(STRAIN_SENSORS)
 
     # print("filtered sensor length: {number_of_sensors}".format(
@@ -509,7 +510,7 @@ def create_plot(results_dict, filtered_sensors):
               sensor=filtered_sensors[i]))
 
         print("color value: {iterator}"
-              .format(iterator=trace_color_list[i % 8]))
+              .format(iterator=trace_color_list[i % 14]))
 
         fig.add_trace(
             go.Scatter(
@@ -517,7 +518,7 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[i]],
                 name=sensor,
-                marker=dict(color=trace_color_list[i % 8],
+                marker=dict(color=trace_color_list[i % 14],
                             symbol="diamond", size=5),
                 line=dict(dash="solid"),
             ),
@@ -536,7 +537,7 @@ def create_plot(results_dict, filtered_sensors):
                 # print("adding sensor: {sensor}".format(
                 #    sensor=STRAIN_SENSORS[i]))
                 # print("i index: {index}".format(index=i))
-                index = -(i % 8)
+                index = -(i % 14)
                 # if (index == -8):
                 #     index = 0
                 print("color index: {index}".format(index=index))
