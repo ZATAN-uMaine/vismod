@@ -222,11 +222,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const themeToggles = document.querySelectorAll('.theme-toggle')
     document.body.classList.toggle("dark");
     themeToggles.forEach((toggle) => {
-        toggle.addEventListener('click', () => document.body.classList.toggle("dark"))
-    })
-    // themeToggle.onclick = function () {
-    //     document.body.classList.toggle("dark")
-    // }
+        toggle.addEventListener('click', () => document.body.classList.toggle("dark"));
+    });
 
     //download indiv button
     const downloadButton = document.getElementById("download-data-button");
@@ -334,20 +331,6 @@ async function fetchPlot(sensors, start, end) {
     // show loading indicator
     const loadInd = document.getElementById("plot-bay-loading");
     loadInd.classList.remove("visually-hidden");
-    let plotIFrame = document.getElementById("plot-frame");
-    if (!plotIFrame) {
-        plotIFrame = document.createElement('iframe');
-        plotIFrame.setAttribute("id", "plot-frame");
-        document.getElementById('plotBay').appendChild(plotIFrame);
-        plotIFrame.setAttribute('scrolling', 'no');
-        plotIFrame.setAttribute('style', 'border:none;');
-        plotIFrame.setAttribute('seamless', 'seamless');
-        plotIFrame.setAttribute('height', '525');
-        plotIFrame.setAttribute('width', '100%');
-    }
-    plotIFrame.contentWindow.document.open();
-    plotIFrame.contentWindow.document.write("");
-    plotIFrame.contentWindow.document.close();
 
     const location = new URL("/display_plot", window.location.origin);
     location.searchParams.append("start", dateToIso(start));
@@ -360,7 +343,29 @@ async function fetchPlot(sensors, start, end) {
     }
     const plotHTML = await req.text();
 
+    // create new iframe for play
+    const plotIFrame = document.createElement('iframe');
+    plotIFrame.classList.add("plot-frame");
+
+    // create close button to remove iframe
+    const closer = document.createElement("div");
+    const closerMain = document.createElement("button");
+    closerMain.innerText = "X";
+    closer.appendChild(closerMain);
+    closer.classList.add("plot-remove-button");
+    closerMain.addEventListener("click", () => {
+        plotIFrame.remove();
+        closer.remove();
+    });
+
+    // insert iframe just after the loading indicator
+    loadInd.after(plotIFrame);
+    loadInd.after(closer);
+
+    // write HTML to plot IFrame
     plotIFrame.contentWindow.document.open();
+    // need DOCTYPE to avoid Firefox quirks mode
+    plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
     plotIFrame.contentWindow.document.write(plotHTML);
     plotIFrame.contentWindow.document.close();
     loadInd.classList.add("visually-hidden");
