@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import sys
 import logging
+import influxdb_client
 
 from vismod_processing import pre_processing
 from vismod_processing import importDataFromPandas
@@ -47,8 +48,10 @@ def main():
         # call upload script
         frames = importDataFromPandas.df_to_influx_format(data)
         for frame in frames:
-            logging.info(frame.columns)
-            importDataFromPandas.upload_data_frame(frame)
+            try:
+                importDataFromPandas.upload_data_frame(frame)
+            except influxdb_client.rest.ApiException as err:
+                logging.error(err)
 
     # Clean up tmp files
     data_fetch.cleanTmpFiles()
