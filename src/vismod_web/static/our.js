@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const themeToggles = document.querySelectorAll('.theme-toggle')
     document.body.classList.toggle("dark");
     themeToggles.forEach((toggle) => {
-        toggle.addEventListener('click', () => document.body.classList.toggle("dark"))
+        toggle.addEventListener('click', () => themeSwitch())
     })
     // themeToggle.onclick = function () {
     //     document.body.classList.toggle("dark")
@@ -344,6 +344,12 @@ async function fetchPlot(sensors, start, end) {
     plotIFrame.contentWindow.document.open();
     plotIFrame.contentWindow.document.write(plotHTML);
     plotIFrame.contentWindow.document.close();
+
+    // supposed to force dark theme on plot when dark theme is on
+    // only works if plot has been created first
+    if(body.classList.contains('dark')){
+        plotIFrame.contentWindow.postMessage('toggleTheme', '*')
+    }
     loadInd.classList.add("visually-hidden");
 }
 
@@ -362,4 +368,13 @@ function forceBlobDownload(blob, filename) {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+}
+
+
+function themeSwitch() {
+    document.body.classList.toggle("dark")
+    const plotFrame = document.getElementById('plot-frame');
+    if(plotFrame){
+        plotFrame.contentWindow.postMessage('toggleTheme', '*');
+    }
 }

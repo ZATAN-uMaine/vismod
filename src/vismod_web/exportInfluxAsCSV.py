@@ -15,6 +15,12 @@ organization = os.environ.get("INFLUXDB_V2_ORG")
 link = os.environ.get("INFLUXDB_V2_URL")
 zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
+
+with open(
+    "/workspace/src/vismod_web/static/plotly_appended_js.txt", "r"
+) as file:
+    THEME_TOGGLE_JS = file.read()
+
 # default values for querying -- these get pruned for specific requests
 STRAIN_SENSORS = [  # easier  to add sensors with comprehension (?)
     sensor
@@ -474,10 +480,18 @@ def create_plot(results_dict, filtered_sensors):
     )
     layout = go.Layout(
         title=plot_title,
-        template="plotly_dark",
-        xaxis=dict(title="Time-stamp"),
-        yaxis=dict(title="Strain (lbs)"),
-        yaxis2=dict(title="Temperature (F)", overlaying="y", side="right"),
+        template="plotly",
+        xaxis=dict(
+            title="Time-stamp", gridcolor="#C0C0C0", zerolinecolor="#B0B0B0"
+        ),
+        yaxis=dict(title="Strain (lbs)", gridcolor="#B0B0B0"),
+        yaxis2=dict(
+            title="Temperature (F)",
+            overlaying="y",
+            side="right",
+            gridcolor="#B0B0B0",
+            zerolinecolor="#B0B0B0"
+        ),
     )
     weather_layout = go.Layout(
         title=plot_title,
@@ -620,7 +634,9 @@ def create_plot(results_dict, filtered_sensors):
     # to display the plot
     return fig.to_html(
         include_mathjax=False,
-        include_plotlyjs="static/plotly-2.30.0.min.js"
+        include_plotlyjs="static/plotly-2.30.0.min.js",
+        div_id="our-plot",
+        post_script=THEME_TOGGLE_JS,
     )
 
     # saves the html for the plot to a file in tmp
