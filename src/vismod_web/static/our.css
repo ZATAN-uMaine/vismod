@@ -285,3 +285,25 @@ circle,
 .dark #bridge-path {
     fill: #f0f8ff;
 }
+
+/*****
+    Plotly
+
+    These elements are created by JS after a plot is requested.
+*/
+
+.plot-frame {
+    width: 100%;
+    min-height: 525px;
+    border: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    display: block;
+}
+
+.plot-remove-button {
+    position: absolute;
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+    opacity: 0.5;
+}

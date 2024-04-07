@@ -1,7 +1,6 @@
 import os
 import csv
 import logging
-import itertools
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 from datetime import datetime
@@ -418,6 +417,8 @@ def query_all_sensors_for_plot(start, stop, sensors):
                          columnKey: ["node"],
                          valueColumn: "_value")
                 |> group()
+                |> fill(value: 0.0)
+                |> timeShift(duration: -4h)
                 |> drop(columns:
                     ["result","_start","_stop","_measurement","_field"])
             """.format(
@@ -496,7 +497,7 @@ def create_plot(results_dict, filtered_sensors):
     weather_layout = go.Layout(
         title=plot_title,
         template="plotly_dark",
-        xaxis=dict(title="Time-stamp"),
+        xaxis=dict(title="Time (UTC)"),
         yaxis=dict(title="Temperature (F)"),
         yaxis2=dict(title="Feet per Second", overlaying="y", side="right"),
         yaxis3=dict(title="Degrees", overlaying="y", side="right"),
@@ -525,14 +526,6 @@ def create_plot(results_dict, filtered_sensors):
         "gold",
         "mediumaquamarine",
     ]
-    # sensor_length = len(STRAIN_SENSORS)
-
-    # print("filtered sensor length: {number_of_sensors}".format(
-    #     number_of_sensors=sensor_length))
-    # print("filtered sensors: {sensors}".format(
-    #     sensors=filtered_sensors))
-    # print("ALL STRAIN SENSORS: {sensors}".format(
-    #     sensors=STRAIN_SENSORS))
 
     for i, sensor in enumerate(filtered_sensors):
         print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
@@ -554,7 +547,7 @@ def create_plot(results_dict, filtered_sensors):
                 y=results_dict[filtered_sensors[i]],
                 name=sensor,
                 marker=dict(
-                    color=trace_color_list[i % 14], symbol="diamond", size=4
+                    color=trace_color_list[i % 14], symbol="diamond", size=5
                 ),
                 line=dict(dash="solid"),
             ),
@@ -564,17 +557,11 @@ def create_plot(results_dict, filtered_sensors):
     for i, sensor in enumerate(STRAIN_SENSORS):
         if sensor in filtered_sensors:
             continue
-
         else:
             if filtered_sensors[0] in AUXILIARY_SENSORS:
                 continue
             else:
-                # print("adding sensor: {sensor}".format(
-                #    sensor=STRAIN_SENSORS[i]))
-                # print("i index: {index}".format(index=i))
                 index = -(i % 14)
-                # if (index == -8):
-                #     index = 0
                 print("color index: {index}".format(index=index))
 
                 print(
@@ -592,7 +579,7 @@ def create_plot(results_dict, filtered_sensors):
                         marker=dict(
                             color=trace_color_list[index],
                             symbol="diamond",
-                            size=4,
+                            size=5,
                         ),
                         line=dict(dash="solid"),
                         visible="legendonly",
@@ -610,9 +597,9 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[-1]],
                 name="External Temperature (F)",
-                marker=dict(color="lightblue", symbol="diamond", size=4),
-                line=dict(dash="solid"),
-                visible="legendonly",
+                marker=dict(color="lightblue", symbol="diamond", size=3),
+                line=dict(dash="dash"),
+                visible="legendonly"
             ),
             secondary_y=True,
         )
@@ -624,9 +611,9 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[0]],
                 name="Wind Speed (F/S)",
-                marker=dict(color="darksalmon", symbol="diamond", size=4),
-                line=dict(dash="solid"),
-                visible="legendonly",
+                marker=dict(color="darksalmon", symbol="diamond", size=3),
+                line=dict(dash="dash"),
+                visible="legendonly"
             ),
             secondary_y=True,
         )

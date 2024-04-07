@@ -37,6 +37,26 @@ function formatDateString(date, time) {
 }
 
 /**
+ * Converts a Date into an ISO 8601 with correct timezone offset.
+ * See https://www.reddit.com/r/javascript/comments/3uaemf/how_to_really_get_a_utc_date_object/
+ * @param {Date} date 
+ * @returns string
+ */
+function dateToIso(date) {
+    /*const base = date.toISOString();
+    const baseMinusUTC = base.slice(0, -1);
+    const offset = date.getTimezoneOffset();
+    const offsetHours = Math.floor(offset / 60);
+    const offsetMinutes = offset % 60;
+    const offsetHoursString = (new String(offsetHours)).padStart(2, "0");
+    const offsetMinutesString = (new String(offsetMinutes)).padStart(2, "0");
+    const offsetString = `${baseMinusUTC}+${offsetHoursString}:${offsetMinutesString}`;
+    return offsetString;*/
+    return date.toISOString()
+}
+
+
+/**
  * Used to generate filenames for export.
  * @param {Date} date 
  * @returns string YYYY-MM-DD
@@ -267,13 +287,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (start.getTime() > end.getTime()) {
             return;
         }
+
+        // if the end date is in the future, return an error
+        if (end.getTime() > currentDate.getTime()) {
+            const errString = "End date cannot be in the future.";
+            window.modalSingleton.showModal(errString, () => { });
+            return;
+        }
+
         fetchPlot(sensors, start, end)
             .catch((err) => {
                 const errString = `An Error Ocurred: <br /> <br /> ${err}`;
                 window.modalSingleton.showModal(errString, () => { });
             });
     });
-
 });
 
 /**
@@ -285,8 +312,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
  */
 async function fetchCSV(sensors, start, end) {
     const body = new FormData();
-    body.append("start", start.toISOString());
-    body.append("end", end.toISOString());
+    body.append("start", dateToIso(start));
+    body.append("end", dateToIso(end));
     // TODO: support a lost of sensors
     body.append("sensor", sensors[0]);
     const req = await fetch("/download_csv", {
@@ -300,7 +327,7 @@ async function fetchCSV(sensors, start, end) {
         throw new Error("No data found for selected date range.");
     }
     else {
-        throw new Error(req.text);
+        throw new Error(await req.text());
     }
 }
 
@@ -315,33 +342,41 @@ async function fetchPlot(sensors, start, end) {
     // show loading indicator
     const loadInd = document.getElementById("plot-bay-loading");
     loadInd.classList.remove("visually-hidden");
-    let plotIFrame = document.getElementById("plot-frame");
-    if (!plotIFrame) {
-        plotIFrame = document.createElement('iframe');
-        plotIFrame.setAttribute("id", "plot-frame");
-        document.getElementById('plotBay').appendChild(plotIFrame);
-        plotIFrame.setAttribute('scrolling', 'no');
-        plotIFrame.setAttribute('style', 'border:none;');
-        plotIFrame.setAttribute('seamless', 'seamless');
-        plotIFrame.setAttribute('height', '525');
-        plotIFrame.setAttribute('width', '100%');
-    }
-    plotIFrame.contentWindow.document.open();
-    plotIFrame.contentWindow.document.write("");
-    plotIFrame.contentWindow.document.close();
 
     const location = new URL("/display_plot", window.location.origin);
-    location.searchParams.append("start", start.toISOString());
-    location.searchParams.append("end", end.toISOString());
+    location.searchParams.append("start", dateToIso(start));
+    location.searchParams.append("end", dateToIso(end));
     location.searchParams.append("sensor", sensors[0]);
     const req = await fetch(location);
     if (req.status != 200) {
         loadInd.classList.add("visually-hidden");
-        throw new Error(req.text);
+        throw new Error(await req.text());
     }
     const plotHTML = await req.text();
 
+    // create new iframe for play
+    const plotIFrame = document.createElement('iframe');
+    plotIFrame.classList.add("plot-frame");
+
+    // create close button to remove iframe
+    const closer = document.createElement("div");
+    const closerMain = document.createElement("button");
+    closerMain.innerText = "X";
+    closer.appendChild(closerMain);
+    closer.classList.add("plot-remove-button");
+    closerMain.addEventListener("click", () => {
+        plotIFrame.remove();
+        closer.remove();
+    });
+
+    // insert iframe just after the loading indicator
+    loadInd.after(plotIFrame);
+    loadInd.after(closer);
+
+    // write HTML to plot IFrame
     plotIFrame.contentWindow.document.open();
+    // need DOCTYPE to avoid Firefox quirks mode
+    plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
     plotIFrame.contentWindow.document.write(plotHTML);
     plotIFrame.contentWindow.document.close();
 
