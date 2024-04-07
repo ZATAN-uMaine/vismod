@@ -274,6 +274,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             });
     })
 
+    const currentDate = new Date();
+    const timestamp = currentDate.getTime();
     //plot button
     const plotButton = document.getElementById("plot-data-button");
     plotButton.addEventListener("click", () => {
@@ -289,7 +291,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
 
         // if the end date is in the future, return an error
-        if (end.getTime() > currentDate.getTime()) {
+        if (end.getTime() > timestamp) {
             const errString = "End date cannot be in the future.";
             window.modalSingleton.showModal(errString, () => { });
             return;
@@ -348,12 +350,21 @@ async function fetchPlot(sensors, start, end) {
     location.searchParams.append("end", dateToIso(end));
     location.searchParams.append("sensor", sensors[0]);
     const req = await fetch(location);
-    if (req.status != 200) {
-        loadInd.classList.add("visually-hidden");
-        throw new Error(await req.text());
+    let plotHTML = null;
+    try{
+        plotHTML = await req.text();
     }
-    const plotHTML = await req.text();
-
+    catch{
+        if (req.status == 500) {
+            throw new Error("Date Range selected contains corrupted or missing data");
+        }
+        if (req.status != 200) {
+            loadInd.classList.add("visually-hidden");
+            throw new Error(await req.text());
+        }
+    }
+    
+    
     // create new iframe for play
     const plotIFrame = document.createElement('iframe');
     plotIFrame.classList.add("plot-frame");
@@ -377,7 +388,12 @@ async function fetchPlot(sensors, start, end) {
     plotIFrame.contentWindow.document.open();
     // need DOCTYPE to avoid Firefox quirks mode
     plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
-    plotIFrame.contentWindow.document.write(plotHTML);
+    if(plotHTML != null){
+        plotIFrame.contentWindow.document.write(plotHTML);
+    }
+    else{
+        throw new Error("Date Range selected contains corrupted or missing data, please try another date.");
+    }
     plotIFrame.contentWindow.document.close();
 
     // supposed to force dark theme on plot when dark theme is on
