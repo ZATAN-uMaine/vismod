@@ -284,6 +284,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (start.getTime() > end.getTime()) {
             return;
         }
+
+        // if the end date is in the future, return an error
+        if (end.getTime() > currentDate.getTime()) {
+            const errString = "End date cannot be in the future.";
+            window.modalSingleton.showModal(errString, () => { });
+            return;
+        }
+
         fetchPlot(sensors, start, end)
             .catch((err) => {
                 const errString = `An Error Ocurred: <br /> <br /> ${err}`;
