@@ -3,7 +3,7 @@ from os import environ
 import logging
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from vismod_web.utils import validate_dates
