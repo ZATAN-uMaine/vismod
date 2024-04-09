@@ -3,7 +3,7 @@ from datetime import datetime
 import logging
 
 import pandas as pd
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 """
@@ -49,23 +49,65 @@ def df_to_influx_format(data_frame: pd.DataFrame):
     return results
 
 
-def write_row(dictionary):
+def write_fields(dictionary):
     """
     Write any dict. to the influx database, new keys create new rows
     """
+    # Load database secrets
+    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
+    organization = os.environ.get("INFLUXDB_V2_ORG")
+    link = os.environ.get("INFLUXDB_V2_URL")
+    zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
+
+    if link is None:
+        logging.error("$INFLUXDB_V2_URL not found")
+        return
+
+   
+    # wrap correctly for influx
+    fields = {
+        'measurement':'last_modified_times',
+        'fields': dictionary
+    }
+
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         with cli.write_api(write_options=SYNCHRONOUS) as write_api:
             write_api.write(
                 bucket=zatan_bucket,
-                record=dictionary,
+                record=fields
             )
-            print("recording changes...")
+            logging.info("recording changes...")
             InfluxDBClient.close(cli)
 
 
 def get_row(rowname):
-    print()
+    # Load database secrets
+    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
+    organization = os.environ.get("INFLUXDB_V2_ORG")
+    link = os.environ.get("INFLUXDB_V2_URL")
+    zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
+    if link is None:
+        logging.error("$INFLUXDB_V2_URL not found")
+        return
+
+    query = f'from(bucket:"{bucket}") 
+        |>range(start: -1h) 
+        |> filter(fn:(r) => r._measurement == "last_modified_times")'
+
+    query_result = 'Nothing'
+
+    try:
+        with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
+            with cli.query_api as query_api:
+                query = f'from(bucket:"{zatan_bucket}") |'
+                logging.info("getting latest timestamp...")
+                query_result = query_api.query(query, org=org)
+                InfluxDBClient.close(cli)
+    except:
+        logging.error('query error')
+    
+    return query_result
 
 def upload_data_frame(data_frame):
     """
@@ -98,7 +140,6 @@ def upload_data_frame(data_frame):
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         # Use batching API
         with cli.write_api(write_options=SYNCHRONOUS) as write_api:
-            print(data_frame)
             write_api.write(
                 bucket=zatan_bucket,
                 record=data_frame,

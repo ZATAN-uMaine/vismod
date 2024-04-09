@@ -203,7 +203,7 @@ def tdmsDownload(target_file=None) -> list[str]:
             # If download successful, update the last-modified timestamp
             if done:
                 timestamp = {f"{item_id}-lastModified": item["modifiedTime"]}
-                #db.write_row(timestamp)
+                db.write_row(timestamp)
 
                 update_downloads_file(timestamp[f"{item_id}-lastModified"])
                 local_files.append(file_path)
