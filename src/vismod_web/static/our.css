@@ -171,8 +171,7 @@ Main layout
 }
 
 /* Indicates that circle and trianlges on the bridge graphic are clickable */
-circle,
-.triangle {
+.sensor {
     cursor: pointer;
 }
 
