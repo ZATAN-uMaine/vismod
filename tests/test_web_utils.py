@@ -19,6 +19,7 @@ class TestPreProcessor(unittest.TestCase):
         # produced from the web ui
         self.assertTrue(
             validate_dates(
-                "2024-03-30T19:54:07.513+04:00", "2024-04-06T19:54:07.513+04:00"  # noqa
+                "2024-03-30T19:54:07.513+04:00",
+                "2024-04-06T19:54:07.513+04:00",  # noqa
             )
         )
