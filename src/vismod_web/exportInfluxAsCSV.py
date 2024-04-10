@@ -369,7 +369,7 @@ def query_all_sensors_for_plot(start, stop, sensors, aggregate=120):
     formatted_sensors = format_sensor_list(ALL_SENSORS)
 
     logging.info(
-        f"Querying all sensors from {start} to {stop}, every {aggregate} seconds"
+        f"Querying all sensors from {start} to {stop}, every {aggregate} seconds"  # noqa
     )
 
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:

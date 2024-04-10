@@ -25,7 +25,5 @@ class TestPreProcessor(unittest.TestCase):
         )
 
         self.assertTrue(
-            parse_dates(
-                "2024-04-03T17:08:55.063Z", "2024-04-10T17:08:55.063Z"
-            )
+            parse_dates("2024-04-03T17:08:55.063Z", "2024-04-10T17:08:55.063Z")
         )
