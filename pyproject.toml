@@ -16,6 +16,7 @@ dependencies = [
   "python-dotenv",
   "flask",
   "pandas",
+  "python-dateutil",
   "npTDMS[pandas]",
   "influxdb-client",
   "google-api-python-client",

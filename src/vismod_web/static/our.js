@@ -114,6 +114,7 @@ class SensorSelection {
         endHourSelector.value = formatTime(this.endTime);
         endDaySelector.max = endDaySelector.value;
         startDaySelector.max = endDaySelector.max;
+        this.updateSelectedDate();
 
         // sensor points on diagram
         const circles = document.querySelectorAll('.sensor');
