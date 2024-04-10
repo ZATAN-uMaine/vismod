@@ -32,7 +32,7 @@
   # setup only runs once. After the initial run, it will return an error
 - name: "Influx initial setup"
   shell: >-
-    influx setup 
+    influx setup
     --username zatan
     --password Zatan123!
     --org zatan
