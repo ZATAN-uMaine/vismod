@@ -1,3 +1,19 @@
+"""
+Fetches data from DB for the front end.
+
+here is the full list of sensors (as of 3/3/24):
+            [
+            "10A-Left", "10A-Right", "10A-TEMP",
+            "10B-Left", "10B-Right", "10B-TEMP",
+            "17A-Left", "17A-Right", "17A-TEMP",
+            "17B-Left", "17B-Right", "17B-TEMP",
+            "2A-Left", "2A-Right", "2A-TEMP",
+            "2B-Left", "2B-Right", "2B-TEMP",
+            "External-Temperature",
+            "External-Wind-Direction"
+            ]
+"""
+
 import os
 import csv
 import logging
@@ -51,22 +67,6 @@ CSV_TMP_PATH = "/tmp"
 PLOT_TMP_PATH = "/tmp"
 
 
-def list_to_string(list):
-    """
-    This method converts a list to a string in Python.
-    It takes a list as input.
-    """
-    # initialize an empty string
-    string = ""
-
-    # traverse in the string
-    for ele in list:
-        string += ele
-
-    # return string
-    return string
-
-
 def generate_file_name(start, stop, file_type):
     """
     This method generates the file name for the output file
@@ -92,10 +92,6 @@ def generate_file_name(start, stop, file_type):
     return file_name
 
 
-def string_process(st):
-    return st * 2
-
-
 def format_sensor_list(sensors):
     """
     This method takes the list of sensors as input
@@ -111,7 +107,7 @@ def format_sensor_list(sensors):
             received_sensors[index] = 'r["node"] == "' + item + '"'
         else:
             received_sensors[index] = ' or r["node"] == "' + item + '"'
-    partially_formatted_sensors = list_to_string(received_sensors)
+    partially_formatted_sensors = "".join(received_sensors)
     logging.debug(
         f"partial format applied: {repr(partially_formatted_sensors)}"
     )
@@ -132,6 +128,7 @@ def get_sensor_data_range():
               |> range(start: 0)
               |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
               |> group()
+              |> keep(columns: ["_time", "_value"])
               |> first()
             """
         )
@@ -146,6 +143,7 @@ def get_sensor_data_range():
               |> range(start: 0)
               |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
               |> group()
+              |> keep(columns: ["_time", "_value"])
               |> last()
             """
         )
@@ -182,19 +180,6 @@ def query_sensors_for_CSV(start, stop, sensors):
     querying method. It takes a start time, stop time,
     and a list of desired sensors as input.
 
-
-        # Parameterized query for sensors
-        # sensors is a list
-        here is the full list of sensors (as of 3/3/24):
-                    ["_measurement",
-                    "10A-Left", "10A-Right", "10A-TEMP",
-                    "10B-Left", "10B-Right", "10B-TEMP",
-                    "17A-Left", "17A-Right", "17A-TEMP",
-                    "17B-Left", "17B-Right", "17B-TEMP",
-                    "2A-Left", "2A-Right", "2A-TEMP",
-                    "2B-Left", "2B-Right", "2B-TEMP",
-                    "External-Temperature",
-                    "External-Wind-Direction",
                     "External-Wind-Speed"]
         # to query your sensor follow the following format (EST):
         # exportInfluxAsCSV.querySensors(
@@ -211,19 +196,6 @@ def query_sensors_for_CSV(start, stop, sensors):
 
     export_start_time = datetime.now()
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
-        # sensors is a list
-        """here is the full list of sensors (as of 3/3/24):
-        ["_measurement",
-         "10A-Left", "10A-Right", "10A-TEMP",
-         "10B-Left", "10B-Right", "10B-TEMP",
-         "17A-Left", "17A-Right", "17A-TEMP",
-         "17B-Left", "17B-Right", "17B-TEMP",
-         "2A-Left", "2A-Right", "2A-TEMP",
-         "2B-Left", "2B-Right", "2B-TEMP",
-         "External-Temperature",
-         "External-Wind-Direction",
-         "External-Wind-Speed"]
-        """
         csv_iterator = client.query_api().query_csv(
             """
                 from(bucket: "{bucket_name}")
@@ -277,10 +249,6 @@ def query_all_sensors_for_CSV(start, stop):
     This method is used to query all sensors
     It takes a start time and a stop time as input.
     The format for these times is RFC3339.
-    (currently using standard est, daylight savings would be +05:00)
-    example:
-    exportInfluxAsCSV.query_all_sensors(
-        '2023-08-15T04:00:00.000+04:00', '2023-08-17T00:00:00.000+04:00')
     """
     parent = Path(CSV_TMP_PATH)
     csv_path = generate_file_name(start, stop, "Reading")
@@ -292,25 +260,20 @@ def query_all_sensors_for_CSV(start, stop):
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
         # Query All Sensors
         csv_iterator = client.query_api().query_csv(
-            """
-                from(bucket: "{bucket_name}")
-                |> range(start: {start_time},
-                  stop: {stopTime})
+            f"""
+                from(bucket: "{zatan_bucket}")
+                |> range(start: {start},
+                  stop: {stop})
                 |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
                 |> filter(fn: (r) => r["_field"] == "_value")
-                |> filter(fn: (r) => {sensor_list})
+                |> filter(fn: (r) => {formatted_sensors})
                 |>pivot(rowKey:["_time"],
                          columnKey: ["node"],
                          valueColumn: "_value")
                 |> group()
                 |> drop(columns:
                         ["result","_start","_stop","_measurement","_field"])
-            """.format(
-                bucket_name=str(zatan_bucket),
-                start_time=start,
-                stopTime=stop,
-                sensor_list=formatted_sensors,
-            ),
+            """,
             dialect=Dialect(
                 header=True,
                 annotations=[],
@@ -337,6 +300,7 @@ def query_all_sensors_for_CSV(start, stop):
     return write_to
 
 
+# DO NOT USE THIS, IT'S OLD
 def query_sensors_for_plot(start, stop, sensors):
     """
     This function is very similar to
@@ -393,7 +357,7 @@ def query_sensors_for_plot(start, stop, sensors):
         return plot_html
 
 
-def query_all_sensors_for_plot(start, stop, sensors):
+def query_all_sensors_for_plot(start, stop, sensors, aggregate=120):
     """
     This function is very similar to
     query_sensors_for_CSV, but writes an HTML
@@ -404,30 +368,27 @@ def query_all_sensors_for_plot(start, stop, sensors):
 
     formatted_sensors = format_sensor_list(ALL_SENSORS)
 
-    logging.info(f"Querying all sensors from {start} to {stop}")
+    logging.info(
+        f"Querying all sensors from {start} to {stop}, every {aggregate} seconds"
+    )
 
     with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
-        plot_query = """
-                from(bucket: "{bucket_name}")
-                |> range(start: {start_time},
-                  stop: {stop_time})
+        plot_query = f"""
+                from(bucket: "{zatan_bucket}")
+                |> range(start: {start},
+                  stop: {stop})
                 |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
                 |> filter(fn: (r) => r["_field"] == "_value")
-                |> filter(fn: (r) => {sensor_list})
+                |> filter(fn: (r) => {formatted_sensors})
+                |> aggregateWindow(every: {aggregate}s, fn: mean)
                 |>pivot(rowKey:["_time"],
                          columnKey: ["node"],
                          valueColumn: "_value")
                 |> group()
                 |> fill(value: 0.0)
-                |> timeShift(duration: -4h)
                 |> drop(columns:
                     ["result","_start","_stop","_measurement","_field"])
-            """.format(
-            bucket_name=str(zatan_bucket),
-            start_time=start,
-            stop_time=stop,
-            sensor_list=formatted_sensors,
-        )
+            """
 
         result = client.query_api().query(plot_query, org=organization)
         filtered_sensors = [
@@ -484,7 +445,9 @@ def create_plot(results_dict, filtered_sensors):
         title=plot_title,
         template="plotly",
         xaxis=dict(
-            title="Time-stamp", gridcolor="#C0C0C0", zerolinecolor="#B0B0B0"
+            title="Time Stamp (UTC)",
+            gridcolor="#C0C0C0",
+            zerolinecolor="#B0B0B0",
         ),
         yaxis=dict(title="Strain (lbs)", gridcolor="#B0B0B0"),
         yaxis2=dict(
@@ -497,8 +460,8 @@ def create_plot(results_dict, filtered_sensors):
     )
     weather_layout = go.Layout(
         title=plot_title,
-        template="plotly_dark",
-        xaxis=dict(title="Time (UTC)"),
+        template="plotly",
+        xaxis=dict(title="Time Stamp (UTC)"),
         yaxis=dict(title="Temperature (F)"),
         yaxis2=dict(title="Feet per Second", overlaying="y", side="right"),
         yaxis3=dict(title="Degrees", overlaying="y", side="right"),
@@ -529,23 +492,16 @@ def create_plot(results_dict, filtered_sensors):
     ]
 
     for i, sensor in enumerate(filtered_sensors):
-        print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
-        print("filtered sensor at 0: {zero}".format(zero=filtered_sensors[0]))
         if (
             (sensor in AUXILIARY_SENSORS) and (strain_flag)
         ) or sensor == "External-Wind-Speed":
             continue
-        print("adding sensor: {sensor}".format(sensor=filtered_sensors[i]))
-
-        print(
-            "color value: {iterator}".format(iterator=trace_color_list[i % 14])
-        )
 
         fig.add_trace(
             go.Scatter(
                 mode="lines+markers",
                 x=results_dict["_time"],
-                y=results_dict[filtered_sensors[i]],
+                y=results_dict[sensor],
                 name=sensor,
                 marker=dict(
                     color=trace_color_list[i % 14], symbol="diamond", size=5
