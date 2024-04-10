@@ -1,13 +1,15 @@
 import logging
 from datetime import datetime, timedelta, timezone
 from dateutil import parser as dparser
+from math import floor
 
 
-def validate_dates(start, end):
+def parse_dates(start, end):
     """
     Validates that dates are in correct ISO 8086 format,
     and represent a reasonable date range.
-    Returns true if we're all good.
+    Returns False if there is a problem, otherwise return
+    a tuple of datetimes
     """
     try:
         parsed_start = dparser.parse(start)
@@ -24,6 +26,7 @@ def validate_dates(start, end):
         if parsed_start > parsed_end:
             logging.warning(f"Start date {start} is after end date {end}")
             return False
+        return (parsed_start, parsed_end)
     except ValueError:
         logging.warning(
             f"Could not read date strings {start} and {end} as ISO 8086"
@@ -34,4 +37,19 @@ def validate_dates(start, end):
             f"Could not read date strings {start} and {end} as ISO 8086"
         )
         return False
-    return True
+
+
+def get_aggregation_interval(start: datetime, end: datetime, points=300):
+    """
+    Given a start date and an end date,
+    divide it into $points intervals of N seconds.
+    Return N.
+
+    This is used to set a reasonable aggregation window in Plotly.
+    """
+    diff = (end - start).total_seconds()
+    interval = diff / points
+    iinterval = floor(interval)
+    if iinterval < 60:
+        return 60
+    return iinterval
