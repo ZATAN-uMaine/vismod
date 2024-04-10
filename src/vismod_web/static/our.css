@@ -51,6 +51,10 @@ header {
   background-color: var(--bg-header);
 }
 
+h1 > a {
+  text-decoration: none;
+}
+
 figure {
   margin: 0;
 }
