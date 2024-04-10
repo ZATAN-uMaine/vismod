@@ -78,7 +78,7 @@ class Pre_Processor:
         Average data into buckets.
         """
         # Average the data in 1hr buckets
-        return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
+        return tdms_dict.groupby(pd.Grouper(freq="2min")).mean()
 
     def loadcell_offset(self, temp, loadcell_id):
         """
@@ -99,13 +99,26 @@ class Pre_Processor:
         tdms_dict,
     ) -> pd.DataFrame:
         """
-        Creates new columns that apply correct callibration to strain sensors
+        Creates a new dataframe with calibrated strain sensor readings
+        and times in UTC
         """
         results = pd.DataFrame()
         lcs = self.calib_table["Load Cells"]
 
-        # All of the sensor time fields *should* be in sync
+        # All of the sensor time fields *should* be in sync,
+        # so just use the first one
+        # _time is a datetime64[ns]
         results["_time"] = tdms_dict[f"{list(lcs.keys())[0]}-TIME"]
+        # This will convert from Maine time to UTC. The `America/New_York`
+        # timezone includes DST at this time:
+        # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        # if Maine moves off of DST, this code will need to change
+        results["_time"] = (
+            results["_time"]
+            .dt.tz_localize("America/New_York")
+            .dt.tz_convert(None)
+        )
+        print(results.dtypes)
 
         for sensor_id in lcs.keys():
             # Temperature

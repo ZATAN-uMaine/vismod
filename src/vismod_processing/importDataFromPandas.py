@@ -43,15 +43,19 @@ def df_to_influx_format(data_frame: pd.DataFrame):
         sparse_frame["node"] = col
         for w in WEATHER_COLUMNS:
             sparse_frame[w] = data_frame[w]
+        # sometimes there are NaNs in the external sensor date
+        # TODO: should we actually drop the whole row?
+        sparse_frame = sparse_frame.dropna()
         results.append(sparse_frame)
 
     logging.info(f"Processed data frame ({data_frame.shape}) for influx")
     return results
 
 
-def upload_data_frame(data_frame):
+def upload_data_frame(data_frame: pd.DataFrame):
     """
-    Uploads a pandas data frame to Influx
+    Uploads a pandas data frame to Influx.
+    Assumes the frame contains a string field called Node
 
     List of all sensors as of 3.21/24
     "10A-Left", "10A-Right", "10A-TEMP",
@@ -75,7 +79,10 @@ def upload_data_frame(data_frame):
         return
 
     # Initialize Database Client
-    logging.info("=== Ingesting DataFrame via batching API ===")
+    node_name = data_frame.iloc[0]["node"]
+    logging.info(
+        f"=== Ingesting DataFrame for Node {node_name} batching API ==="
+    )
     start_time = datetime.now()
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         # Use batching API

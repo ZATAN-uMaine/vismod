@@ -3,12 +3,16 @@ from os import environ
 import logging
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from vismod_web.exportInfluxAsCSV import string_process
-from vismod_web.exportInfluxAsCSV import query_all_sensors
-from vismod_web.exportInfluxAsCSV import query_sensors  # noqa
+from vismod_web.utils import validate_dates
+from vismod_web.exportInfluxAsCSV import (
+    query_all_sensors_for_CSV,
+    query_sensors_for_CSV,
+    get_sensor_data_range,
+    query_all_sensors_for_plot,
+)
 
 load_dotenv(dotenv_path=Path(".env"))
 
@@ -29,53 +33,42 @@ if (
     )
 else:
     logging.info("Flask running in development mode.")
+    # will reload HTML / CSS / JS after change without restarting the server
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
 @app.route("/")
-def hello():
-    return render_template("index.html")
-
-
-@app.route("/process", methods=["POST", "GET"])
-def process():
-    data = request.form.get("sensor")
-    # process the data using Python code
-    return string_process(data)
+def index():
+    (start, stop, count) = get_sensor_data_range()
+    return render_template(
+        "index.html", data={"start": start, "stop": stop, "count": count}
+    )
 
 
 @app.route("/download_csv", methods=["GET", "POST"])
 def download_csv():
-    sensor = request.args.get("sensor")
-    startDay = request.args.get("startDay")
-    startHour = request.args.get("startHour")
-    endDay = request.args.get("endDay")
-    endHour = request.args.get("endHour")
-    start_request = f"{startDay}T{startHour:02}:00:00.000+04:00"
-    end_request = f"{endDay}T{endHour:02}:00:00.000+04:00"
+    sensor = request.values["sensor"]
+    start_request = request.values["start"]
+    end_request = request.values["end"]
 
-    if sensor is None:
-        return "Missing parameter 'sensor'", 400
-    if (
-        startDay is None
-        or endDay is None
-        or startHour is None
-        or endHour is None
-    ):
-        return "Missing time range parameteres", 400
+    if not (validate_dates(start_request, end_request)):
+        return f"Date range {start_request} to {end_request} was invalid.", 400
 
     if sensor == "all":
         logging.info(
             f"""processing download request for all sensors from \
               {start_request} to {end_request}"""
         )
-        file = str(query_all_sensors(start=start_request, stop=end_request))
+        file = str(
+            query_all_sensors_for_CSV(start=start_request, stop=end_request)
+        )
     else:
         logging.info(
             f"""processing download request for sensor \
               {sensor} from {start_request} to {end_request} """
         )
         file = str(
-            query_sensors(
+            query_sensors_for_CSV(
                 start=start_request,
                 stop=end_request,
                 sensors=[
@@ -88,8 +81,46 @@ def download_csv():
                 ],
             )
         )
+        if file is None:
+            return "No data found", 204
 
     logging.info("Finished processing sensor file")
     return send_file(
         file, mimetype="text/csv", as_attachment=True, download_name="data.csv"
     )
+
+
+@app.route("/display_plot", methods=["GET", "POST"])
+def display_plot():
+    sensor = request.values["sensor"]
+    start_request = request.values["start"]
+    end_request = request.values["end"]
+
+    if not (validate_dates(start_request, end_request)):
+        return "Date format was incorrect", 400
+
+    logging.info(
+        f"""processing download request for sensor \
+            {sensor} from {start_request} to {end_request} """
+    )
+    plot_html = str(
+        query_all_sensors_for_plot(
+            start=start_request,
+            stop=end_request,
+            sensors=[
+                sensor,
+                sensor + "-Left",
+                sensor + "-Right",
+                "External-Wind-Speed",
+                "External-Temperature",
+            ],
+        )
+    )
+
+    return plot_html
+
+
+@app.route("/available_data", methods=["POST"])
+def available_data():
+    (start, end, count) = get_sensor_data_range()
+    return jsonify({"start": start, "end": end, "count": count})

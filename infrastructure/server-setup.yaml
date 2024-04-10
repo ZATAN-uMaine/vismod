@@ -63,37 +63,3 @@
         name: "nginx"
         state: "reloaded"
         enabled: true
-
-- name: "Install grafana"
-  hosts: prod
-  become: true
-  tasks:
-    - name: "Download grafana apt key"
-      get_url:
-        url: "https://apt.grafana.com/gpg.key"
-        dest: "/etc/apt/keyrings/grafana.asc"
-    - name: "Enable grafana apt repo"
-      apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
-        state: present
-    - name: "Install grafana OSS package"
-      apt:
-        update_cache: true
-        state: present
-        name: grafana
-    - name: "Create grafana config file"
-      template:
-        src: "grafana.ini"
-        dest: "/etc/grafana/grafana.ini"
-        mode: "0640"
-      register: grafana_config_copy
-    - name: "Restart grafana if necessary"
-      systemd:
-        name: grafana-server
-        state: restarted
-      when: "grafana_config_copy.changed"
-    - name: "Enable and run Grafana"
-      systemd:
-        name: "grafana-server"
-        enabled: true
-        state: started
