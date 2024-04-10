@@ -477,9 +477,12 @@ def create_plot(results_dict, filtered_sensors):
     start_stamp = results_dict["_time"][0].strftime("%Y %b %d %H:%M")
     end_stamp = results_dict["_time"][-1].strftime("%Y %b %d %H:%M")
 
+    # generate the plot name
     plot_title = "Stay {name} strain from {st} to {et}".format(
         name=filtered_sensors[0].split("-")[0], st=start_stamp, et=end_stamp
     )
+
+    # strain plot layout/configuration
     layout = go.Layout(
         title=plot_title,
         template="plotly",
@@ -495,6 +498,7 @@ def create_plot(results_dict, filtered_sensors):
             zerolinecolor="#B0B0B0",
         ),
     )
+    # weather plot layout/configuration
     weather_layout = go.Layout(
         title=plot_title,
         template="plotly_dark",
@@ -504,13 +508,20 @@ def create_plot(results_dict, filtered_sensors):
         yaxis3=dict(title="Degrees", overlaying="y", side="right"),
     )
 
+    # if the requested sensor is not in auxiliary sensors
+    # AKA if the requested sensor is not a wind sensor
     if filtered_sensors[0] not in AUXILIARY_SENSORS:
         fig.update_layout(layout)
+        # strain flag helps identify whether strain or
+        # wind is being plotted
         strain_flag = True
+    # else the requested sensor is wind the wind sensor
     else:
         fig.update_layout(weather_layout)
         strain_flag = False
 
+    # this is the list of colors that the plot will use to
+    # draw the traces on the scatterplots.
     trace_color_list = [
         "red",
         "blue",
@@ -528,9 +539,13 @@ def create_plot(results_dict, filtered_sensors):
         "mediumaquamarine",
     ]
 
+    # iterate over the sensors requested and initialize an iterator value
     for i, sensor in enumerate(filtered_sensors):
         print("filtered sensors: {sensors}".format(sensors=filtered_sensors))
         print("filtered sensor at 0: {zero}".format(zero=filtered_sensors[0]))
+        
+        # if a sensor is a wind reading and you are plotting a strain sensor,
+        # or if the sensor is External-Wind-Speed, skip showing it in the plot
         if (
             (sensor in AUXILIARY_SENSORS) and (strain_flag)
         ) or sensor == "External-Wind-Speed":
@@ -541,6 +556,7 @@ def create_plot(results_dict, filtered_sensors):
             "color value: {iterator}".format(iterator=trace_color_list[i % 14])
         )
 
+        # plot the requested sensor with it visible on plot creation.
         fig.add_trace(
             go.Scatter(
                 mode="lines+markers",
@@ -555,13 +571,22 @@ def create_plot(results_dict, filtered_sensors):
             secondary_y=False,
         )
 
+    # populate the plot with the remaining sensors
     for i, sensor in enumerate(STRAIN_SENSORS):
+        # if the sensor was requested for the original plot, skip it
         if sensor in filtered_sensors:
             continue
+        # else the sensor was not requested
         else:
+            # if the requested sensor is a reading from the wind sensor,
+            # skip adding the rest of the sensors to the graph
             if filtered_sensors[0] in AUXILIARY_SENSORS:
                 continue
             else:
+                # else add the rest of the sensors as a hidden scatterplot
+
+                # initialize the list index in reverse to prevent repeating
+                # colors back to back
                 index = -(i % 14)
                 print("color index: {index}".format(index=index))
 
@@ -588,9 +613,8 @@ def create_plot(results_dict, filtered_sensors):
                     secondary_y=False,
                 )
 
-    # draw the external temperature
-    # assumes that the External-Temp sensor is in the last
-    # index of the filered_sensors list
+    # first checks that the weather node was not the node requested
+    # then draws external temperature
     if filtered_sensors[0] not in AUXILIARY_SENSORS:
         fig.add_trace(
             go.Scatter(
@@ -605,6 +629,8 @@ def create_plot(results_dict, filtered_sensors):
             secondary_y=True,
         )
     else:
+        # else the wind sensor is being added
+        # add the wind speed to second axis
         print("adding second weather axis")
         fig.add_trace(
             go.Scatter(
