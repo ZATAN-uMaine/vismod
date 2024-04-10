@@ -144,6 +144,10 @@ def get_specified_tdms_file(service, file_name):
     return results
 
 
+def has_been_downloaded(file_obj) -> bool:
+    return True
+
+
 def tdmsDownload(target_file=None) -> list[str]:
     """
     Downloads TDMS files from Drive.
@@ -172,33 +176,38 @@ def tdmsDownload(target_file=None) -> list[str]:
     local_files = []
     if len(data_file_list) > 0:
         item = data_file_list[0]
-        last_modif = item['modifiedTime']
-        if last_modif not in previous_downloads:
-            logging.info(f"Downloading {item['name']}...")
-            file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
-            fh = io.FileIO(file_path, "wb")
-            media = service.files().get_media(fileId=item["id"])
-            downloader = MediaIoBaseDownload(fh, media)
-            done = False
+        last_modif = item["modifiedTime"]
+        file_name = item["name"]
 
-            # Download the file
-            while not done:
-                try:
-                    status, done = downloader.next_chunk()
-                    logging.debug(
-                        f"Download {int(status.progress() * 100)}% complete."
-                    )  # noqa
+        if f"{file_name},{last_modif}" in previous_downloads:
+            return
 
-                # Catch API request errors
-                except HttpError as e:
-                    logging.warn(f"Failed to download {item['name']}: {e}")
-                    fh.close()
-                    os.remove(file_path)
-                    break
+        logging.info(f"Downloading {item['name']}...")
+        file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
+        fh = io.FileIO(file_path, "wb")
+        # Might want batch download instead
+        media = service.files().get_media(fileId=item["id"])
+        downloader = MediaIoBaseDownload(fh, media)
+        done = False
+
+        # Download the file
+        while not done:
+            try:
+                status, done = downloader.next_chunk()
+                logging.debug(
+                    f"Download {int(status.progress() * 100)}% complete."
+                )  # noqa
+
+            # Catch API request errors
+            except HttpError as e:
+                logging.warn(f"Failed to download {item['name']}: {e}")
+                fh.close()
+                os.remove(file_path)
+                break
 
             # If the download was successful, update the local file
             if done:
-                update_downloads_file(last_modif)
+                update_downloads_file(f"{file_name},{last_modif}")
                 local_files.append(file_path)
     else:
         logging.info("No new TDMS data files to download.")
