@@ -1,6 +1,5 @@
 from nptdms import TdmsFile
 import pandas as pd
-import json
 import logging
 
 
@@ -118,7 +117,6 @@ class Pre_Processor:
             .dt.tz_localize("America/New_York")
             .dt.tz_convert(None)
         )
-        print(results.dtypes)
 
         for sensor_id in lcs.keys():
             # Temperature
@@ -168,25 +166,10 @@ class Pre_Processor:
                 f"TDMS file {data_path} appears to have invalid format."
             )
             return None
+        except AssertionError:
+            logging.warning("TDMS basic check failed")
+            return None
         data = self.apply_calibration(data)
         data = data.set_index("_time")
         data = self.averageData(data)
         return data
-
-
-# Allow this file to be run standalone
-# THIS IS JUST FOR TESTING!
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    # Load the calibration data from data.json
-    with open("data.json", "r") as file:
-        calibration_data = json.load(file)
-
-    # Create a pre-processor object with the calibration data
-    pre_processor = Pre_Processor(calibration_data)
-
-    # Load and process the latest data file
-    data_path = "tdms_files/022924.tdms"
-    print(pre_processor.get_local_data_as_dataframe(data_path))
-
-    # processed_data = pre_processor.load_and_process(data_path)

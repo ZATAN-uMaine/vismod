@@ -12,6 +12,7 @@ authors = [
 ]
 ### RUNTIME DEPENDENCIES HERE ###
 dependencies = [
+  "click",
   "openpyxl",
   "python-dotenv",
   "flask",
