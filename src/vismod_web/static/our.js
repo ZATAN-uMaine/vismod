@@ -99,6 +99,9 @@ class SensorSelection {
         const endDaySelector = document.getElementById('endDate');
         const startHourSelector = document.getElementById('startHour');
         const endHourSelector = document.getElementById('endHour');
+        if (!startDaySelector || !endDaySelector || !startHourSelector || !endHourSelector) {
+            return;
+        }
 
         startDaySelector.addEventListener("change", this.updateSelectedDate);
         endDaySelector.addEventListener("change", this.updateSelectedDate);
@@ -111,6 +114,7 @@ class SensorSelection {
         endHourSelector.value = formatTime(this.endTime);
         endDaySelector.max = endDaySelector.value;
         startDaySelector.max = endDaySelector.max;
+        this.updateSelectedDate();
 
         // sensor points on diagram
         const circles = document.querySelectorAll('.sensor');
@@ -175,6 +179,9 @@ class Modal {
 
     createEventHandlers() {
         this.modalHolder = document.getElementById("modal");
+        if (!this.modalHolder) {
+          return;
+        }
         this.modalHolder.classList.add("visually-hidden");
 
         const confirmer = document.getElementById("modal-confirm-button");
@@ -234,79 +241,86 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     //download indiv button
     const downloadButton = document.getElementById("download-data-button");
-    downloadButton.addEventListener("click", () => {
-        const { start, end } = window.sensorSelectSingleton.selectedRange;
-        const sensors = window.sensorSelectSingleton.selectedSensors;
-        // if there are no selected sensors, don't send invalid request
-        if (sensors.length === 0) {
-            return;
-        }
-        // if the start date is after the end date, don't send invalid request
-        if (start.getTime() > end.getTime()) {
-            return;
-        }
-        fetchCSV(sensors, start, end)
-            .then((blob) => {
-                forceBlobDownload(
-                    blob,
-                    `pnb-export-${sensors[0]}-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
-                );
-            }).catch((err) => {
-                const errString = `An Error Ocurred: <br /> <br /> ${err}`;
-                window.modalSingleton.showModal(errString, () => { });
-            });
-    });
+    if (downloadButton) {
+        downloadButton.addEventListener("click", () => {
+            const { start, end } = window.sensorSelectSingleton.selectedRange;
+            const sensors = window.sensorSelectSingleton.selectedSensors;
+            // if there are no selected sensors, don't send invalid request
+            if (sensors.length === 0) {
+                return;
+            }
+            // if the start date is after the end date, don't send invalid request
+            if (start.getTime() > end.getTime()) {
+                return;
+            }
+            fetchCSV(sensors, start, end)
+                .then((blob) => {
+                    forceBlobDownload(
+                        blob,
+                        `pnb-export-${sensors[0]}-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
+                    );
+                }).catch((err) => {
+                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                    window.modalSingleton.showModal(errString, () => { });
+                });
+        });
+    }
+
 
     //download all button
     const downloadAllButton = document.getElementById("downloadAllButton");
-    downloadAllButton.addEventListener("click", () => {
-        const { start, end } = window.sensorSelectSingleton.selectedRange;
-        const sensors = ["all"];
-        // if the start date is after the end date, don't send invalid request
-        if (start.getTime() > end.getTime()) {
-            return;
-        }
-        fetchCSV(sensors, start, end)
-            .then((blob) => {
-                forceBlobDownload(
-                    blob,
-                    `pnb-export-all-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
-                );
-            }).catch((err) => {
-                const errString = `An Error Ocurred: <br /> <br /> ${err}`;
-                window.modalSingleton.showModal(errString, () => { });
-            });
-    })
+    if (downloadAllButton) {
+        downloadAllButton.addEventListener("click", () => {
+            const { start, end } = window.sensorSelectSingleton.selectedRange;
+            const sensors = ["all"];
+            // if the start date is after the end date, don't send invalid request
+            if (start.getTime() > end.getTime()) {
+                return;
+            }
+            fetchCSV(sensors, start, end)
+                .then((blob) => {
+                    forceBlobDownload(
+                        blob,
+                        `pnb-export-all-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
+                    );
+                }).catch((err) => {
+                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                    window.modalSingleton.showModal(errString, () => { });
+                });
+        });
+    }
 
-    const currentDate = new Date();
-    const timestamp = currentDate.getTime();
     //plot button
     const plotButton = document.getElementById("plot-data-button");
-    plotButton.addEventListener("click", () => {
-        const { start, end } = window.sensorSelectSingleton.selectedRange;
-        const sensors = window.sensorSelectSingleton.selectedSensors;
-        // if there are no selected sensors, don't send invalid request
-        if (sensors.length === 0) {
-            return;
-        }
-        // if the start date is after the end date, don't send invalid request
-        if (start.getTime() > end.getTime()) {
-            return;
-        }
+    if (plotButton) {
+        const currentDate = new Date();
+        const timestamp = currentDate.getTime();
+        plotButton.addEventListener("click", () => {
+            const { start, end } = window.sensorSelectSingleton.selectedRange;
+            const sensors = window.sensorSelectSingleton.selectedSensors;
+            // if there are no selected sensors, don't send invalid request
+            if (sensors.length === 0) {
+                return;
+            }
+            // if the start date is after the end date, don't send invalid request
+            if (start.getTime() > end.getTime()) {
+                return;
+            }
 
-        // if the end date is in the future, return an error
-        if (end.getTime() > timestamp) {
-            const errString = "End date cannot be in the future.";
-            window.modalSingleton.showModal(errString, () => { });
-            return;
-        }
-
-        fetchPlot(sensors, start, end)
-            .catch((err) => {
-                const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+            // if the end date is in the future, return an error
+            if (end.getTime() > timestamp) {
+                const errString = "End date cannot be in the future.";
                 window.modalSingleton.showModal(errString, () => { });
-            });
-    });
+                return;
+            }
+
+            fetchPlot(sensors, start, end)
+                .catch((err) => {
+                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                    window.modalSingleton.showModal(errString, () => { });
+                });
+        });
+    }
 });
 
 /**

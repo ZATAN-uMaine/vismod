@@ -11,7 +11,7 @@ html[data-theme="light"] {
   --text-secondary: rgb(40, 40, 40);
   --control-outline: rgb(0, 0, 0);
   --border-primary: rgb(0, 144, 87);
-  --border-secondary: rgb(0, 62, 156);
+  --border-secondary: rgb(0, 31, 78);
   --overlay: rgba(0, 0, 0, 0.256);
 }
 
@@ -19,7 +19,7 @@ html[data-theme="dark"] {
   --bg-main: rgb(59, 61, 58);
   --bg-header: #181A1B;
   --bg-emph: rgb(56, 40, 14);
-  --bg-emph-mild: rgb(58, 40, 4);
+  --bg-emph-mild: rgb(64, 44, 5);
   --text-primary: #d4c7b5;
   --text-secondary: rgb(199, 172, 172);
   --control-outline: rgb(71, 112, 46);
@@ -51,7 +51,7 @@ header {
   background-color: var(--bg-header);
 }
 
-h1 > a {
+h1>a {
   text-decoration: none;
 }
 
@@ -88,7 +88,13 @@ button:disabled {
 
 button:not([disabled]):hover {
   text-decoration: underline;
-  filter: brightness(80%);
+  background-color: var(--bg-emph-mild);
+}
+
+button:focus {
+  text-decoration: underline;
+  background-color: var(--bg-emph-mild);
+  border-color: var(--border-secondary);
 }
 
 mark {
@@ -99,15 +105,24 @@ mark {
 input[type=date],
 input[type=time] {
   border: none;
-  border-radius: 0.2rem;
+  border-radius: 0.3rem;
   padding: 0.2rem;
   margin: 0rem 0.2rem;
   background-color: var(--bg-emph-mild);
+  color: var(--text-secondary);
 }
 
-input[type=date],
-input[type=time]:hover {
+input[type=time]:hover,
+input[type=date]:hover {
   text-decoration: underline;
+  background-color: var(--bg-emph);
+}
+
+input[type=date]:focus,
+input[type=time]:focus {
+  text-decoration: underline;
+  background-color: var(--bg-emph);
+  border-color: var(--border-secondary);
 }
 
 /****
@@ -150,6 +165,9 @@ Navigation Bar
 @media (max-width: 800px) {
   #navigation-bar {
     flex-direction: column;
+  }
+  header > h1 {
+    align-self: center;
   }
 }
 
@@ -350,7 +368,6 @@ Main layout
 }
 
 #data-info {
-  /* display: table; */
   display: flex;
   flex-direction: column;
 }
@@ -360,7 +377,7 @@ Main layout
 }
 
 .dark #theme-square {
-  fill: #000;
+  fill: var(--bg-header);
 }
 
 #sun-icon {

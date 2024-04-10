@@ -23,3 +23,9 @@ class TestPreProcessor(unittest.TestCase):
                 "2024-04-06T19:54:07.513+04:00",  # noqa
             )
         )
+
+        self.assertTrue(
+            validate_dates(
+                "2024-04-03T17:08:55.063Z", "2024-04-10T17:08:55.063Z"
+            )
+        )
