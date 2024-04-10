@@ -93,7 +93,7 @@ def list_tdms_files(service):
         lambda: service.files().list(
             q=query,
             spaces="drive",
-            fields="files(id, name, createdTime)",
+            fields="files(id, name, createdTime, modifiedTime)",
             orderBy="createdTime desc",
             pageSize=2,  # Request only the newest file
             supportsAllDrives=True,
@@ -132,7 +132,7 @@ def get_specified_tdms_file(service, file_name):
         lambda: service.files().list(
             q=query,
             spaces="drive",
-            fields="files(id, name, createdTime)",
+            fields="files(id, name, createdTime, modifiedTime)",
             pageSize=2,  # Request only the newest file
             supportsAllDrives=True,
         )
@@ -172,7 +172,8 @@ def tdmsDownload(target_file=None) -> list[str]:
     local_files = []
     if len(data_file_list) > 0:
         item = data_file_list[0]
-        if item["name"] not in previous_downloads:
+        last_modif = item['modifiedTime']
+        if last_modif not in previous_downloads:
             logging.info(f"Downloading {item['name']}...")
             file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
             fh = io.FileIO(file_path, "wb")
@@ -197,7 +198,7 @@ def tdmsDownload(target_file=None) -> list[str]:
 
             # If the download was successful, update the local file
             if done:
-                update_downloads_file(item["name"])
+                update_downloads_file(last_modif)
                 local_files.append(file_path)
     else:
         logging.info("No new TDMS data files to download.")
