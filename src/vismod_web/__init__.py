@@ -9,7 +9,6 @@ from flask import (
     request,
     send_file,
     jsonify,
-    send_from_directory,
 )
 from werkzeug.middleware.proxy_fix import ProxyFix
 

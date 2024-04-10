@@ -50,7 +50,7 @@ cov = [
   "test-cov",
   "cov-report",
 ]
-format = "black src"
+format = "black src tests"
 lint = "flake8"
 web = "flask --app=src/vismod_web run --host 0.0.0.0"
 process = "PYTHONPATH=src python src/vismod_processing/__main__.py"
