@@ -64,14 +64,14 @@ hatch run test
 
 #### Dev containers
 
-To manually reset Influx/Grafana databases:
+To manually reset Influx database:
 
 ```
 cd .devcontainer
 docker compose down -v
-docker compose build
 ```
-Or you can run the "Dev Containers: Rebuild Container" command from inside Vscode.
+The, list docker volumes with `docker volume ls` and remove all of the
+the Influx ones. They will be reset after the containers are rebuilt.
 
 
 To run a shell inside the dev container:
