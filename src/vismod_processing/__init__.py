@@ -67,7 +67,13 @@ def validate_name(ctx, param, value):
     type=click.Path(),
     help="Save as local CSV file instead of importing to influx.",
 )
-def main(drive_files, local_files, save_as):
+@click.option(
+    "download_count",
+    "--drive-download-count",
+    default=1,
+    help="How many TDMS files to attempt to download (in reverse order from most recent).",  # noqa
+)
+def main(drive_files, local_files, save_as, download_count):
     """Main function to run the data processing pipeline"""
     load_dotenv()
 
@@ -80,9 +86,13 @@ def main(drive_files, local_files, save_as):
     logger_serializer.setLevel(level=logging.DEBUG)
     logger_serializer.addHandler(handler)
 
-    data_files = []
+    # download the config from drive
+    config = config_fetch.download_config()
+    logging.debug(config)
+    proc = pre_processing.Pre_Processor(config)
 
-    # down data files
+    # download data files
+    data_files = []
     if len(drive_files) > 0:
         logging.info("Downloading specified files from drive")
         for target_file in drive_files:
@@ -93,16 +103,13 @@ def main(drive_files, local_files, save_as):
         data_files.extend(local_files)
 
     if len(drive_files) + len(local_files) == 0:
-        data_files.extend(data_fetch.tdmsDownload(target_file=None))
+        data_files.extend(
+            data_fetch.tdmsDownload(target_file=None, count=download_count)
+        )
 
     if len(data_files) == 0:
         logging.info("No new data files")
         return
-
-    # download the config from drive
-    config = config_fetch.download_config()
-    logging.debug(config)
-    proc = pre_processing.Pre_Processor(config)
 
     # process data
     processed_frames = []
@@ -131,7 +138,7 @@ def main(drive_files, local_files, save_as):
                     logging.error(err)
 
     # Clean up tmp files
-    data_fetch.cleanTmpFiles()
+    data_fetch.clean_tmp_files()
 
 
 if __name__ == "__main__":

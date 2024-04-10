@@ -166,6 +166,9 @@ class Pre_Processor:
                 f"TDMS file {data_path} appears to have invalid format."
             )
             return None
+        except AssertionError:
+            logging.warning("TDMS basic check failed")
+            return None
         data = self.apply_calibration(data)
         data = data.set_index("_time")
         data = self.averageData(data)
