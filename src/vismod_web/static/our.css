@@ -170,10 +170,44 @@ Main layout
     border: 0;
 }
 
+
+
 /* Indicates that circle and trianlges on the bridge graphic are clickable */
 .sensor {
     cursor: pointer;
 }
+
+/* Hides the initial highlights */
+
+.hl-sensor {
+    display: none;
+}
+
+[id="17B"]:hover #hl-17B {
+    display: block;
+}
+
+[id="10B"]:hover #hl-10B {
+    display: block;
+}
+
+[id="2B"]:hover #hl-2B {
+    display: block;
+}
+
+[id="2A"]:hover #hl-2A {
+    display: block;
+}
+
+[id="10A"]:hover #hl-10A {
+    display: block;
+}
+
+[id="17A"]:hover #hl-17A {
+    display: block;
+}
+
+
 
 .bridge-area {
     /* Defaults to this without dark mode */
