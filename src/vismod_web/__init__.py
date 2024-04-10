@@ -3,7 +3,14 @@ from os import environ
 import logging
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, send_file, jsonify, send_from_directory
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_file,
+    jsonify,
+    send_from_directory,
+)
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from vismod_web.utils import validate_dates
@@ -43,6 +50,16 @@ def index():
     return render_template(
         "index.html", data={"start": start, "stop": stop, "count": count}
     )
+
+
+@app.route("/about-site.html")
+def about_site():
+    return render_template("about-site.html")
+
+
+@app.route("/about-pnb.html")
+def about_pnb():
+    return render_template("about-pnb.html")
 
 
 @app.route("/download_csv", methods=["GET", "POST"])

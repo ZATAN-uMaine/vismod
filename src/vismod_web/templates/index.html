@@ -1,271 +1,250 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
+{% extends "base.html" %}
+{% block title %} Viewer {% endblock %}
+{% block body %}
+<header id="navigation-bar">
+  <h1> PNB Data Portal </h1>
+  <nav>
+    <div class="navigation-item">
+      <a href="/about-site.html">About This Site</a>
+    </div>
+    <div class="navigation-item">
+      <a href="/about-pnb.html">About PNB</a>
+    </div>
+    <!-- Created with Inkscape (http://www.inkscape.org/) -->
+    <svg width=3.5rem height=3.5rem version="1.1" viewBox="0 0 4.2176 4.2176" xmlns="http://www.w3.org/2000/svg"
+      id="theme-svg">
+      <g transform="translate(-86.702 -99.094)">
+        <g transform="matrix(.26458 0 0 .26458 7.7737 98.192)" fill="#bbb" stroke-width="0">
+          <title>clickme</title>
+          <rect id="theme-square" class="theme-toggle" x="298.31" y="3.4111" width="15.94" height="15.94" fill="#bbb"
+            stroke-width="0" />
+        </g>
+        <g id="sun-icon" class="theme-toggle" transform="matrix(.26458 0 0 .26458 7.7656 98.192)">
+          <title>sun-icon</title>
+          <circle cx="306.28" cy="11.381" r="3.3204" fill-opacity="0" stroke="#000" stroke-linejoin="round"
+            stroke-width=".64466" />
+          <g fill="none" stroke="#000" stroke-linecap="round">
+            <g stroke-width=".668">
+              <path d="m306.28 16.162v2.4634" />
+              <path d="m301.61 11.381h-2.4634" />
+              <path d="m313.41 11.381h-2.4634" />
+              <path d="m306.28 4.1371v2.4634" />
+            </g>
+            <g stroke-width=".66787px">
+              <path d="m309.63 14.733 1.3321 1.3321" />
+              <path d="m303.01 14.658-1.3321 1.3321" />
+              <path d="m310.89 6.7724-1.3321 1.3321" />
+            </g>
+            <path d="m301.6 6.6974 1.3321 1.3321" stroke-width=".66787px" />
+          </g>
+        </g>
+        <g id="moon-icon" class="theme-toggle" transform="matrix(.26458 0 0 .26458 11.819 96.43)">
+          <title>moon-icon</title>
+          <path
+            d="m293.55 12.031a6.46 6.46 0 0 1 3.1162 6.384 6.46 6.46 0 0 1-4.6319 5.3863 6.46 6.46 0 0 1-6.7786-2.1251"
+            fill-opacity="0" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".645" />
+          <path d="m285.26 21.677s10.669 1.6443 8.2943-9.6451" fill="none" stroke="#fff" stroke-linecap="round"
+            stroke-width=".645" />
+        </g>
+      </g>
+    </svg>
+  </nav>
+</header>
+<main>
+  <article id="selection-controls">
+    <section id="selection-info">
+      <h3> Visualize or Download Sensor Data </h3>
+      <p class="p-em">
+        The data available on this site do not reflect the structual integrity of the Penobscot Narrows
+        Bridge.
+      </p>
+      <p> This dataset includes {{data.count}} readings,
+        from {{data.start.strftime("%B %d, %Y")}} to
+        {{data.stop.strftime("%B %d, %Y")}}.
+      </p>
+      <div id="dateRangeBox">
+        <div>
+          <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
+        </div>
+        <div class="dateSelectorBox">
+          <label for="startDate">Start Date:</label>
+          <input type="date" id="startDate" name="start-date" />
+          <label for="startHour" class="visually-hidden">Start Hour:</label>
+          <input type="time" id="startHour" name="start-hour"></select>
+        </div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PNB Data Portal</title>
-    <link rel="icon" href="static/favicon.svg">
+        <div class="dateSelectorBox">
+          <label for="endDate">End Date:</label>
+          <input type="date" id="endDate" name="end-date" />
+          <label for="endHour" class="visually-hidden">End Hour:</label>
+          <input type="time" id="endHour" name="end-hour"></select>
+        </div>
+      </div>
+      <div id="cur-sensor-info-panel">
+        <!-- Contains information about the current sensor, if one is selected. -->
+      </div>
+      <div class="plot-button-box">
+        <button disabled id="plot-data-button">
+          Plot Data
+        </button>
+        <button disabled id="download-data-button">
+          Download Data
+        </button>
+        <button id="downloadAllButton">
+          Download All Sensor Data
+        </button>
+      </div>
+    </section>
+    <section class="bridge-area panel">
+      <figure>
+        <figcaption>
+          Choose a sensor from the diagram below:
+        </figcaption>
+        <!-- Created with Inkscape (http://www.inkscape.org/) -->
+        <svg version="1.1" viewBox="0 0 1447.8 815.98" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <defs>
+            <clipPath id="clipPath1131">
+              <path
+                d="m7.5816 56.897a29.165 49.313 0 0 1 29.165-49.311h1374.3a29.165 49.313 0 0 1 29.165 49.311v700.59a29.165 49.313 0 0 1-29.165 49.312h-1374.3a29.165 49.313 0 0 1-29.165-49.312z"
+                fill="#fff" stroke="#000" stroke-width="15.172" />
+            </clipPath>
+          </defs>
+          <g>
+            <image width="1447.8" height="814.39" clip-path="url(#clipPath1131)" fill="#ffffff" stroke="#ffffff"
+              preserveAspectRatio="none" xlink:href="static/brig.jpg" />
+          </g>
+          <path
+            d="m7.58 57.69a29.165 49.313 0 0 1 29.165-49.311h1374.3a29.165 49.313 0 0 1 29.165 49.311v700.59a29.165 49.313 0 0 1-29.165 49.312h-1374.3a29.165 49.313 0 0 1-29.165-49.312z"
+            fill="none" stroke="#000" stroke-width="15.172" />
+          <g>
+            <g id="17B" class="sensor">
+              <path id="hl-17B" class="hl-sensor" d="m115.26 529.28 633.78-279.72" fill="none" stroke="#ff00f6"
+                stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292" stroke-linecap="round" stroke-width="6.6146" />
+              <g>
+                <circle cx="122.95" cy="532.72" r="52.381" fill="#e1be6a" stroke="#40b0a6" stroke-linecap="round"
+                  stroke-width="5" />
+                <text transform="matrix(1.6061,0,0,1.6061,879.12,47.933)" x="-493.94681" y="311.37772"
+                  font-family="'Times New Roman'" font-size="26.158px"
+                  style="font-variant-ligatures:none;line-height:1.25">
+                  <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
+                    style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                    17B</tspan>
+                </text>
+              </g>
+            </g>
+            <g id="10B" class="sensor">
+              <path id="hl-10B" class="hl-sensor" d="m341.84 530.72 403.25-195.34" fill="none" stroke="#ff00f6"
+                stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292" stroke-linecap="round" stroke-width="6.6146" />
+              <g>
+                <circle cx="367.03" cy="541.23" r="52.381" fill="#e1be6a" stroke="#40b0a6" stroke-linecap="round"
+                  stroke-width="5" />
+                <text transform="matrix(1.6061,0,0,1.6061,1123.2,56.443)" x="-493.94681" y="311.37772"
+                  font-family="'Times New Roman'" font-size="26.158px"
+                  style="font-variant-ligatures:none;line-height:1.25">
+                  <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
+                    style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                    10B</tspan>
+                </text>
+              </g>
+            </g>
+            <g id="2B" class="sensor">
+              <path id="hl-2B" class="hl-sensor" d="m597.86 537.18 146.15-116.34" fill="none" stroke="#ff00f6"
+                stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292" stroke-linecap="round" stroke-width="6.6146" />
+              <g>
+                <circle cx="633.03" cy="552.8" r="52.381" fill="#e1be6a" stroke="#40b0a6" stroke-linecap="round"
+                  stroke-width="5" />
+                <text transform="matrix(1.6061,0,0,1.6061,1389.2,68.013)" x="-486.05994" y="311.54379"
+                  font-family="'Times New Roman'" font-size="26.158px"
+                  style="font-variant-ligatures:none;line-height:1.25">
+                  <tspan x="-486.05994" y="311.54379" font-family="Tahoma" font-size="26.158px"
+                    style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                    2B</tspan>
+                </text>
+              </g>
+            </g>
+            <g id="2A" class="sensor">
+              <path id="hl-2A" class="hl-sensor" d="m787.82 422.64 118.86 121.37" fill="none" stroke="#ff00f6"
+                stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292" stroke-linecap="round" stroke-width="6.6146" />
+              <g>
+                <circle cx="903.13" cy="562.71" r="52.381" fill="#e1be6a" stroke="#40b0a6" stroke-linecap="round"
+                  stroke-width="5" />
+                <text transform="matrix(1.6061,0,0,1.6061,1659.3,77.923)" x="-486.05994" y="311.54379"
+                  font-family="'Times New Roman'" font-size="26.158px"
+                  style="font-variant-ligatures:none;line-height:1.25">
+                  <tspan x="-486.05994" y="311.54379" font-family="Tahoma" font-size="26.158px"
+                    style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                    2A</tspan>
+                </text>
+              </g>
+            </g>
+            <g id="10A" class="sensor">
+              <path id="hl-10A" class="hl-sensor" d="m1126.8 548.67-339.69-210.42" fill="none" stroke="#ff00f6"
+                stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292" stroke-linecap="round" stroke-width="6.6146" />
+              <g>
+                <circle cx="1121.2" cy="570.15" r="52.381" fill="#e1be6a" stroke="#40b0a6" stroke-linecap="round"
+                  stroke-width="5" />
+                <text transform="matrix(1.6061,0,0,1.6061,1877.4,85.363)" x="-493.94681" y="311.37772"
+                  font-family="'Times New Roman'" font-size="26.158px"
+                  style="font-variant-ligatures:none;line-height:1.25">
+                  <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
+                    style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                    10A</tspan>
+                </text>
+              </g>
+            </g>
+            <g id="17A" class="sensor">
+              <path id="hl-17A" class="hl-sensor" d="M 1323.9,553.7 786,252.07" fill="none" stroke="#ff00f6"
+                stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292" stroke-linecap="round" stroke-width="6.6146" />
+              <g>
+                <circle cx="1329.4" cy="564.37" r="52.381" fill="#e1be6a" stroke="#40b0a6" stroke-linecap="round"
+                  stroke-width="5" />
+                <text transform="matrix(1.6061,0,0,1.6061,2085.6,79.583)" x="-493.94681" y="311.37772"
+                  font-family="'Times New Roman'" font-size="26.158px"
+                  style="font-variant-ligatures:none;line-height:1.25">
+                  <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
+                    style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                    17A</tspan>
+                </text>
+              </g>
+            </g>
+            <g id="wind" class="sensor triangle">
+              <path d="m125.4 383.83-49.422-85.603h98.846z" fill="#1aff1a" stroke="#4b0092" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="3" />
+              <text transform="translate(747.22,281.96)" x="-638.6911" y="62.574936" font-family="'Times New Roman'"
+                font-size="37.284px" stroke-width="1.5535" style="font-variant-ligatures:none;line-height:1.25">
+                <tspan x="-638.6911" y="62.574936" font-family="Tahoma" font-size="37.284px" stroke-width="1.5535"
+                  style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
+                  W</tspan>
+              </text>
+            </g>
+          </g>
+        </svg>
 
-    <link rel="stylesheet" type="text/css" href="static/our.css" />
-    <script type="text/javascript" src="static/our.js"></script>
-</head>
+      </figure>
+    </section> <!-- bridge-panel-area -->
 
-<body id="body">
-    <header id="navigation-bar">
-        <h1> PNB Data Portal </h1>
-        <nav>
-            <div class="navigation-item">
-                <a href="#">About This Site</a>
-            </div>
-            <div class="navigation-item">
-                <a href="#">About PNB</a>
-            </div>
-            <!-- Created with Inkscape (http://www.inkscape.org/) -->
-            <svg width=3.5rem height=3.5rem version="1.1" viewBox="0 0 4.2176 4.2176"
-                xmlns="http://www.w3.org/2000/svg" id="theme-svg">
-                <g transform="translate(-86.702 -99.094)">
-                    <g transform="matrix(.26458 0 0 .26458 7.7737 98.192)" fill="#bbb" stroke-width="0">
-                        <title>clickme</title>
-                        <rect id="theme-square" class="theme-toggle" x="298.31" y="3.4111" width="15.94" height="15.94"
-                            fill="#bbb" stroke-width="0" />
-                    </g>
-                    <g id="sun-icon" class="theme-toggle" transform="matrix(.26458 0 0 .26458 7.7656 98.192)">
-                        <title>sun-icon</title>
-                        <circle cx="306.28" cy="11.381" r="3.3204" fill-opacity="0" stroke="#000"
-                            stroke-linejoin="round" stroke-width=".64466" />
-                        <g fill="none" stroke="#000" stroke-linecap="round">
-                            <g stroke-width=".668">
-                                <path d="m306.28 16.162v2.4634" />
-                                <path d="m301.61 11.381h-2.4634" />
-                                <path d="m313.41 11.381h-2.4634" />
-                                <path d="m306.28 4.1371v2.4634" />
-                            </g>
-                            <g stroke-width=".66787px">
-                                <path d="m309.63 14.733 1.3321 1.3321" />
-                                <path d="m303.01 14.658-1.3321 1.3321" />
-                                <path d="m310.89 6.7724-1.3321 1.3321" />
-                            </g>
-                            <path d="m301.6 6.6974 1.3321 1.3321" stroke-width=".66787px" />
-                        </g>
-                    </g>
-                    <g id="moon-icon" class="theme-toggle" transform="matrix(.26458 0 0 .26458 11.819 96.43)">
-                        <title>moon-icon</title>
-                        <path
-                            d="m293.55 12.031a6.46 6.46 0 0 1 3.1162 6.384 6.46 6.46 0 0 1-4.6319 5.3863 6.46 6.46 0 0 1-6.7786-2.1251"
-                            fill-opacity="0" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width=".645" />
-                        <path d="m285.26 21.677s10.669 1.6443 8.2943-9.6451" fill="none" stroke="#fff"
-                            stroke-linecap="round" stroke-width=".645" />
-                    </g>
-                </g>
-            </svg>
-        </nav>
-    </header>
-    <main>
-        <article id="selection-controls">
-            <section id="selection-info">
-                <h3> Visualize or Download Sensor Data </h3>
-                <p class="p-em">
-                    The data available on this site do not reflect the structual integrity of the Penobscot Narrows
-                    Bridge.
-                </p>
-                <p> This dataset includes {{data.count}} readings,
-                    from {{data.start.strftime("%B %d, %Y")}} to
-                    {{data.stop.strftime("%B %d, %Y")}}.
-                </p>
-                <div id="dateRangeBox">
-                    <div>
-                        <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
-                    </div>
-                    <div class="dateSelectorBox">
-                        <label for="startDate">Start Date:</label>
-                        <input type="date" id="startDate" name="start-date" />
-                        <label for="startHour" class="visually-hidden">Start Hour:</label>
-                        <input type="time" id="startHour" name="start-hour"></select>
-                    </div>
+  </article>
 
-                    <div class="dateSelectorBox">
-                        <label for="endDate">End Date:</label>
-                        <input type="date" id="endDate" name="end-date" />
-                        <label for="endHour" class="visually-hidden">End Hour:</label>
-                        <input type="time" id="endHour" name="end-hour"></select>
-                    </div>
-                </div>
-                <div id="cur-sensor-info-panel">
-                    <!-- Contains information about the current sensor, if one is selected. -->
-                </div>
-                <div class="plot-button-box">
-                    <button disabled id="plot-data-button">
-                        Plot Data
-                    </button>
-                    <button disabled id="download-data-button">
-                        Download Data
-                    </button>
-                    <button id="downloadAllButton">
-                        Download All Sensor Data
-                    </button>
-                </div>
-            </section>
-            <section class="bridge-area panel">
-                <figure>
-                    <figcaption>
-                        Choose a sensor from the diagram below:
-                    </figcaption>
-                    <!-- Created with Inkscape (http://www.inkscape.org/) -->
-                    <svg version="1.1" viewBox="0 0 1447.8 815.98" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <defs>
-                            <clipPath id="clipPath1131">
-                                <path
-                                    d="m7.5816 56.897a29.165 49.313 0 0 1 29.165-49.311h1374.3a29.165 49.313 0 0 1 29.165 49.311v700.59a29.165 49.313 0 0 1-29.165 49.312h-1374.3a29.165 49.313 0 0 1-29.165-49.312z"
-                                    fill="#fff" stroke="#000" stroke-width="15.172" />
-                            </clipPath>
-                        </defs>
-                        <g>
-                            <image width="1447.8" height="814.39" clip-path="url(#clipPath1131)" fill="#ffffff"
-                                stroke="#ffffff" preserveAspectRatio="none" xlink:href="static/brig.jpg" />
-                        </g>
-                        <path
-                            d="m7.58 57.69a29.165 49.313 0 0 1 29.165-49.311h1374.3a29.165 49.313 0 0 1 29.165 49.311v700.59a29.165 49.313 0 0 1-29.165 49.312h-1374.3a29.165 49.313 0 0 1-29.165-49.312z"
-                            fill="none" stroke="#000" stroke-width="15.172" />
-                        <g>
-                            <g id="17B" class="sensor">
-                                <path id="hl-17B" class="hl-sensor" d="m115.26 529.28 633.78-279.72" fill="none"
-                                    stroke="#ff00f6" stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292"
-                                    stroke-linecap="round" stroke-width="6.6146" />
-                                <g>
-                                    <circle cx="122.95" cy="532.72" r="52.381" fill="#e1be6a" stroke="#40b0a6"
-                                        stroke-linecap="round" stroke-width="5" />
-                                    <text transform="matrix(1.6061,0,0,1.6061,879.12,47.933)" x="-493.94681"
-                                        y="311.37772" font-family="'Times New Roman'" font-size="26.158px"
-                                        style="font-variant-ligatures:none;line-height:1.25" >
-                                        <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
-                                            style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                            17B</tspan>
-                                    </text>
-                                </g>
-                            </g>
-                            <g id="10B" class="sensor">
-                                <path id="hl-10B" class="hl-sensor" d="m341.84 530.72 403.25-195.34" fill="none"
-                                    stroke="#ff00f6" stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292"
-                                    stroke-linecap="round" stroke-width="6.6146" />
-                                <g>
-                                    <circle cx="367.03" cy="541.23" r="52.381" fill="#e1be6a" stroke="#40b0a6"
-                                        stroke-linecap="round" stroke-width="5" />
-                                    <text transform="matrix(1.6061,0,0,1.6061,1123.2,56.443)" x="-493.94681"
-                                        y="311.37772" font-family="'Times New Roman'" font-size="26.158px"
-                                        style="font-variant-ligatures:none;line-height:1.25" >
-                                        <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
-                                            style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                            10B</tspan>
-                                    </text>
-                                </g>
-                            </g>
-                            <g id="2B" class="sensor">
-                                <path id="hl-2B" class="hl-sensor" d="m597.86 537.18 146.15-116.34" fill="none"
-                                    stroke="#ff00f6" stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292"
-                                    stroke-linecap="round" stroke-width="6.6146" />
-                                <g>
-                                    <circle cx="633.03" cy="552.8" r="52.381" fill="#e1be6a" stroke="#40b0a6"
-                                        stroke-linecap="round" stroke-width="5" />
-                                    <text transform="matrix(1.6061,0,0,1.6061,1389.2,68.013)" x="-486.05994"
-                                        y="311.54379" font-family="'Times New Roman'" font-size="26.158px"
-                                        style="font-variant-ligatures:none;line-height:1.25" >
-                                        <tspan x="-486.05994" y="311.54379" font-family="Tahoma" font-size="26.158px"
-                                            style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                            2B</tspan>
-                                    </text>
-                                </g>
-                            </g>
-                            <g id="2A" class="sensor">
-                                <path id="hl-2A" class="hl-sensor" d="m787.82 422.64 118.86 121.37" fill="none"
-                                    stroke="#ff00f6" stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292"
-                                    stroke-linecap="round" stroke-width="6.6146" />
-                                <g>
-                                    <circle cx="903.13" cy="562.71" r="52.381" fill="#e1be6a" stroke="#40b0a6"
-                                        stroke-linecap="round" stroke-width="5" />
-                                    <text transform="matrix(1.6061,0,0,1.6061,1659.3,77.923)" x="-486.05994"
-                                        y="311.54379" font-family="'Times New Roman'" font-size="26.158px"
-                                        style="font-variant-ligatures:none;line-height:1.25" >
-                                        <tspan x="-486.05994" y="311.54379" font-family="Tahoma" font-size="26.158px"
-                                            style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                            2A</tspan>
-                                    </text>
-                                </g>
-                            </g>
-                            <g id="10A" class="sensor">
-                                <path id="hl-10A" class="hl-sensor" d="m1126.8 548.67-339.69-210.42" fill="none"
-                                    stroke="#ff00f6" stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292"
-                                    stroke-linecap="round" stroke-width="6.6146" />
-                                <g>
-                                    <circle cx="1121.2" cy="570.15" r="52.381" fill="#e1be6a" stroke="#40b0a6"
-                                        stroke-linecap="round" stroke-width="5" />
-                                    <text transform="matrix(1.6061,0,0,1.6061,1877.4,85.363)" x="-493.94681"
-                                        y="311.37772" font-family="'Times New Roman'" font-size="26.158px"
-                                        style="font-variant-ligatures:none;line-height:1.25" >
-                                        <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
-                                            style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                            10A</tspan>
-                                    </text>
-                                </g>
-                            </g>
-                            <g id="17A" class="sensor">
-                                <path id="hl-17A" class="hl-sensor" d="M 1323.9,553.7 786,252.07" fill="none"
-                                    stroke="#ff00f6" stroke-dasharray="26.4585, 13.2292, 6.61462, 13.2292"
-                                    stroke-linecap="round" stroke-width="6.6146" />
-                                <g>
-                                    <circle cx="1329.4" cy="564.37" r="52.381" fill="#e1be6a" stroke="#40b0a6"
-                                        stroke-linecap="round" stroke-width="5" />
-                                    <text transform="matrix(1.6061,0,0,1.6061,2085.6,79.583)" x="-493.94681"
-                                        y="311.37772" font-family="'Times New Roman'" font-size="26.158px"
-                                        style="font-variant-ligatures:none;line-height:1.25" >
-                                        <tspan x="-493.94681" y="311.37772" font-family="Tahoma" font-size="26.158px"
-                                            style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                            17A</tspan>
-                                    </text>
-                                </g>
-                            </g>
-                            <g id="wind" class="sensor triangle">
-                                <path d="m125.4 383.83-49.422-85.603h98.846z" fill="#1aff1a" stroke="#4b0092"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="3" />
-                                <text transform="translate(747.22,281.96)" x="-638.6911" y="62.574936"
-                                    font-family="'Times New Roman'" font-size="37.284px" stroke-width="1.5535"
-                                    style="font-variant-ligatures:none;line-height:1.25">
-                                    <tspan x="-638.6911" y="62.574936" font-family="Tahoma" font-size="37.284px"
-                                        stroke-width="1.5535"
-                                        style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:none;font-variant-numeric:normal">
-                                        W</tspan>
-                                </text>
-                            </g>
-                        </g>
-                    </svg>
+  <section id="plotBay">
+    <aside id="plot-bay-loading" class="visually-hidden load-indicator-text">
+      Plot loading...
+    </aside>
+  </section>
 
-                </figure>
-            </section> <!-- bridge-panel-area -->
+  <!-- The Modal -->
+  <section id="modal" class="visually-hidden">
+    <!-- Modal content -->
+    <div id="modal-body">
+      <div id="modal-content">
+        <!-- Gets filled by JS -->
+      </div>
+      <div id="modal-buttons">
+        <button id="modal-confirm-button">Confirm</button>
+        <button id="modal-cancel-button">Cancel</button>
+      </div>
+    </div>
+  </section>
+</main>
 
-        </article>
-
-        <section id="plotBay">
-            <aside id="plot-bay-loading" class="visually-hidden load-indicator-text">
-                Plot loading...
-            </aside>
-        </section>
-
-        <!-- The Modal -->
-        <section id="modal" class="visually-hidden">
-            <!-- Modal content -->
-            <div id="modal-body">
-                <div id="modal-content">
-                    <!-- Gets filled by JS -->
-                </div>
-                <div id="modal-buttons">
-                    <button id="modal-confirm-button">Confirm</button>
-                    <button id="modal-cancel-button">Cancel</button>
-                </div>
-            </div>
-        </section>
-    </main>
-</body>
-
-</html>
+{% endblock %}
