@@ -14,11 +14,13 @@ organization = os.environ.get("INFLUXDB_V2_ORG")
 link = os.environ.get("INFLUXDB_V2_URL")
 zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
-
-with open(
-    "/workspace/src/vismod_web/static/plotly_appended_js.txt", "r"
-) as file:
-    THEME_TOGGLE_JS = file.read()
+# the plotly_append script allows modifying the theme and functionality
+# of the plotly iframe. this snipped loads it from /static.
+THEME_TOGGLE_JS = """
+  const extraScript = document.createElement('script');
+  extraScript.src = "static/plotly_append.js";
+  document.head.appendChild(extraScript);
+"""
 
 # default values for querying -- these get pruned for specific requests
 STRAIN_SENSORS = [  # easier  to add sensors with comprehension (?)
@@ -26,7 +28,6 @@ STRAIN_SENSORS = [  # easier  to add sensors with comprehension (?)
     for x in ["2", "10", "17"]
     for sensor in (x + "A-Left", x + "A-Right", x + "B-Left", x + "B-Right")
 ]
-print("strain sensors: {strain_sensors}".format(strain_sensors=STRAIN_SENSORS))
 
 AUXILIARY_SENSORS = [
     "External-Temperature",
@@ -491,7 +492,7 @@ def create_plot(results_dict, filtered_sensors):
             overlaying="y",
             side="right",
             gridcolor="#B0B0B0",
-            zerolinecolor="#B0B0B0"
+            zerolinecolor="#B0B0B0",
         ),
     )
     weather_layout = go.Layout(
@@ -599,7 +600,7 @@ def create_plot(results_dict, filtered_sensors):
                 name="External Temperature (F)",
                 marker=dict(color="lightblue", symbol="diamond", size=3),
                 line=dict(dash="dash"),
-                visible="legendonly"
+                visible="legendonly",
             ),
             secondary_y=True,
         )
@@ -613,7 +614,7 @@ def create_plot(results_dict, filtered_sensors):
                 name="Wind Speed (F/S)",
                 marker=dict(color="darksalmon", symbol="diamond", size=3),
                 line=dict(dash="dash"),
-                visible="legendonly"
+                visible="legendonly",
             ),
             secondary_y=True,
         )
@@ -625,6 +626,3 @@ def create_plot(results_dict, filtered_sensors):
         div_id="our-plot",
         post_script=THEME_TOGGLE_JS,
     )
-
-    # saves the html for the plot to a file in tmp
-    # fig.write_html(write_to, include_plotlyjs="cdn")

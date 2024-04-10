@@ -1,104 +1,191 @@
+/****
+  COLOR SCHEME
+*/
+
+html[data-theme="light"] {
+  --bg-main: rgb(242, 242, 242);
+  --bg-header: rgb(187, 187, 187);
+  --bg-emph: rgb(170, 166, 159);
+  --bg-emph-mild: rgb(194, 190, 182);
+  --text-primary: #000000;
+  --text-secondary: rgb(40, 40, 40);
+  --control-outline: rgb(0, 0, 0);
+  --border-primary: rgb(0, 144, 87);
+  --border-secondary: rgb(0, 62, 156);
+  --overlay: rgba(0, 0, 0, 0.256);
+}
+
+html[data-theme="dark"] {
+  --bg-main: rgb(59, 61, 58);
+  --bg-header: #181A1B;
+  --bg-emph: rgb(56, 40, 14);
+  --bg-emph-mild: rgb(58, 40, 4);
+  --text-primary: #d4c7b5;
+  --text-secondary: rgb(199, 172, 172);
+  --control-outline: rgb(71, 112, 46);
+  --border-primary: rgb(0, 144, 87);
+  --border-secondary: rgb(22, 110, 241);
+  --overlay: rgba(255, 255, 255, 0.256);
+}
+
+/****
+Global Elements
+*/
+
 html {
-    height: 100%;
+  height: 100%;
 }
 
 body {
-    height: 100vh;
+  height: 100vh;
+  margin: 0px;
+  background-color: var(--bg-main);
 }
 
 body * {
-    font-family: 'open sans', Helvetica, sans-serif;
+  font-family: 'open sans', Helvetica, sans-serif;
+  color: var(--text-primary)
+}
+
+header {
+  background-color: var(--bg-header);
 }
 
 figure {
-    margin: 0;
+  margin: 0;
 }
 
 figcaption {
-    margin: 0.5rem 1rem;
+  margin: 0.5rem 1rem;
 }
 
 button {
-    /* Largely copied from PureCSS */
-    font-family: inherit;
-    font-size: 100%;
-    padding: .5em 1em;
-    color: rgba(0, 0, 0, .8);
-    border: none transparent;
-    background-color: #e6e6e6;
-    text-decoration: none;
-    border-radius: 2px;
-    text-align: center;
-    cursor: pointer;
-    box-sizing: border-box;
+  /* Largely copied from PureCSS */
+  font-family: inherit;
+  font-size: 100%;
+  padding: .5em 1em;
+  color: var(--text-secondary);
+  border: none transparent;
+  background-color: var(--bg-emph);
+  text-decoration: none;
+  border-radius: 2px;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
 }
 
 button:disabled {
-    border: none;
-    opacity: .4;
-    cursor: not-allowed;
-    box-shadow: none;
-    pointer-events: none;
+  border: none;
+  opacity: .4;
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
 }
 
 button:not([disabled]):hover {
-    text-decoration: underline;
-    background-color: #d1d1d1;
+  text-decoration: underline;
+  filter: brightness(80%);
 }
 
-.p-em {
-    font-weight: bold;
+mark {
+  text-decoration: underline;
+  background-color: inherit;
 }
+
+input[type=date],
+input[type=time] {
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.2rem;
+  margin: 0rem 0.2rem;
+  background-color: var(--bg-emph-mild);
+}
+
+input[type=date],
+input[type=time]:hover {
+  text-decoration: underline;
+}
+
+/****
+Global Classes
+*/
+
+.p-em {
+  font-weight: bold;
+}
+
+/* For hiding labels */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 
 /*****
 Navigation Bar
 */
 
 #navigation-bar {
-    display: flex;
-    justify-content: space-between;
-    min-height: 4rem;
-    border-bottom: thick double #202020;
-    font-size: large;
-    padding: 0.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  min-height: 4rem;
+  border-bottom-color: var(--border-primary);
+  border-bottom-width: 0.3rem;
+  border-bottom-style: solid;
+  box-shadow: 0 4px 2px -2px var(--text-secondary);
+  font-size: large;
+  padding: 0.5rem 2rem;
 }
 
 @media (max-width: 800px) {
-    #navigation-bar {
-        flex-direction: column;
-    }
+  #navigation-bar {
+    flex-direction: column;
+  }
 }
 
 #navigation-bar>nav {
-    display: flex;
-    min-width: 50%;
-    justify-content: space-around;
+  display: flex;
+  min-width: 50%;
+  justify-content: space-around;
 }
 
 #navigation-bar>h1 {
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .navigation-item {
-    display: table;
+  display: table;
 }
 
 .navigation-item * {
-    display: table-cell;
-    padding: 10px 0;
-    text-align: center;
+  display: table-cell;
+  padding: 10px 0;
+  text-align: center;
 }
 
 .navigation-item a {
-    height: 100%;
-    width: 100%;
-    text-decoration: none;
-    margin: 0 auto;
+  height: 100%;
+  width: 100%;
+  text-decoration: none;
+  margin: 0 auto;
 }
 
 .navigation-item a:hover {
-    background-color: #DDD;
+  background-color: rgba(0, 0, 0, 0.149);
+  text-decoration: underline;
+}
+
+.navigation-item a:focus {
+  background-color: rgba(0, 0, 0, 0.149);
+  text-decoration: underline;
+  border: 0.1rem solid var(--border-secondary);
 }
 
 /***** 
@@ -106,217 +193,210 @@ Main layout
 **/
 
 #selection-controls {
-    display: flex;
+  display: flex;
 }
 
 @media (max-width: 800px) {
-    #selection-controls {
-        flex-direction: column;
-    }
+  #selection-controls {
+    flex-direction: column;
+  }
 }
 
 #selection-controls>section {
-    flex: 1;
+  flex: 1;
 }
 
 #selection-info {
-    padding: 1rem;
+  padding: 1rem;
 }
 
 
 /*****
-    Controls
+    Data Selection Controls
 */
 
 #dateRangeBox {
-    display: flex;
-    flex-direction: column;
-    font-size: medium;
-    margin-bottom: 1rem;
-    gap: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  font-size: medium;
+  margin-bottom: 1rem;
+  gap: 0.25rem;
 }
 
 .dateSelectorBox {
-    display: flex;
-    align-items: center;
-    margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
 }
 
 .dateSelectorBox label:first-child {
-    width: 30%;
+  width: 30%;
 }
 
 .plot-button-box {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 #cur-sensor-info-panel {
-    min-height: 2em;
-    margin-left: 1rem;
-    font-style: italic;
-}
-
-/* For hiding labels */
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
+  min-height: 2em;
+  margin-left: 1rem;
+  font-style: italic;
 }
 
 
+/****
+  Bridge Diagram
+*/
 
 /* Indicates that circle and trianlges on the bridge graphic are clickable */
 .sensor {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 /* Hides the initial highlights */
 
 .hl-sensor {
-    display: none;
+  display: none;
 }
 
 [id="17B"]:hover #hl-17B {
-    display: block;
+  display: block;
 }
 
 [id="10B"]:hover #hl-10B {
-    display: block;
+  display: block;
 }
 
 [id="2B"]:hover #hl-2B {
-    display: block;
+  display: block;
 }
 
 [id="2A"]:hover #hl-2A {
-    display: block;
+  display: block;
 }
 
 [id="10A"]:hover #hl-10A {
-    display: block;
+  display: block;
 }
 
 [id="17A"]:hover #hl-17A {
-    display: block;
+  display: block;
 }
 
-
-
 .bridge-area {
-    /* Defaults to this without dark mode */
-    background-color: #e7e7e7;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+  /* Defaults to this without dark mode */
+  background-color: var(--bg-emph);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  margin: 1rem 0;
 }
 
 .bridge-area>caption {
-    padding: 1rem;
+  padding: 1rem;
 }
 
-/* The Modal (background) */
+/****
+  The Modal (background)
+*/
+
 #modal {
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--overlay);
 }
 
 /* Modal Content/Box */
 #modal-body {
-    background-color: #fefefe;
-    margin: 15% auto;
-    /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    /* Could be more or less, depending on screen size */
-    color: black;
+  background-color: var(--bg-emph-mild);
+  margin: 15% auto;
+  /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid var(--border-secondary);
+  width: 80%;
+  /* Could be more or less, depending on screen size */
+  color: var(--text-primary);
 }
 
 /* The Close Button */
 .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+  color: var(--text-secondary);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .modal-content>div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #data-info {
-    /* display: table; */
-    display: flex;
-    flex-direction: column;
+  /* display: table; */
+  display: flex;
+  flex-direction: column;
 }
 
 #theme-square {
-    fill: #fff;
+  fill: var(--bg-header);
 }
 
 .dark #theme-square {
-    fill: #000;
+  fill: #000;
 }
 
 #sun-icon {
-    display: block;
+  display: block;
 }
 
 .dark #sun-icon {
-    display: none;
+  display: none;
 }
 
 /* Hides moon-icon without dark mode */
 #moon-icon {
-    display: none;
+  display: none;
 }
 
 .dark #moon-icon {
-    display: block;
+  display: block;
 }
 
 .load-indicator-text {
-    padding: 1rem;
-    font-style: italic;
+  padding: 1rem;
+  font-style: italic;
 }
 
 #bridge-frame {
-    fill: #f0f8ff;
-    stroke: #000;
+  fill: #f0f8ff;
+  stroke: #000;
 }
 
 #bridge-path {
-    stroke: #000;
+  stroke: #000;
 }
 
 .dark #bridge-frame {
-    stroke: #f0f8ff;
-    fill: #000;
+  stroke: #f0f8ff;
+  fill: #000;
 }
 
 .dark #bridge-path {
-    fill: #f0f8ff;
+  fill: #f0f8ff;
 }
 
 /*****
@@ -326,17 +406,17 @@ Main layout
 */
 
 .plot-frame {
-    width: 100%;
-    min-height: 525px;
-    border: none;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    display: block;
+  width: 100%;
+  min-height: 525px;
+  border: none;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  display: block;
 }
 
 .plot-remove-button {
-    position: absolute;
-    margin-top: 0.5rem;
-    margin-left: 0.5rem;
-    opacity: 0.5;
+  position: absolute;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  opacity: 0.5;
 }

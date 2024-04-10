@@ -220,13 +220,17 @@ window.modalSingleton = new Modal();
 document.addEventListener('DOMContentLoaded', (event) => {
     // theme
     const themeToggles = document.querySelectorAll('.theme-toggle')
-    document.body.classList.toggle("dark");
     themeToggles.forEach((toggle) => {
-        toggle.addEventListener('click', () => themeSwitch())
-    })
-    // themeToggle.onclick = function () {
-    //     document.body.classList.toggle("dark")
-    // }
+        toggle.addEventListener('click', () => themeSwitch());
+    });
+    // supposed to force dark theme on plot when dark theme is on
+    window.addEventListener("message", (event) => {
+      if (event.data === "PlotlyAppendLoaded") {
+          if(document.documentElement.getAttribute("data-theme") == "dark"){
+            event.source.postMessage('toggleTheme', '*');
+          }
+      }
+    });
 
     //download indiv button
     const downloadButton = document.getElementById("download-data-button");
@@ -396,11 +400,6 @@ async function fetchPlot(sensors, start, end) {
     }
     plotIFrame.contentWindow.document.close();
 
-    // supposed to force dark theme on plot when dark theme is on
-    // only works if plot has been created first
-    if(body.classList.contains('dark')){
-        plotIFrame.contentWindow.postMessage('toggleTheme', '*')
-    }
     loadInd.classList.add("visually-hidden");
 }
 
@@ -423,9 +422,22 @@ function forceBlobDownload(blob, filename) {
 
 
 function themeSwitch() {
-    document.body.classList.toggle("dark")
-    const plotFrame = document.getElementById('plot-frame');
-    if(plotFrame){
-        plotFrame.contentWindow.postMessage('toggleTheme', '*');
+    const theme = document.documentElement.getAttribute("data-theme");
+    const switcher = document.getElementById("theme-svg");
+    if (!theme) {
+        document.documentElement.setAttribute("data-theme", "dark");
+        switcher.classList.add("dark");
     }
+    if (theme == "dark") {
+        document.documentElement.setAttribute("data-theme", "light");
+        switcher.classList.remove("dark");
+    }
+    if (theme == "light") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        switcher.classList.add("dark");
+    }
+    const plots = Array.from(document.getElementsByClassName("plot-frame"));
+    plots.forEach((plotFrame) => {
+        plotFrame.contentWindow.postMessage('toggleTheme', '*');
+    });
 }

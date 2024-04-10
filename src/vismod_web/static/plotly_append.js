@@ -126,8 +126,6 @@ var dark_mode = false;
 function updatePlotTheme() {
     var update = dark_mode ? light_theme : dark_theme;
     dark_mode = !dark_mode;
-    console.log("Hello!");
-    console.log(dark_mode);
     Plotly.relayout('our-plot', update);
 }
 
@@ -136,3 +134,9 @@ window.addEventListener('message', function(event) {
         updatePlotTheme();
     }
 });
+
+/*
+  We need to tell the parent window that this script has loaded
+  so that it can send the initial theme change message.
+*/
+parent.postMessage("PlotlyAppendLoaded", "*");
