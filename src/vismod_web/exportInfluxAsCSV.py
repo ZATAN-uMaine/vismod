@@ -74,11 +74,11 @@ def generate_file_name(start, stop, file_type):
     The format for these times is RFC3339.
     """
     # Remove time-related characters from start and stop dates
-    start_dt = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S.%fZ')
-    stop_dt = datetime.strptime(stop, '%Y-%m-%dT%H:%M:%S.%fZ')
+    start_dt = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    stop_dt = datetime.strptime(stop, "%Y-%m-%dT%H:%M:%S.%fZ")
 
-    fileStartDate = start_dt.strftime('%Y-%m-%d')
-    fileStopDate = stop_dt.strftime('%Y-%m-%d')
+    fileStartDate = start_dt.strftime("%Y-%m-%d")
+    fileStopDate = stop_dt.strftime("%Y-%m-%d")
 
     extension = {"Reading": "csv", "Plot": "html"}.get(file_type)
 
