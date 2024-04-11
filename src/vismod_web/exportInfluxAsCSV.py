@@ -423,10 +423,14 @@ def create_plot(results_dict, filtered_sensors):
     way, based on the Flask route.
     """
     print(
-        "filtered sensors passed to plot creation: {filtered_sensors}".format(
-            filtered_sensors=filtered_sensors
-        )
+    "filtered sensors passed to plot creation: {filtered_sensors}".format(
+    filtered_sensors=filtered_sensors
     )
+    )
+
+    if not results_dict["_time"]:
+        return "<div>No data available for the selected date range.</div>"
+
     fig = make_subplots(
         specs=[[{"secondary_y": True}]],
         rows=1,
