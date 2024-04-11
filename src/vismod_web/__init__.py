@@ -12,7 +12,7 @@ from flask import (
 )
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from vismod_web.utils import validate_dates
+from vismod_web.utils import parse_dates, get_aggregation_interval
 from vismod_web.exportInfluxAsCSV import (
     query_all_sensors_for_CSV,
     query_sensors_for_CSV,
@@ -67,7 +67,7 @@ def download_csv():
     start_request = request.values["start"]
     end_request = request.values["end"]
 
-    if not (validate_dates(start_request, end_request)):
+    if not (parse_dates(start_request, end_request)):
         return f"Date range {start_request} to {end_request} was invalid.", 400
 
     if sensor == "all":
@@ -112,8 +112,11 @@ def display_plot():
     start_request = request.values["start"]
     end_request = request.values["end"]
 
-    if not (validate_dates(start_request, end_request)):
+    pdates = parse_dates(start_request, end_request)
+    if not pdates:
         return "Date format was incorrect", 400
+    (start, end) = pdates
+    agg_window = get_aggregation_interval(start, end)
 
     logging.info(
         f"""processing download request for sensor \
@@ -130,6 +133,7 @@ def display_plot():
                 "External-Wind-Speed",
                 "External-Temperature",
             ],
+            aggregate=agg_window,
         )
     )
 
