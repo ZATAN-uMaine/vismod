@@ -74,8 +74,11 @@ def generate_file_name(start, stop, file_type):
     The format for these times is RFC3339.
     """
     # Remove time-related characters from start and stop dates
-    fileStartDate = start[:10]  # Extract YYYY-MM-DD from start string
-    fileStopDate = stop[:10]  # Extract YYYY-MM-DD from stop string
+    start_dt = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S.%fZ')
+    stop_dt = datetime.strptime(stop, '%Y-%m-%dT%H:%M:%S.%fZ')
+
+    fileStartDate = start_dt.strftime('%Y-%m-%d')
+    fileStopDate = stop_dt.strftime('%Y-%m-%d')
 
     extension = {"Reading": "csv", "Plot": "html"}.get(file_type)
 
@@ -298,63 +301,6 @@ def query_all_sensors_for_CSV(start, stop):
                 writer.writerow(row[3:])
     logging.info(f"Export finished in: {datetime.now() - export_start_time}")
     return write_to
-
-
-# DO NOT USE THIS, IT'S OLD
-def query_sensors_for_plot(start, stop, sensors):
-    """
-    This function is very similar to
-    query_sensors_for_CSV, but writes an HTML
-    as a string, containing a plotly plot.
-    This string gets passed to the front end
-    and written into an iframe.
-    """
-    formatted_sensors = format_sensor_list(sensors)
-
-    logging.info(
-        f"Querying sensors: {formatted_sensors} from {start} to {stop}"
-    )
-
-    with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
-        plot_query = """
-                from(bucket: "{bucket_name}")
-                |> range(start: {start_time},
-                  stop: {stop_time})
-                |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
-                |> filter(fn: (r) => r["_field"] == "_value")
-                |> filter(fn: (r) => {sensor_list})
-                |>pivot(rowKey:["_time"],
-                         columnKey: ["node"],
-                         valueColumn: "_value")
-                |> group()
-                |> drop(columns:
-                    ["result","_start","_stop","_measurement","_field"])
-            """.format(
-            bucket_name=str(zatan_bucket),
-            start_time=start,
-            stop_time=stop,
-            sensor_list=formatted_sensors,
-        )
-
-        result = client.query_api().query(plot_query, org=organization)
-        filtered_sensors = [
-            sensor for sensor in sensors if sensor in ALL_SENSORS
-        ]
-
-        results_dict = {  # _time join to the sensors, each key gets empty list
-            key: [] for key in ["_time"] + filtered_sensors
-        }
-
-        # this should be the _time column + sensors
-        column_keys = list(results_dict.keys())
-
-        for table in result:
-            for record in table.records:  # each row
-                for k in column_keys:
-                    results_dict[k].append(record[k])
-
-        plot_html = create_plot(results_dict, filtered_sensors)
-        return plot_html
 
 
 def query_all_sensors_for_plot(start, stop, sensors, aggregate=120):
