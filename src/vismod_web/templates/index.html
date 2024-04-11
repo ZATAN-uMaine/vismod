@@ -2,22 +2,35 @@
 {% block title %} Viewer {% endblock %}
 {% block body %}
 
-
 <main>
   <article id="selection-controls">
     <section id="selection-info">
-      <h3>Visualize or Download Sensor Data</h3>
+      <h3> Visualize or Download Sensor Data </h3>
       <p class="p-em">
-        The data available on this site do not reflect the structural integrity of the Penobscot Narrows
+        The data available on this site do not reflect the structual integrity of the Penobscot Narrows
         Bridge.
       </p>
-      <p>This dataset includes {{data.count}} readings,
+      <p> This dataset includes {{data.count}} readings,
         from {{data.start.strftime("%B %d, %Y")}} to
         {{data.stop.strftime("%B %d, %Y")}}.
       </p>
       <div id="dateRangeBox">
-        <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
-        <input type="text" name="daterange" />
+        <div>
+          <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
+        </div>
+        <div class="dateSelectorBox">
+          <label for="startDate">Start Date:</label>
+          <input type="date" id="startDate" name="start-date" />
+          <label for="startHour" class="visually-hidden">Start Hour:</label>
+          <input type="time" id="startHour" name="start-hour"></select>
+        </div>
+
+        <div class="dateSelectorBox">
+          <label for="endDate">End Date:</label>
+          <input type="date" id="endDate" name="end-date" />
+          <label for="endHour" class="visually-hidden">End Hour:</label>
+          <input type="time" id="endHour" name="end-hour"></select>
+        </div>
       </div>
       <div id="cur-sensor-info-panel">
         <!-- Contains information about the current sensor, if one is selected. -->
@@ -161,7 +174,8 @@
         </svg>
 
       </figure>
-    </section>
+    </section> <!-- bridge-panel-area -->
+
   </article>
 
   <section id="plotBay">
@@ -184,23 +198,5 @@
     </div>
   </section>
 </main>
-
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-
-<script>
-$(function() {
-  $('input[name="daterange"]').daterangepicker({
-    timePicker: true,
-    startDate: moment().startOf('hour'),
-    endDate: moment().startOf('hour').add(32, 'hour'),
-    locale: {
-      format: 'M/DD hh:mm A'
-    }
-  });
-});
-</script>
 
 {% endblock %}

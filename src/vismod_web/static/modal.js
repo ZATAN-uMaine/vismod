@@ -20,7 +20,7 @@ class Modal {
     createEventHandlers() {
         this.modalHolder = document.getElementById("modal");
         if (!this.modalHolder) {
-          return;
+            return;
         }
         this.modalHolder.classList.add("visually-hidden");
 

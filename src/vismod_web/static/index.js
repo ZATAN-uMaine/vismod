@@ -4,10 +4,10 @@
  * @returns date representation (`String`)
  */
 function formatDate(date) {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    return `${year}-${month}-${day}`
 }
 
 /**
@@ -38,8 +38,9 @@ function formatDateString(date, time) {
  * @returns string
  */
 function dateToIso(date) {
-    return date.toISOString();
+    return date.toISOString()
 }
+
 
 /**
  * Used to generate filenames for export.
@@ -47,8 +48,9 @@ function dateToIso(date) {
  * @returns string YYYY-MM-DD
  */
 function prettyPrintDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
 }
+
 
 /**
  * Handle the state of the sensor and time range select controls.
@@ -70,40 +72,35 @@ class SensorSelection {
 
     constructor() {
         this.createEventHandlers = this.createEventHandlers.bind(this);
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log('DOMContentLoaded event triggered');
-            this.createEventHandlers();
-        });
+        this.updateSelectedDate = this.updateSelectedDate.bind(this);
+        document.addEventListener("DOMContentLoaded", this.createEventHandlers);
     }
 
     /**
      * Run after DomContentLoaded.
      */
     createEventHandlers() {
-        console.log('createEventHandlers method called');
-
         // date picker
-        const dateRangePicker = $('input[name="daterange"]');
-        if (!dateRangePicker.length) {
-            console.log('Date range picker element not found');
+        const startDaySelector = document.getElementById('startDate');
+        const endDaySelector = document.getElementById('endDate');
+        const startHourSelector = document.getElementById('startHour');
+        const endHourSelector = document.getElementById('endHour');
+        if (!startDaySelector || !endDaySelector || !startHourSelector || !endHourSelector) {
             return;
         }
 
-        console.log('Initializing date range picker');
-        dateRangePicker.daterangepicker({
-            timePicker: true,
-            startDate: moment(this.startTime),
-            endDate: moment(this.endTime),
-            locale: {
-                format: 'M/DD/YYYY hh:mm A'
-            }
-        });
+        startDaySelector.addEventListener("change", this.updateSelectedDate);
+        endDaySelector.addEventListener("change", this.updateSelectedDate);
+        startHourSelector.addEventListener("change", this.updateSelectedDate);
+        endHourSelector.addEventListener("change", this.updateSelectedDate);
 
-        dateRangePicker.on('apply.daterangepicker', (ev, picker) => {
-            console.log('Date range selected:', picker.startDate.toDate(), picker.endDate.toDate());
-            this.startTime = picker.startDate.toDate();
-            this.endTime = picker.endDate.toDate();
-        });
+        startDaySelector.value = formatDate(this.startTime);
+        endDaySelector.value = formatDate(this.endTime);
+        startHourSelector.value = "00:00";
+        endHourSelector.value = formatTime(this.endTime);
+        endDaySelector.max = endDaySelector.value;
+        startDaySelector.max = endDaySelector.max;
+        this.updateSelectedDate();
 
         // sensor points on diagram
         const circles = document.querySelectorAll('.sensor');
@@ -113,6 +110,20 @@ class SensorSelection {
         this.updateSelectedSensors([]);
     }
 
+    /**
+     * updates all dates in the date range from their `<input>`s
+     */
+    updateSelectedDate() {
+        const startDaySelector = document.getElementById('startDate');
+        const startHourSelector = document.getElementById('startHour');
+        const startDateString = formatDateString(startDaySelector.value, startHourSelector.value);
+        this.startTime = new Date(startDateString);
+        const endDaySelector = document.getElementById('endDate');
+        const endHourSelector = document.getElementById('endHour');
+        const endDateString = formatDateString(endDaySelector.value, endHourSelector.value);
+        this.endTime = new Date(endDateString);
+        startDaySelector.max = endDaySelector.value;
+    }
 
     /**
      * Updates which sensors are selected for plotting.
@@ -154,6 +165,7 @@ function forceBlobDownload(blob, filename) {
     document.body.removeChild(a);
 }
 
+
 /**
  *
  * @param sensors list of sensor names
@@ -165,7 +177,7 @@ async function fetchCSV(sensors, start, end) {
     const body = new FormData();
     body.append("start", dateToIso(start));
     body.append("end", dateToIso(end));
-    // TODO: support a list of sensors
+    // TODO: support a lost of sensors
     body.append("sensor", sensors[0]);
     const req = await fetch("/download_csv", {
         method: "POST",
@@ -198,13 +210,12 @@ async function fetchPlot(sensors, start, end) {
     location.searchParams.append("start", dateToIso(start));
     location.searchParams.append("end", dateToIso(end));
     location.searchParams.append("sensor", sensors[0]);
-    console.log('Fetching plot data for:', location.href);
     const req = await fetch(location);
     let plotHTML = null;
-    try {
+    try{
         plotHTML = await req.text();
     }
-    catch {
+    catch{
         if (req.status == 500) {
             throw new Error("Date Range selected contains corrupted or missing data");
         }
@@ -214,7 +225,8 @@ async function fetchPlot(sensors, start, end) {
         }
     }
 
-    // create new iframe for plot
+
+    // create new iframe for play
     const plotIFrame = document.createElement('iframe');
     plotIFrame.classList.add("plot-frame");
 
@@ -237,10 +249,10 @@ async function fetchPlot(sensors, start, end) {
     plotIFrame.contentWindow.document.open();
     // need DOCTYPE to avoid Firefox quirks mode
     plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
-    if (plotHTML != null) {
+    if(plotHTML != null){
         plotIFrame.contentWindow.document.write(plotHTML);
     }
-    else {
+    else{
         throw new Error("Date Range selected contains corrupted or missing data, please try another date.");
     }
     plotIFrame.contentWindow.document.close();
@@ -248,9 +260,10 @@ async function fetchPlot(sensors, start, end) {
     loadInd.classList.add("visually-hidden");
 }
 
+
 // index specific event handlers
 document.addEventListener('DOMContentLoaded', (event) => {
-    // download individual button
+    // download indiv button
     const downloadButton = document.getElementById("download-data-button");
     if (downloadButton) {
         downloadButton.addEventListener("click", () => {
@@ -271,13 +284,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         `pnb-export-${sensors[0]}-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
                     );
                 }).catch((err) => {
-                    const errString = `An Error Occurred: <br /> <br /> ${err}`;
+                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
                     window.modalSingleton.showModal(errString, () => { });
                 });
         });
     }
 
-    // download all button
+    //download all button
     const downloadAllButton = document.getElementById("downloadAllButton");
     if (downloadAllButton) {
         downloadAllButton.addEventListener("click", () => {
@@ -294,13 +307,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         `pnb-export-all-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
                     );
                 }).catch((err) => {
-                    const errString = `An Error Occurred: <br /> <br /> ${err}`;
+                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
                     window.modalSingleton.showModal(errString, () => { });
                 });
         });
     }
 
-    // plot button
+    //plot button
     const plotButton = document.getElementById("plot-data-button");
     if (plotButton) {
         const currentDate = new Date();
@@ -326,7 +339,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
             fetchPlot(sensors, start, end)
                 .catch((err) => {
-                    const errString = `An Error Occurred: <br /> <br /> ${err}`;
+                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
                     window.modalSingleton.showModal(errString, () => { });
                 });
         });
