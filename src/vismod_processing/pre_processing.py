@@ -1,6 +1,5 @@
 from nptdms import TdmsFile
 import pandas as pd
-import json
 import logging
 
 
@@ -78,7 +77,7 @@ class Pre_Processor:
         Average data into buckets.
         """
         # Average the data in 1hr buckets
-        return tdms_dict.groupby(pd.Grouper(freq="30min")).mean()
+        return tdms_dict.groupby(pd.Grouper(freq="2min")).mean()
 
     def loadcell_offset(self, temp, loadcell_id):
         """
@@ -99,13 +98,25 @@ class Pre_Processor:
         tdms_dict,
     ) -> pd.DataFrame:
         """
-        Creates new columns that apply correct callibration to strain sensors
+        Creates a new dataframe with calibrated strain sensor readings
+        and times in UTC
         """
         results = pd.DataFrame()
         lcs = self.calib_table["Load Cells"]
 
-        # All of the sensor time fields *should* be in sync
+        # All of the sensor time fields *should* be in sync,
+        # so just use the first one
+        # _time is a datetime64[ns]
         results["_time"] = tdms_dict[f"{list(lcs.keys())[0]}-TIME"]
+        # This will convert from Maine time to UTC. The `America/New_York`
+        # timezone includes DST at this time:
+        # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        # if Maine moves off of DST, this code will need to change
+        results["_time"] = (
+            results["_time"]
+            .dt.tz_localize("America/New_York")
+            .dt.tz_convert(None)
+        )
 
         for sensor_id in lcs.keys():
             # Temperature
@@ -155,25 +166,10 @@ class Pre_Processor:
                 f"TDMS file {data_path} appears to have invalid format."
             )
             return None
+        except AssertionError:
+            logging.warning("TDMS basic check failed")
+            return None
         data = self.apply_calibration(data)
         data = data.set_index("_time")
         data = self.averageData(data)
         return data
-
-
-# Allow this file to be run standalone
-# THIS IS JUST FOR TESTING!
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    # Load the calibration data from data.json
-    with open("data.json", "r") as file:
-        calibration_data = json.load(file)
-
-    # Create a pre-processor object with the calibration data
-    pre_processor = Pre_Processor(calibration_data)
-
-    # Load and process the latest data file
-    data_path = "tdms_files/022924.tdms"
-    print(pre_processor.get_local_data_as_dataframe(data_path))
-
-    # processed_data = pre_processor.load_and_process(data_path)

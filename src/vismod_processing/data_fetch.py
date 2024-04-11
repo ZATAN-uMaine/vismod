@@ -14,7 +14,7 @@ LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt"  # TODO: Ch
 LOCAL_TDMS_STORAGE_DIR = "/tmp/vismod_tdms_files"
 
 
-def cleanTmpFiles():
+def clean_tmp_files():
     """
     Clean up the temporary files
     """
@@ -74,10 +74,11 @@ def update_downloads_file(filename):
     )
 
 
-def list_tdms_files(service):
+def get_recent_tdms_file(service, count=1):
     """
     Query the Google api for a list of files,
-    filter for only the .tdms, sort them
+    filter for only the .tdms, sort them.
+    Returns the last $count files.
     """
     FOLDER_ID = os.getenv("FOLDER_ID")
     if not FOLDER_ID or len(FOLDER_ID) < 5:
@@ -96,7 +97,7 @@ def list_tdms_files(service):
             spaces="drive",
             fields="files(id, name, createdTime, modifiedTime)",
             orderBy="modifiedTime desc",
-            pageSize=12,  # Request only the newest file
+            pageSize=count * 2 + 1,
             supportsAllDrives=True,
         )
     )
@@ -115,7 +116,10 @@ def list_tdms_files(service):
             file_list.append(file)
 
     # Return the list of .tdms files
-    return file_list
+    if len(file_list) < count:
+        logging.warning(f"Could not find {count} csv files to download")
+        return file_list
+    return file_list[: count + 1]
 
 
 def get_specified_tdms_file(service, file_name):
@@ -140,12 +144,12 @@ def get_specified_tdms_file(service, file_name):
     )
     results = results.get("files", [])
     if not results:
-        logging.warn("Could not find drive TDMS data file called {file_name}")
+        logging.warn(f"Could not find drive TDMS data file called {file_name}")
         return []
     return results
 
 
-def tdmsDownload(target_file=None) -> list[str]:
+def tdmsDownload(target_file=None, count=1) -> list[str]:
     """
     Downloads TDMS files from Drive.
     Returns list of string file paths for any new TDMS files.
@@ -162,22 +166,20 @@ def tdmsDownload(target_file=None) -> list[str]:
     if target_file is not None:
         data_file_list = get_specified_tdms_file(service, target_file)
     else:
-        data_file_list = list_tdms_files(service)
+        data_file_list = get_recent_tdms_file(service, count=count)
 
     # Create the local storage directory if it doesn't exist
     if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):
         os.makedirs(LOCAL_TDMS_STORAGE_DIR)
 
-    # Download the newest file if it hasn't been downloaded before
+    if len(data_file_list) == 0:
+        logging.warning("Found no data files to download in data_fetch")
+        return []
+
     local_files = []
-    if len(data_file_list) > 0:
-        item = data_file_list[5]
-        item_id = item['id']
-        last_modif_stamp = db.get_row(f"{item_id}-lastModified")
-        if (
-            item["modifiedTime"] != last_modif_stamp 
-            or last_modif_stamp == None
-        ):  # replace current date with stored date for file
+    # download our files
+    for item in data_file_list:
+        if item["name"] not in previous_downloads:
             logging.info(f"Downloading {item['name']}...")
             file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
             fh = io.FileIO(file_path, "wb")
@@ -198,6 +200,11 @@ def tdmsDownload(target_file=None) -> list[str]:
                     logging.warn(f"Failed to download {item['name']}: {e}")
                     fh.close()
                     os.remove(file_path)
+                    if e.resp.status == 403:
+                        logging.warning(
+                            "Google Drive API Timeout detected. Will not download more files."  # noqa
+                        )
+                        return local_files
                     break
 
             # If download successful, update the last-modified timestamp
@@ -207,8 +214,6 @@ def tdmsDownload(target_file=None) -> list[str]:
 
                 update_downloads_file(timestamp[f"{item_id}-lastModified"])
                 local_files.append(file_path)
-    else:
-        logging.info("No new TDMS data files to download.")
 
     return local_files
 

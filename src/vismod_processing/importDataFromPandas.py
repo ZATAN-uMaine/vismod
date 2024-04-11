@@ -6,6 +6,8 @@ import pandas as pd
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+from vismod_processing.influx import VismodInfluxBuilder
+
 """
     # Team ZATAN 2024
     # To learn more about InfluxDB's Python Client API visit:
@@ -43,6 +45,9 @@ def df_to_influx_format(data_frame: pd.DataFrame):
         sparse_frame["node"] = col
         for w in WEATHER_COLUMNS:
             sparse_frame[w] = data_frame[w]
+        # sometimes there are NaNs in the external sensor date
+        # TODO: should we actually drop the whole row?
+        sparse_frame = sparse_frame.dropna()
         results.append(sparse_frame)
 
     logging.info(f"Processed data frame ({data_frame.shape}) for influx")
@@ -63,19 +68,12 @@ def write_fields(dictionary):
         logging.error("$INFLUXDB_V2_URL not found")
         return
 
-   
     # wrap correctly for influx
-    fields = {
-        'measurement':'last_modified_times',
-        'fields': dictionary
-    }
+    fields = {"measurement": "last_modified_times", "fields": dictionary}
 
     with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
         with cli.write_api(write_options=SYNCHRONOUS) as write_api:
-            write_api.write(
-                bucket=zatan_bucket,
-                record=fields
-            )
+            write_api.write(bucket=zatan_bucket, record=fields)
             logging.info("recording changes...")
             InfluxDBClient.close(cli)
 
@@ -91,27 +89,31 @@ def get_row(rowname):
         logging.error("$INFLUXDB_V2_URL not found")
         return
 
-    query = f'from(bucket:"{bucket}") 
+    query = f'''from(bucket:"{zatan_bucket}") 
         |>range(start: -1h) 
-        |> filter(fn:(r) => r._measurement == "last_modified_times")'
+        |> filter(fn:(r) => r._measurement == "last_modified_times")'''
 
-    query_result = 'Nothing'
+    query_result = "Nothing"
 
     try:
-        with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
+        with InfluxDBClient(
+            url=link, token=zatan_token, org=organization
+        ) as cli:
             with cli.query_api as query_api:
                 query = f'from(bucket:"{zatan_bucket}") |'
                 logging.info("getting latest timestamp...")
-                query_result = query_api.query(query, org=org)
+                query_result = query_api.query(query, org=organization)
                 InfluxDBClient.close(cli)
     except:
-        logging.error('query error')
-    
+        logging.error("query error")
+
     return query_result
 
-def upload_data_frame(data_frame):
+
+def upload_data_frame(data_frame: pd.DataFrame):
     """
-    Uploads a pandas data frame to Influx
+    Uploads a pandas data frame to Influx.
+    Assumes the frame contains a string field called Node
 
     List of all sensors as of 3.21/24
     "10A-Left", "10A-Right", "10A-TEMP",
@@ -125,30 +127,22 @@ def upload_data_frame(data_frame):
                     "External-Wind-Speed"
     """
     # Load database secrets
-    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
-    organization = os.environ.get("INFLUXDB_V2_ORG")
-    link = os.environ.get("INFLUXDB_V2_URL")
     zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
 
-    if link is None:
-        logging.error("$INFLUXDB_V2_URL not found")
-        return
-
     # Initialize Database Client
-    logging.info("=== Ingesting DataFrame via batching API ===")
+    node_name = data_frame.iloc[0]["node"]
+    logging.info(
+        f"=== Ingesting DataFrame for Node {node_name} batching API ==="
+    )
     start_time = datetime.now()
-    with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
-        # Use batching API
-        with cli.write_api(write_options=SYNCHRONOUS) as write_api:
-            write_api.write(
-                bucket=zatan_bucket,
-                record=data_frame,
-                # Fields are the columns that are not identified as tags.
-                data_frame_tag_columns=["node"],
-                data_frame_measurement_name="NodeStrain",
-            )
 
-            logging.debug("Waiting to finish ingesting DataFrame...")
-            InfluxDBClient.close(cli)
+    with VismodInfluxBuilder() as cli:
+        cli.write().write(
+            bucket=zatan_bucket,
+            record=data_frame,
+            # Fields are the columns that are not identified as tags.
+            data_frame_tag_columns=["node"],
+            data_frame_measurement_name="NodeStrain",
+        )
 
     logging.info(f"Import finished in: {datetime.now() - start_time}")
