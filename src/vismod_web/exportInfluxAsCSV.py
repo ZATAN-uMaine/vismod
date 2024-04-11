@@ -17,11 +17,11 @@ here is the full list of sensors (as of 3/3/24):
 import os
 import csv
 import logging
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
+import plotly.graph_objs as go # type: ignore
+from plotly.subplots import make_subplots  # type: ignore
 from datetime import datetime
 from pathlib import Path
-from influxdb_client import InfluxDBClient, Dialect
+from influxdb_client import InfluxDBClient, Dialect  # type: ignore
 
 
 # Load database secrets
