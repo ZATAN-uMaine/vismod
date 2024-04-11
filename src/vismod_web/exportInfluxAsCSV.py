@@ -375,7 +375,7 @@ def create_plot(results_dict, filtered_sensors):
     )
 
     if not results_dict["_time"]:
-        return "<div>No data available for the selected date range.</div>"
+        return "None"
 
     fig = make_subplots(
         specs=[[{"secondary_y": True}]],
