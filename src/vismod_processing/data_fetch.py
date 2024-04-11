@@ -7,6 +7,7 @@ import logging
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, HttpError
+from vismod_processing import importDataFromPandas as db
 
 # Constants for the file paths and names
 LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt"  # TODO: Change this to a more permanent location # noqa
@@ -52,31 +53,45 @@ def exponential_backoff_request(
     return None
 
 
-def fetch_previous_downloads_from_file():
+def is_latest(item) -> bool:
     """
     Fetch the list of previously downloaded files from the local file
+    Should be from the db instead
+
+    not sure if we should do one query per file or if we should check
+    whether a list of timestamps is a subset of what's in the db
+
+    (I don't think this saves very much though because we
+    still have to get the last_modif and file_name from every element
+    of the list of data files)
+
     """
-    if not os.path.exists(LOCAL_PREVIOUS_DOWNLOADS_FILE):
-        return []
-    with open(LOCAL_PREVIOUS_DOWNLOADS_FILE, "r") as file:
-        return file.read().splitlines()
+    last_modif = item["modifiedTime"]
+    file_name = item["name"]
+    last_modif_db = db.read_field("last-modified", file_name)
+    if last_modif == last_modif_db:
+        return True
+    else:
+        return False
 
 
-def update_downloads_file(filename):
+def update_timestamps(filename, last_modif) -> bool:
     """
     Update the local file with the name of the downloaded file
     """
-    with open(LOCAL_PREVIOUS_DOWNLOADS_FILE, "a") as file:
-        file.write(filename + "\n")
-    logging.debug(
-        f"Updated {LOCAL_PREVIOUS_DOWNLOADS_FILE} with download: {filename}"
-    )
+    db.write_point("last-modified", filename, last_modif)
+    return True
 
 
-def list_tdms_files(service):
+def list_tdms_files(
+    service,
+    token="^.*\\.tdms$",
+):
     """
     Query the Google api for a list of files,
     filter for only the .tdms, sort them
+
+    Reader
     """
     FOLDER_ID = os.getenv("FOLDER_ID")
     if not FOLDER_ID or len(FOLDER_ID) < 5:
@@ -105,8 +120,8 @@ def list_tdms_files(service):
         return []
     results = results.get("files", [])
 
-    # Filter for only the .tdms files
-    file_name_regex = re.compile("^.*\\.tdms$")
+    # Filter using a token, default is for only .tdms files
+    file_name_regex = re.compile(token)
     file_list = []
     for file in results:
         name = file["name"]
@@ -120,6 +135,8 @@ def list_tdms_files(service):
 def get_specified_tdms_file(service, file_name):
     """
     Finds a specified TDMS file by name.
+
+    Reader
     """
     FOLDER_ID = os.getenv("FOLDER_ID")
     query = (
@@ -144,14 +161,12 @@ def get_specified_tdms_file(service, file_name):
     return results
 
 
-def has_been_downloaded(file_obj) -> bool:
-    return True
-
-
 def tdmsDownload(target_file=None) -> list[str]:
     """
     Downloads TDMS files from Drive.
     Returns list of string file paths for any new TDMS files.
+
+    Writes to local /tmp/ directory
     """
     # Create the google api service
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -159,7 +174,6 @@ def tdmsDownload(target_file=None) -> list[str]:
         logging.error("$GOOGLE_API_KEY not available from environment")
         return []
 
-    previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
     data_file_list = []
@@ -172,45 +186,44 @@ def tdmsDownload(target_file=None) -> list[str]:
     if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):
         os.makedirs(LOCAL_TDMS_STORAGE_DIR)
 
-    # Download the newest file if it hasn't been downloaded before
+    item = data_file_list[0]
+    last_modif = item["modifiedTime"]
+    file_name = item["name"]
+
+    # Download only if modifications have been made or never downloaded
     local_files = []
-    if len(data_file_list) > 0:
-        item = data_file_list[0]
-        last_modif = item["modifiedTime"]
-        file_name = item["name"]
-
-        if f"{file_name},{last_modif}" in previous_downloads:
-            return
-
-        logging.info(f"Downloading {item['name']}...")
-        file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
-        fh = io.FileIO(file_path, "wb")
-        # Might want batch download instead
-        media = service.files().get_media(fileId=item["id"])
-        downloader = MediaIoBaseDownload(fh, media)
-        done = False
-
-        # Download the file
-        while not done:
-            try:
-                status, done = downloader.next_chunk()
-                logging.debug(
-                    f"Download {int(status.progress() * 100)}% complete."
-                )  # noqa
-
-            # Catch API request errors
-            except HttpError as e:
-                logging.warn(f"Failed to download {item['name']}: {e}")
-                fh.close()
-                os.remove(file_path)
-                break
-
-            # If the download was successful, update the local file
-            if done:
-                update_downloads_file(f"{file_name},{last_modif}")
-                local_files.append(file_path)
-    else:
+    if len(data_file_list) <= 0 or is_latest(item):
         logging.info("No new TDMS data files to download.")
+        return local_files
+
+    logging.info(f"Downloading {item['name']}...")
+    file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
+    fh = io.FileIO(file_path, "wb")
+    # Might want batch download instead
+    media = service.files().get_media(fileId=item["id"])
+    downloader = MediaIoBaseDownload(fh, media)
+    done = False
+
+    # Download the file
+    while not done:
+        try:
+            # Not sure, but may result in corrupted file if DAQ is writing
+            status, done = downloader.next_chunk()
+            logging.debug(
+                f"Download {int(status.progress() * 100)}% complete."
+            )  # noqa
+
+        # Catch API request errors
+        except HttpError as e:
+            logging.warn(f"Failed to download {item['name']}: {e}")
+            fh.close()
+            os.remove(file_path)
+            break
+
+        # If the download was successful, update the local file
+        if done:
+            update_timestamps(file_name, last_modif)
+            local_files.append(file_path)
 
     return local_files
 

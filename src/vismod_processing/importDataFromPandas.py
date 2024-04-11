@@ -52,6 +52,66 @@ def df_to_influx_format(data_frame: pd.DataFrame):
     return results
 
 
+def read_field(measurement, rowname):
+    # Load database secrets
+    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
+    organization = os.environ.get("INFLUXDB_V2_ORG")
+    link = os.environ.get("INFLUXDB_V2_URL")
+    zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
+
+    if link is None:
+        logging.error("$INFLUXDB_V2_URL not found")
+        return
+
+    query = f"""from(bucket:"{zatan_bucket}")
+        |>range(start: -1h)
+        |> filter(fn:(r) => r.{measurement} == "{rowname}")
+        """
+
+    query_result = "Nothing"
+
+    try:
+        with InfluxDBClient(
+            url=link, token=zatan_token, org=organization
+        ) as cli:
+            query_api = cli.query_api()
+            logging.info("getting latest timestamp...")
+            query_result = query_api.query(query, org=organization)
+            
+            InfluxDBClient.close(query_api)
+            InfluxDBClient.close(cli)
+    except KeyError:
+        logging.error("query error")
+
+    logging.info(f"Query Returned:\n{query_result}\n--")
+    return query_result
+
+
+def write_point(measurement, name, value):
+    """
+    Writes a key-value pair to influx on a seperate row
+    Can easily be generalized to take a dict. I think that might be better?
+    Though the syntax for parameters here is more logical.
+    """
+    # Load database secrets
+    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
+    organization = os.environ.get("INFLUXDB_V2_ORG")
+    link = os.environ.get("INFLUXDB_V2_URL")
+    zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
+
+    if link is None:
+        logging.error("$INFLUXDB_V2_URL not found")
+        return
+
+    with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
+        with cli.write_api(write_options=SYNCHRONOUS) as write_api:
+            p = InfluxDBClient.Point(measurement).tag().field(name, value)
+            write_api.write(bucket=zatan_bucket, org=organization, record=p)
+
+            logging.info("recording changes...")
+            InfluxDBClient.close(cli)
+
+
 def upload_data_frame(data_frame: pd.DataFrame):
     """
     Uploads a pandas data frame to Influx.
