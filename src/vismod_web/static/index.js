@@ -167,181 +167,191 @@ function forceBlobDownload(blob, filename) {
 
 
 /**
- *
- * @param sensors list of sensor names
- * @param {Date} start
- * @param {Date} end
- * @returns `Blob` of csv for download
- */
+*
+* @param sensors list of sensor names
+* @param {Date} start
+* @param {Date} end
+* @returns `Blob` of csv for download
+*/
 async function fetchCSV(sensors, start, end) {
-    const body = new FormData();
-    body.append("start", dateToIso(start));
-    body.append("end", dateToIso(end));
-    // TODO: support a lost of sensors
-    body.append("sensor", sensors[0]);
-    const req = await fetch("/download_csv", {
-        method: "POST",
-        mode: "same-origin",
-        body,
-    });
-    if (req.status == 200) {
-        return req.blob();
-    } else if (req.status == 204) {
-        throw new Error("No data found for selected date range.");
-    }
-    else {
-        throw new Error(await req.text());
-    }
+   const body = new FormData();
+   body.append("start", dateToIso(start));
+   body.append("end", dateToIso(end));
+   // TODO: support a lost of sensors
+   body.append("sensor", sensors[0]);
+   const req = await fetch("/download_csv", {
+       method: "POST",
+       mode: "same-origin",
+       body,
+   });
+   if (req.status == 200) {
+       return req.blob();
+   } else if (req.status == 204) {
+       throw new Error("No data found for selected date range.");
+   }
+   else {
+       throw new Error(await req.text());
+   }
 }
 
 /**
- * Fetches the HTML for a plotly plot
- * and then places it in the DOM.
- * @param sensors list of sensor names
- * @param {Date} start
- * @param {Date} end
- */
+* Fetches the HTML for a plotly plot
+* and then places it in the DOM.
+* @param sensors list of sensor names
+* @param {Date} start
+* @param {Date} end
+*/
 async function fetchPlot(sensors, start, end) {
-    // show loading indicator
-    const loadInd = document.getElementById("plot-bay-loading");
-    loadInd.classList.remove("visually-hidden");
+   // show loading indicator
+   const loadInd = document.getElementById("plot-bay-loading");
+   loadInd.classList.remove("visually-hidden");
 
-    const location = new URL("/display_plot", window.location.origin);
-    location.searchParams.append("start", dateToIso(start));
-    location.searchParams.append("end", dateToIso(end));
-    location.searchParams.append("sensor", sensors[0]);
-    const req = await fetch(location);
-    let plotHTML = null;
-    try{
-        plotHTML = await req.text();
-    }
-    catch{
-        if (req.status == 500) {
-            throw new Error("Date Range selected contains corrupted or missing data");
-        }
-        if (req.status != 200) {
-            loadInd.classList.add("visually-hidden");
-            throw new Error(await req.text());
-        }
-    }
+   const location = new URL("/display_plot", window.location.origin);
+   location.searchParams.append("start", dateToIso(start));
+   location.searchParams.append("end", dateToIso(end));
+   location.searchParams.append("sensor", sensors[0]);
+   const req = await fetch(location);
+   let plotHTML = null;
+   try{
+       plotHTML = await req.text();
+   }
+   catch{
+       if (req.status == 500) {
+           throw new Error("Date Range selected contains corrupted or missing data");
+       }
+       if (req.status != 200) {
+           loadInd.classList.add("visually-hidden");
+           throw new Error(await req.text());
+       }
+   }
 
 
-    // create new iframe for play
-    const plotIFrame = document.createElement('iframe');
-    plotIFrame.classList.add("plot-frame");
+  // create new iframe for plot
+  const plotIFrame = document.createElement('iframe');
+  plotIFrame.classList.add("plot-frame");
 
-    // create close button to remove iframe
-    const closer = document.createElement("div");
-    const closerMain = document.createElement("button");
-    closerMain.innerText = "X";
-    closer.appendChild(closerMain);
-    closer.classList.add("plot-remove-button");
-    closerMain.addEventListener("click", () => {
-        plotIFrame.remove();
-        closer.remove();
-    });
+  // create close button to remove iframe
+  const closer = document.createElement("div");
+  const closerMain = document.createElement("button");
+  closerMain.innerText = "X";
+  closer.appendChild(closerMain);
+  closer.classList.add("plot-remove-button");
+  closerMain.addEventListener("click", () => {
+      plotIFrame.remove();
+      closer.remove();
+  });
 
-    // insert iframe just after the loading indicator
-    loadInd.after(plotIFrame);
-    loadInd.after(closer);
+  // insert iframe just after the loading indicator
+  loadInd.after(plotIFrame);
+  loadInd.after(closer);
 
-    // write HTML to plot IFrame
-    plotIFrame.contentWindow.document.open();
-    // need DOCTYPE to avoid Firefox quirks mode
-    plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
-    if(plotHTML != null){
-        plotIFrame.contentWindow.document.write(plotHTML);
-    }
-    else{
-        throw new Error("Date Range selected contains corrupted or missing data, please try another date.");
-    }
-    plotIFrame.contentWindow.document.close();
+  // check if plotHTML is null or empty
+  if (plotHTML ==
+    "None" || plotHTML.trim() === '') {
+      // create a smaller iframe or display a message
+      plotIFrame.contentWindow.document.open();
+      plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
+      plotIFrame.contentWindow.document.write("<div style='padding: 2rem; font-style: italic;'>No data available for the selected date range.</div>");
+      plotIFrame.contentWindow.document.close();
 
-    loadInd.classList.add("visually-hidden");
+      // adjust the height of the iframe
+      plotIFrame.style.height = "100px";
+  } else {
+      // write HTML to plot IFrame
+      plotIFrame.contentWindow.document.open();
+      plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
+      plotIFrame.contentWindow.document.write(plotHTML);
+      plotIFrame.contentWindow.document.close();
+
+      // adjust the height of the iframe
+      plotIFrame.style.height = "525px";
+  }
+
+  loadInd.classList.add("visually-hidden");
 }
 
 
 // index specific event handlers
 document.addEventListener('DOMContentLoaded', (event) => {
-    // download indiv button
-    const downloadButton = document.getElementById("download-data-button");
-    if (downloadButton) {
-        downloadButton.addEventListener("click", () => {
-            const { start, end } = window.sensorSelectSingleton.selectedRange;
-            const sensors = window.sensorSelectSingleton.selectedSensors;
-            // if there are no selected sensors, don't send invalid request
-            if (sensors.length === 0) {
-                return;
-            }
-            // if the start date is after the end date, don't send invalid request
-            if (start.getTime() > end.getTime()) {
-                return;
-            }
-            fetchCSV(sensors, start, end)
-                .then((blob) => {
-                    forceBlobDownload(
-                        blob,
-                        `pnb-export-${sensors[0]}-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
-                    );
-                }).catch((err) => {
-                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
-                    window.modalSingleton.showModal(errString, () => { });
-                });
-        });
-    }
+   // download indiv button
+   const downloadButton = document.getElementById("download-data-button");
+   if (downloadButton) {
+       downloadButton.addEventListener("click", () => {
+           const { start, end } = window.sensorSelectSingleton.selectedRange;
+           const sensors = window.sensorSelectSingleton.selectedSensors;
+           // if there are no selected sensors, don't send invalid request
+           if (sensors.length === 0) {
+               return;
+           }
+           // if the start date is after the end date, don't send invalid request
+           if (start.getTime() > end.getTime()) {
+               return;
+           }
+           fetchCSV(sensors, start, end)
+               .then((blob) => {
+                   forceBlobDownload(
+                       blob,
+                       `pnb-export-${sensors[0]}-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
+                   );
+               }).catch((err) => {
+                   const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                   window.modalSingleton.showModal(errString, () => { });
+               });
+       });
+   }
 
-    //download all button
-    const downloadAllButton = document.getElementById("downloadAllButton");
-    if (downloadAllButton) {
-        downloadAllButton.addEventListener("click", () => {
-            const { start, end } = window.sensorSelectSingleton.selectedRange;
-            const sensors = ["all"];
-            // if the start date is after the end date, don't send invalid request
-            if (start.getTime() > end.getTime()) {
-                return;
-            }
-            fetchCSV(sensors, start, end)
-                .then((blob) => {
-                    forceBlobDownload(
-                        blob,
-                        `pnb-export-all-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
-                    );
-                }).catch((err) => {
-                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
-                    window.modalSingleton.showModal(errString, () => { });
-                });
-        });
-    }
+   //download all button
+   const downloadAllButton = document.getElementById("downloadAllButton");
+   if (downloadAllButton) {
+       downloadAllButton.addEventListener("click", () => {
+           const { start, end } = window.sensorSelectSingleton.selectedRange;
+           const sensors = ["all"];
+           // if the start date is after the end date, don't send invalid request
+           if (start.getTime() > end.getTime()) {
+               return;
+           }
+           fetchCSV(sensors, start, end)
+               .then((blob) => {
+                   forceBlobDownload(
+                       blob,
+                       `pnb-export-all-${prettyPrintDate(start)}-to-${prettyPrintDate(end)}.csv`
+                   );
+               }).catch((err) => {
+                   const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                   window.modalSingleton.showModal(errString, () => { });
+               });
+       });
+   }
 
-    //plot button
-    const plotButton = document.getElementById("plot-data-button");
-    if (plotButton) {
-        const currentDate = new Date();
-        const timestamp = currentDate.getTime();
-        plotButton.addEventListener("click", () => {
-            const { start, end } = window.sensorSelectSingleton.selectedRange;
-            const sensors = window.sensorSelectSingleton.selectedSensors;
-            // if there are no selected sensors, don't send invalid request
-            if (sensors.length === 0) {
-                return;
-            }
-            // if the start date is after the end date, don't send invalid request
-            if (start.getTime() > end.getTime()) {
-                return;
-            }
+   //plot button
+   const plotButton = document.getElementById("plot-data-button");
+   if (plotButton) {
+       const currentDate = new Date();
+       const timestamp = currentDate.getTime();
+       plotButton.addEventListener("click", () => {
+           const { start, end } = window.sensorSelectSingleton.selectedRange;
+           const sensors = window.sensorSelectSingleton.selectedSensors;
+           // if there are no selected sensors, don't send invalid request
+           if (sensors.length === 0) {
+               return;
+           }
+           // if the start date is after the end date, don't send invalid request
+           if (start.getTime() > end.getTime()) {
+               return;
+           }
 
-            // if the end date is in the future, return an error
-            if (end.getTime() > timestamp) {
-                const errString = "End date cannot be in the future.";
-                window.modalSingleton.showModal(errString, () => { });
-                return;
-            }
+           // if the end date is in the future, return an error
+           if (end.getTime() > timestamp) {
+               const errString = "End date cannot be in the future.";
+               window.modalSingleton.showModal(errString, () => { });
+               return;
+           }
 
-            fetchPlot(sensors, start, end)
-                .catch((err) => {
-                    const errString = `An Error Ocurred: <br /> <br /> ${err}`;
-                    window.modalSingleton.showModal(errString, () => { });
-                });
-        });
-    }
+           fetchPlot(sensors, start, end)
+               .catch((err) => {
+                   const errString = `An Error Ocurred: <br /> <br /> ${err}`;
+                   window.modalSingleton.showModal(errString, () => { });
+               });
+       });
+   }
 });
