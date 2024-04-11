@@ -1,25 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.83/darkreader.min.js"></script>
+  <script type="text/javascript" src="static/theme.js"></script>
+  <script type="text/javascript" src="static/index.js"></script>
+  <script type="text/javascript" src="static/modal.js"></script>
+  <script>
+    const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
+    if (darkModeEnabled) {
+      DarkReader.enable({
+        brightness: 100,
+        contrast: 100,
+        sepia: 0
+      });
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PNB Data Portal - {% block title %}{% endblock %}</title>
   <link rel="icon" href="static/favicon.svg">
   <link rel="stylesheet" href="static/base.css">
-<link rel="stylesheet" href="static/layout.css">
-<link rel="stylesheet" href="static/components.css">
-<link rel="stylesheet" href="static/themes.css">
-<link rel="stylesheet" href="static/media-queries.css">
-<script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.83/darkreader.min.js"></script>
-  <script type="text/javascript" src="static/index.js"></script>
-  <script type="text/javascript" src="static/modal.js"></script>
-  <script type="text/javascript" src="static/theme.js"></script>
+  <link rel="stylesheet" href="static/layout.css">
+  <link rel="stylesheet" href="static/components.css">
+  <link rel="stylesheet" href="static/themes.css">
+  <link rel="stylesheet" href="static/media-queries.css">
+
 </head>
 
-<body> {% include 'navbar.html' %} {% block body %} CHILD CONTENT HERE {% endblock %}
-
-  <script> document.getElementById('theme-toggle').addEventListener('click', () => { DarkReader.isEnabled() ? DarkReader.disable() : DarkReader.enable(); }); </script>
+<body>
+  {% include 'navbar.html' %}
+  {% block body %} CHILD CONTENT HERE {% endblock %}
 </body>
 
 </html>

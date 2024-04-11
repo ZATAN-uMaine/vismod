@@ -17,7 +17,7 @@ here is the full list of sensors (as of 3/3/24):
 import os
 import csv
 import logging
-import plotly.graph_objs as go # type: ignore
+import plotly.graph_objs as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 from datetime import datetime
 from pathlib import Path
@@ -423,9 +423,9 @@ def create_plot(results_dict, filtered_sensors):
     way, based on the Flask route.
     """
     print(
-    "filtered sensors passed to plot creation: {filtered_sensors}".format(
-    filtered_sensors=filtered_sensors
-    )
+        "filtered sensors passed to plot creation: {filtered_sensors}".format(
+            filtered_sensors=filtered_sensors
+        )
     )
 
     if not results_dict["_time"]:
