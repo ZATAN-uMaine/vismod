@@ -1,43 +1,161 @@
 <header id="navigation-bar">
-  <h1> <a href="/">PNB Data Portal</a> </h1>
+  <div class="logo">
+    <a href="/"><span class="brand">PNB</span> <span class="sub-brand">Data Portal</span></a>
+  </div>
+
   <nav>
-    <div class="navigation-item"> <a href="/about-site.html">About This Site</a> </div>
-    <div class="navigation-item"> <a href="/about-pnb.html">About PNB</a> </div> <button id="theme-toggle">Toggle
-      Theme</button>
+    <div class="navigation-item"><a href="/about-site.html">About This Site</a></div>
+    <div class="navigation-item"><a href="/about-pnb.html">About PNB</a></div>
+    <button id="theme-toggle" class="btn btn-primary">
+      <span class="btn-text">Toggle Theme</span>
+      <span class="btn-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px">
+          <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.808 17.834a.75.75 0 001.06 1.061l1.591-1.59a.75.75 0 10-1.061-1.061l-1.59 1.59zM5.25 12a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0V11.25a.75.75 0 01-.75.75z" />
+        </svg>
+      </span>
+    </button>
   </nav>
 </header>
+
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
   #navigation-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #333;
-    padding: 10px 20px;
+    background: linear-gradient(to right, #2c3e50, #34495e);
+    padding: 20px 40px;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 1s ease-in-out;
   }
 
-  #navigation-bar h1 a {
-    color: white;
+  .logo a {
+    display: flex;
+    align-items: center;
     text-decoration: none;
+    animation: slideInLeft 1s ease-in-out;
+  }
+
+  .brand {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #e67e22;
+    text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .sub-brand {
+    font-size: 1.2rem;
+    color: #fff;
+    margin-left: 10px;
+    padding-top: 12px;
+    animation: slideInRight 1s ease-in-out;
   }
 
   #navigation-bar nav {
     display: flex;
+    align-items: center;
+    animation: slideInRight 1s ease-in-out;
   }
 
   .navigation-item {
-    margin-left: 20px;
+    margin-left: 40px;
+    position: relative;
   }
 
   .navigation-item a {
-    color: white;
+    color: #fff;
     text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
   }
 
-  #theme-toggle {
-    background-color: #fff;
+  .navigation-item a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #e67e22;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .navigation-item a:hover::before {
+    transform: scaleX(1);
+  }
+
+  .navigation-item a:hover {
+    color: #ddd;
+  }
+
+  .btn {
     border: none;
-    padding: 5px 10px;
+    padding: 8px 16px;
     cursor: pointer;
-    margin-left: 20px;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-primary {
+    background-color: #e67e22;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background-color: #d35400;
+    transform: translateY(-2px);
+  }
+
+  .btn-text {
+    margin-right: 8px;
+  }
+
+  .btn-icon {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInLeft {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 </style>

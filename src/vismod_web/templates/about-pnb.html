@@ -1,6 +1,10 @@
-{% extends "base.html" %} {% block title %} About This Site {% endblock %} {% block body %}
+{% extends "base.html" %} {% block title %} About This Site {% endblock %} {%
+block body %}
 
-<head> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" /> </head> <script type="text/javascript" src="static/theme.js"></script>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+</head>
+<script type="text/javascript" src="static/theme.js"></script>
 
 <script>
   // Image Enlargement Script
@@ -504,8 +508,23 @@
     }
   }
 
-  @media (max-width: 768px) {
-  .person-item {
+  @media (min-width: 768px) {
+    .info-content {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .info-image {
+      width: 40%;
+      margin-right: 20px;
+      margin-bottom: 0;
+    }
+
+    .info-text {
+      width: 60%;
+      text-align: left;
+    }
+    .person-item {
     padding: 10px;
   }
 
@@ -516,7 +535,7 @@
   .person-details p {
     font-size: 14px;
   }
-}
+  }
 
   @media (max-width: 600px) {
     .person-item {

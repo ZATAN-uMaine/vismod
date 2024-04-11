@@ -1,16 +1,11 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-    DarkReader.setFetchMethod(window.fetch);
-
-    const plots = Array.from(document.getElementsByClassName("plot-frame"));
-    plots.forEach((plotFrame) => {
-        plotFrame.contentWindow.postMessage('toggleTheme', '*');
+    // Enable when the system color scheme is dark.
+    DarkReader.enable({
+        brightness: 100,
+        contrast: 100,
+        sepia: 0
     });
 
-    window.addEventListener("message", (event) => {
-        if (event.data === "PlotlyAppendLoaded") {
-            if (DarkReader.isEnabled()) {
-                event.source.postMessage('toggleTheme', '*');
-            }
-        }
-    });
+    // Stop watching for the system color scheme.
+    DarkReader.auto(false);
 });

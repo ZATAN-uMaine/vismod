@@ -6,15 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PNB Data Portal - {% block title %}{% endblock %}</title>
   <link rel="icon" href="static/favicon.svg">
-  <link rel="stylesheet" type="text/css" href="static/our.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/darkreader@4.9.83/darkreader.min.js">
+  <link rel="stylesheet" href="static/base.css">
+<link rel="stylesheet" href="static/layout.css">
+<link rel="stylesheet" href="static/components.css">
+<link rel="stylesheet" href="static/themes.css">
+<link rel="stylesheet" href="static/media-queries.css">
+<script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.83/darkreader.min.js"></script>
   <script type="text/javascript" src="static/index.js"></script>
   <script type="text/javascript" src="static/modal.js"></script>
   <script type="text/javascript" src="static/theme.js"></script>
 </head>
 
 <body> {% include 'navbar.html' %} {% block body %} CHILD CONTENT HERE {% endblock %}
-  <script src="https://cdn.jsdelivr.net/npm/darkreader@4.9.27/darkreader.min.js"></script>
+
   <script> document.getElementById('theme-toggle').addEventListener('click', () => { DarkReader.isEnabled() ? DarkReader.disable() : DarkReader.enable(); }); </script>
 </body>
 

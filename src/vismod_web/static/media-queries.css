@@ -1,0 +1,24 @@
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+    #selection-controls {
+      flex-direction: column;
+    }
+  
+    #selection-info,
+    .bridge-area {
+      width: 100%;
+    }
+  
+    .bridge-area > figure > svg {
+      max-width: 100%;
+      height: auto;
+    }
+  
+    .plot-frame {
+      width: 145%;
+      border: none;
+      overflow-x: hidden;
+      overflow-y: clip;
+      display: block;
+    }
+  }

@@ -1,0 +1,202 @@
+/* Navigation Bar */
+#navigation-bar {
+    display: flex;
+    justify-content: space-between;
+    min-height: 4rem;
+    border-bottom-color: var(--border-primary);
+    border-bottom-width: 0.3rem;
+    border-bottom-style: solid;
+    box-shadow: 0 4px 2px -2px var(--text-secondary);
+    font-size: large;
+    padding: 0.5rem 2rem;
+  }
+  
+  @media (max-width: 800px) {
+    #navigation-bar {
+      flex-direction: column;
+    }
+    header > h1 {
+      align-self: center;
+    }
+  }
+  
+  #navigation-bar > nav {
+    display: flex;
+    min-width: 50%;
+    justify-content: space-around;
+  }
+  
+  #navigation-bar > h1 {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .navigation-item {
+    display: table;
+  }
+  
+  .navigation-item * {
+    display: table-cell;
+    padding: 10px 0;
+    text-align: center;
+  }
+  
+  .navigation-item a {
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+    margin: 0 auto;
+  }
+  
+  .navigation-item a:hover {
+    background-color: rgba(0, 0, 0, 0.149);
+    text-decoration: underline;
+  }
+  
+  .navigation-item a:focus {
+    background-color: rgba(0, 0, 0, 0.149);
+    text-decoration: underline;
+    border: 0.1rem solid var(--border-secondary);
+  }
+  
+  /* Data Selection Controls */
+  #dateRangeBox {
+    display: flex;
+    flex-direction: column;
+    font-size: medium;
+    margin-bottom: 1rem;
+    gap: 0.25rem;
+  }
+  
+  .dateSelectorBox {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+  }
+  
+  .dateSelectorBox label:first-child {
+    width: 30%;
+  }
+  
+  .plot-button-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  #cur-sensor-info-panel {
+    min-height: 2em;
+    margin-left: 1rem;
+    font-style: italic;
+  }
+  
+  /* Bridge Diagram */
+  .sensor {
+    cursor: pointer;
+  }
+  
+  .hl-sensor {
+    display: none;
+  }
+  
+  [id="17B"]:hover #hl-17B {
+    display: block;
+  }
+  
+  [id="10B"]:hover #hl-10B {
+    display: block;
+  }
+  
+  [id="2B"]:hover #hl-2B {
+    display: block;
+  }
+  
+  [id="2A"]:hover #hl-2A {
+    display: block;
+  }
+  
+  [id="10A"]:hover #hl-10A {
+    display: block;
+  }
+  
+  [id="17A"]:hover #hl-17A {
+    display: block;
+  }
+  
+  .bridge-area {
+    background-color: var(--bg-emph);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 1rem 0;
+  }
+  
+  .bridge-area > caption {
+    padding: 1rem;
+  }
+  
+  /* Modal */
+  #modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--overlay);
+  }
+  
+  #modal-body {
+    background-color: var(--bg-emph-mild);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid var(--border-secondary);
+    width: 80%;
+    color: var(--text-primary);
+  }
+  
+  .close {
+    color: var(--text-secondary);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .modal-content > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #data-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .load-indicator-text {
+    padding: 1rem;
+    font-style: italic;
+  }
+  
+  /* Plotly */
+  .plot-frame {
+    width: 100%;
+    border: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    display: block;
+  }
+  
+  .plot-remove-button {
+    position: absolute;
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+    opacity: 0.5;
+  }

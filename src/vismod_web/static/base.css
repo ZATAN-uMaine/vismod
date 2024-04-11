@@ -1,0 +1,102 @@
+/* Global Elements */
+html {
+    height: 100%;
+  }
+  
+  body {
+    height: 100vh;
+    margin: 0;
+    background-color: var(--bg-main);
+  }
+  
+  body * {
+    font-family: 'open sans', Helvetica, sans-serif;
+    color: var(--text-primary);
+  }
+  
+  figure {
+    margin: 0;
+  }
+  
+  figcaption {
+    margin: 0.5rem 1rem;
+  }
+  
+  button {
+    /* Largely copied from PureCSS */
+    font-family: inherit;
+    font-size: 100%;
+    padding: .5em 1em;
+    color: var(--text-secondary);
+    border: none transparent;
+    background-color: var(--bg-emph);
+    text-decoration: none;
+    border-radius: 2px;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  
+  /* Button styles */
+  button:disabled {
+    border: none;
+    opacity: .4;
+    cursor: not-allowed;
+    box-shadow: none;
+    pointer-events: none;
+  }
+  
+  button:not([disabled]):hover {
+    text-decoration: underline;
+    background-color: var(--bg-emph-mild);
+  }
+  
+  button:focus {
+    text-decoration: underline;
+    background-color: var(--bg-emph-mild);
+    border-color: var(--border-secondary);
+  }
+  
+  mark {
+    text-decoration: underline;
+    background-color: inherit;
+  }
+  
+  input[type=date],
+  input[type=time] {
+    border: none;
+    border-radius: 0.3rem;
+    padding: 0.2rem;
+    margin: 0 0.2rem;
+    background-color: var(--bg-emph-mild);
+    color: var(--text-secondary);
+  }
+  
+  input[type=time]:hover,
+  input[type=date]:hover {
+    text-decoration: underline;
+    background-color: var(--bg-emph);
+  }
+  
+  input[type=date]:focus,
+  input[type=time]:focus {
+    text-decoration: underline;
+    background-color: var(--bg-emph);
+    border-color: var(--border-secondary);
+  }
+  
+  /* Global Classes */
+  .p-em {
+    font-weight: bold;
+  }
+  
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
