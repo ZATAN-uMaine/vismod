@@ -1,143 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
+<document_content>
+  <!DOCTYPE html>
+  <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Responsive Navigation Bar with Theme Toggle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --transition-speed: 0.3s;
-    }
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Navigation Bar with Theme Toggle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --transition-speed: 0.3s;
+        --primary: #007bff;
+        --secondary: #6c757d;
+      }
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      transition: background-color var(--transition-speed), color var(--transition-speed);
-    }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+        transition: background-color var(--transition-speed), color var(--transition-speed);
+      }
 
-    #navigation-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      transition: background-color var(--transition-speed);
-      position: relative;
-      z-index: 1;
-    }
+      #navigation-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        transition: background-color var(--transition-speed);
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: gradientBackground 10s ease infinite;
+      }
 
-    #navigation-bar::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: inherit;
-      filter: blur(10px);
-      opacity: 0.8;
-      z-index: -1;
-    }
+      @keyframes gradientBackground {
+        0% {
+          background-position: 0% 50%;
+        }
 
-    .logo a {
-  font-size: 2rem;
-  font-weight: 800;
-  color: inherit;
-  text-decoration: none;
-}
+        50% {
+          background-position: 100% 50%;
+        }
 
-.sub-brand {
-  font-size: 1.5rem;
-  font-weight: 400;
-  margin-left: 0.5rem;
-}
+        100% {
+          background-position: 0% 50%;
+        }
+      }
 
-    .navigation-items {
-      display: flex;
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
+      .logo a {
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+        text-decoration: none;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        transition: transform var(--transition-speed);
+      }
 
-    .navigation-item {
-      margin-left: 1.5rem;
-    }
+      .logo a:hover {
+        transform: scale(1.05);
+      }
 
-    .navigation-item a {
-      color: inherit;
-      text-decoration: none;
-      transition: color var(--transition-speed);
-      position: relative;
-    }
+      .sub-brand {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin-left: 0.5rem;
+        color: white;
+      }
 
-    .navigation-item a::before {
-      content: "";
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      bottom: -5px;
-      left: 0;
-      background-color: var(--primary);
-      visibility: hidden;
-      transform: scaleX(0);
-      transition: all var(--transition-speed) ease-in-out;
-    }
+      .navigation-items {
+        display: flex;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
 
-    .navigation-item a:hover::before {
-      visibility: visible;
-      transform: scaleX(1);
-    }
+      .navigation-item {
+        margin-left: 1.5rem;
+      }
 
-    #theme-toggle {
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border-radius: 50px;
-      border: none;
-      transition: background-color var(--transition-speed), transform var(--transition-speed);
-      display: flex;
-      align-items: center;
-      background-color: var(--button-background);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+      .navigation-item a {
+        color: white;
+        text-decoration: none;
+        transition: color var(--transition-speed), transform var(--transition-speed);
+        position: relative;
+      }
 
-    #theme-toggle:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-    }
+      .navigation-item a::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background-color: white;
+        visibility: hidden;
+        transform: scaleX(0);
+        transition: all var(--transition-speed) ease-in-out;
+      }
 
-    .btn-icon {
-      margin-left: 8px;
-      fill: var(--text);
-      transition: fill var(--transition-speed);
-    }
-  </style>
-</head>
+      .navigation-item a:hover {
+        transform: translateY(-2px);
+      }
 
-<body>
-  <header id="navigation-bar">
-    <div class="logo">
-      <a href="/">
-        PNB<span class="sub-brand">Data Portal</span>
-      </a>
-    </div>
-    <nav>
-      <ul class="navigation-items">
-        <li class="navigation-item"><a href="/about-site.html">About This Site</a></li>
-        <li class="navigation-item"><a href="/about-pnb.html">About PNB</a></li>
-      </ul>
-      <button id="theme-toggle" class="btn">
-        Toggle Theme
-        <span class="btn-icon">
-          <!-- SVG icon adjusted for simplicity -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
-            <path d="M12,2A10,10,0,1,0,22,12,10.011,10.011,0,0,0,12,2Zm0,18A8,8,0,1,1,20,12,8.009,8.009,0,0,1,12,20Z"/>
-          </svg>
-        </span>
-      </button>
-    </nav>
-  </header>
-  <script src="theme.js"></script>
-</body>
-</html>
+      .navigation-item a:hover::before {
+        visibility: visible;
+        transform: scaleX(1);
+      }
+
+      #theme-toggle {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        border: none;
+        transition: background-color var(--transition-speed), transform var(--transition-speed);
+        display: flex;
+        align-items: center;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #theme-toggle:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-icon {
+        margin-left: 8px;
+        fill: var(--primary);
+        transition: fill var(--transition-speed);
+      }
+    </style>
+  </head>
+
+  <body>
+    <header id="navigation-bar">
+      <div class="logo"> <a href="/"> PNB<span class="sub-brand">Data Portal</span> </a> </div>
+      <nav>
+        <ul class="navigation-items">
+          <li class="navigation-item"><a href="/about-site.html">About This Site</a></li>
+          <li class="navigation-item"><a href="/about-pnb.html">About PNB</a></li>
+        </ul> <button id="theme-toggle" class="btn"> Toggle Theme <span class="btn-icon">
+            <!-- SVG icon adjusted for simplicity --> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+              width="18" height="18">
+              <path
+                d="M12,2A10,10,0,1,0,22,12,10.011,10.011,0,0,0,12,2Zm0,18A8,8,0,1,1,20,12,8.009,8.009,0,0,1,12,20Z" />
+            </svg> </span> </button>
+      </nav>
+    </header>
+    <script src="theme.js"></script>
+  </body>
+
+  </html>
