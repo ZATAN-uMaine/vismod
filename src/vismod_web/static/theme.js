@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', (event) => {
+
     const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
 
     if (darkModeEnabled) {
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 function toggleDarkMode() {
+    DarkReader.setFetchMethod(window.fetch);
     if (DarkReader.isEnabled()) {
         disableDarkMode();
     } else {
@@ -18,16 +20,32 @@ function toggleDarkMode() {
     }
 }
 
+
 function enableDarkMode() {
+    DarkReader.setFetchMethod(window.fetch);
     DarkReader.enable({
-        brightness: 100,
-        contrast: 100,
-        sepia: 0
+      brightness: 100,
+      contrast: 100,
+      sepia: 0
     });
     localStorage.setItem('darkModeEnabled', 'true');
+
+    // Add dark mode class to daterangepicker
+    const dateRangePicker = document.querySelector('.daterangepicker');
+    if (dateRangePicker) {
+      dateRangePicker.classList.add('daterangepicker-dark');
+    }
+
 }
 
-function disableDarkMode() {
+  function disableDarkMode() {
     DarkReader.disable();
     localStorage.setItem('darkModeEnabled', 'false');
+
+    // Remove dark mode class from daterangepicker
+    const dateRangePicker = document.querySelector('.daterangepicker');
+    if (dateRangePicker) {
+      dateRangePicker.classList.remove('daterangepicker-dark');
+    }
+
 }

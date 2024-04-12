@@ -391,30 +391,84 @@ def create_plot(results_dict, filtered_sensors):
     plot_title = "Stay {name} strain from {st} to {et}".format(
         name=filtered_sensors[0].split("-")[0], st=start_stamp, et=end_stamp
     )
+
+    textcolor = "#808080"  # Neutral gray color
+
     layout = go.Layout(
         title=plot_title,
-        template="plotly",
+        template="none",
         xaxis=dict(
             title="Time Stamp (UTC)",
             gridcolor="#C0C0C0",
             zerolinecolor="#B0B0B0",
+            titlefont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the x-axis title color to black
+            tickfont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the x-axis tick labels color to black
         ),
-        yaxis=dict(title="Strain (lbs)", gridcolor="#B0B0B0"),
+        yaxis=dict(
+            title="Strain (lbs)",
+            gridcolor="#B0B0B0",
+            titlefont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis title color to black
+            tickfont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis tick labels color to black
+        ),
         yaxis2=dict(
             title="Temperature (F)",
             overlaying="y",
             side="right",
             gridcolor="#B0B0B0",
             zerolinecolor="#B0B0B0",
+            titlefont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis2 title color to black
+            tickfont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis2 tick labels color to black
         ),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(
+            color=textcolor, family="Arial Black"
+        ),  # Set the font color for all text to black
     )
     weather_layout = go.Layout(
         title=plot_title,
         template="plotly",
-        xaxis=dict(title="Time Stamp (UTC)"),
-        yaxis=dict(title="Temperature (F)"),
-        yaxis2=dict(title="Feet per Second", overlaying="y", side="right"),
-        yaxis3=dict(title="Degrees", overlaying="y", side="right"),
+        xaxis=dict(
+            title="Time Stamp (UTC)",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        yaxis=dict(
+            title="Temperature (F)",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        yaxis2=dict(
+            title="Feet per Second",
+            overlaying="y",
+            side="right",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        yaxis3=dict(
+            title="Degrees",
+            overlaying="y",
+            side="right",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(
+            color=textcolor, family="Arial Black"
+        ),  # Set the font color for all text to black
     )
 
     if filtered_sensors[0] not in AUXILIARY_SENSORS:

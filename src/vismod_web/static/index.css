@@ -1,0 +1,181 @@
+/* Data Selection Controls */
+#dateRangeBox {
+  display: flex;
+  flex-direction: column;
+  font-size: medium;
+  margin-bottom: 1rem;
+  gap: 0.25rem;
+  }
+
+  .dateSelectorBox {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  }
+
+  .dateSelectorBox label:first-child {
+  width: 30%;
+  }
+
+  .plot-button-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  }
+
+  #cur-sensor-info-panel {
+  min-height: 2em;
+  margin-left: 1rem;
+  font-style: italic;
+  }
+
+  /* Bridge Diagram */
+  .sensor {
+  cursor: pointer;
+  }
+
+  .hl-sensor {
+  display: none;
+  }
+
+  [id="17B"]:hover #hl-17B,
+  [id="10B"]:hover #hl-10B,
+  [id="2B"]:hover #hl-2B,
+  [id="2A"]:hover #hl-2A,
+  [id="10A"]:hover #hl-10A,
+  [id="17A"]:hover #hl-17A {
+  display: block;
+  }
+
+  .bridge-area {
+  background-color: var(--bg-emph);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  margin: 1rem 0;
+  }
+
+  .bridge-area > caption {
+  padding: 1rem;
+  }
+
+  /* Modal */
+  #modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--overlay);
+  }
+
+  #modal-body {
+  background-color: var(--bg-emph-mild);
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid var(--border-secondary);
+  width: 80%;
+  color: var(--text-primary);
+  }
+
+  .close {
+  color: var(--text-secondary);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+  }
+
+  .modal-content > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  }
+
+  #data-info {
+  display: flex;
+  flex-direction: column;
+  }
+
+  .load-indicator-text {
+  padding: 1rem;
+  font-style: italic;
+  }
+
+  /* Plotly */
+  .plot-frame {
+  width: 100%;
+  border: none;
+  overflow: hidden;
+  display: block;
+  }
+
+  .plot-remove-button {
+  position: absolute;
+  margin: 0.5rem;
+  opacity: 0.5;
+  }
+
+  /* Main Layout */
+  #selection-controls {
+  display: flex;
+  }
+
+  @media (max-width: 800px) {
+  #selection-controls {
+  flex-direction: column;
+  }
+  }
+
+  #selection-controls > section {
+  flex: 1;
+  }
+
+  #selection-info {
+  padding: 1rem;
+  }
+
+  figure {
+  margin: 0;
+  }
+
+  figcaption {
+  margin: 0.5rem 1rem;
+  }
+
+  mark {
+  text-decoration: underline;
+  background-color: inherit;
+  }
+
+ input[type="date"],
+input[type="time"] {
+  border: none;
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  margin: 0 0.2rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color var(--transition-speed),
+  transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+input[type="time"]:hover,
+input[type="date"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
