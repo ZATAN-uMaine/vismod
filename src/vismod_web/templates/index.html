@@ -2,6 +2,11 @@
 {% block title %} Viewer {% endblock %}
 {% block body %}
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+<script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
 <main>
   <article id="selection-controls">
     <section id="selection-info">
@@ -10,7 +15,7 @@
         The data available on this site do not reflect the structual integrity of the Penobscot Narrows
         Bridge.
       </p>
-      <p> This dataset includes {{data.count}} readings,
+      <p class="available-dates"> This dataset includes {{data.count}} readings,
         from {{data.start.strftime("%B %d, %Y")}} to
         {{data.stop.strftime("%B %d, %Y")}}.
       </p>
@@ -19,17 +24,8 @@
           <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
         </div>
         <div class="dateSelectorBox">
-          <label for="startDate">Start Date:</label>
-          <input type="date" id="startDate" name="start-date" />
-          <label for="startHour" class="visually-hidden">Start Hour:</label>
-          <input type="time" id="startHour" name="start-hour"></select>
-        </div>
-
-        <div class="dateSelectorBox">
-          <label for="endDate">End Date:</label>
-          <input type="date" id="endDate" name="end-date" />
-          <label for="endHour" class="visually-hidden">End Hour:</label>
-          <input type="time" id="endHour" name="end-hour"></select>
+          <label for="dateRange">Date Range:</label>
+          <input type="text" id="dateRange" name="daterange" />
         </div>
       </div>
       <div id="cur-sensor-info-panel">
@@ -198,5 +194,6 @@
     </div>
   </section>
 </main>
+
 
 {% endblock %}
