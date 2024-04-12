@@ -57,7 +57,7 @@ STRAIN_UNITS = {  # every stay gets the same unit
 }
 AUXILIARY_UNITS = {
     "_time": "UTC",
-    "External-Temperature": "degrees (F)",
+    "External-Temperature": "degrees (C)",
     "External-Wind-Direction": "angle (degrees)",
     "External-Wind-Speed": "feet/second",
 }
@@ -419,7 +419,7 @@ def create_plot(results_dict, filtered_sensors):
             ),  # Set the y-axis tick labels color to black
         ),
         yaxis2=dict(
-            title="Temperature (F)",
+            title="Temperature (C)",
             overlaying="y",
             side="right",
             gridcolor="#B0B0B0",
@@ -557,7 +557,7 @@ def create_plot(results_dict, filtered_sensors):
                 mode="lines+markers",
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[-1]],
-                name="External Temperature (F)",
+                name="External Temperature (C)",
                 marker=dict(color="darkgreen", symbol="diamond", size=3),
                 line=dict(dash="dash"),
                 visible="legendonly",

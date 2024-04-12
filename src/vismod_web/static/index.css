@@ -199,6 +199,7 @@ input[type="button"]:hover {
 /* Plotly */
 .plot-frame {
   width: 100%;
+  min-width: 1000px;
   border: none;
   overflow: hidden;
   display: block;
@@ -281,4 +282,48 @@ input[type="date"]:focus,
 input[type="time"]:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+@media (max-width: 1000px) {
+  .plot-frame {
+    width: 125%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 900px) {
+  .plot-frame {
+    width: 127%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 800px) {
+  .plot-frame {
+    width: 130%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 700px) {
+  .plot-frame {
+    width: 132%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
