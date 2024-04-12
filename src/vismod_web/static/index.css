@@ -1,0 +1,329 @@
+/* General Styles */
+body {
+  font-family: "Roboto", sans-serif;
+  color: #333;
+  line-height: 1.6;
+  background-color: #f7f7f7;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  color: #222;
+}
+
+/* Date Range Box */
+#dateRangeBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 16px;
+  margin: 0 auto 2rem; /* Center the box horizontally */
+  gap: 0.5rem;
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+  max-width: 400px;
+  width: 100%;
+  text-align: center; /* Center the text within the box */
+}
+
+#dateRangeBox:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+#dateRangeBox mark {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.dateSelectorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.dateSelectorBox label {
+  margin-bottom: 0.5rem;
+}
+
+#dateRange {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+  width: 100%;
+  text-align: center; /* Center the text within the input */
+}
+
+#dateRange:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#dateRange:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+
+.plot-button-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center; /* Center the items horizontally */
+}
+
+#cur-sensor-info-panel {
+  min-height: 2em;
+  margin-left: 1rem;
+  font-style: italic;
+  color: #666;
+}
+
+/* Buttons */
+button,
+input[type="button"] {
+  background-color: #0077cc;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+button:hover,
+input[type="button"]:hover {
+  background-color: #005ca3;
+}
+
+/* Bridge Diagram */
+.sensor {
+  cursor: pointer;
+}
+
+.hl-sensor {
+  display: none;
+}
+
+[id="17B"]:hover #hl-17B,
+[id="10B"]:hover #hl-10B,
+[id="2B"]:hover #hl-2B,
+[id="2A"]:hover #hl-2A,
+[id="10A"]:hover #hl-10A,
+[id="17A"]:hover #hl-17A {
+  display: block;
+}
+
+.bridge-area {
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bridge-area > caption {
+  padding: 1rem;
+  font-weight: 500;
+  color: #222;
+}
+
+/* Modal */
+#modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#modal-body {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+}
+
+.close {
+  color: #888;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Data Info and Loading Indicator */
+#data-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.load-indicator-text {
+  padding: 1rem;
+  font-style: italic;
+  color: #666;
+}
+
+/* Plotly */
+.plot-frame {
+  width: 100%;
+  min-width: 1000px;
+  border: none;
+  overflow: hidden;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.plot-remove-button {
+  position: absolute;
+  margin: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.plot-remove-button:hover {
+  opacity: 1;
+}
+
+/* Main Layout */
+#selection-controls {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1230px) {
+  #selection-controls {
+    flex-direction: column;
+  }
+}
+
+#selection-controls > section {
+  flex: 1;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#selection-info {
+  justify-content: space-around;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  margin: 0.5rem 1rem;
+  font-style: italic;
+  color: #666;
+}
+
+mark {
+  background-color: #fff3cd;
+  padding: 0.2rem;
+  border-radius: 4px;
+}
+
+input[type="date"],
+input[type="time"] {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0 0.2rem;
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+input[type="time"]:hover,
+input[type="date"]:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+@media (max-width: 1000px) {
+  .plot-frame {
+    width: 125%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 900px) {
+  .plot-frame {
+    width: 127%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 800px) {
+  .plot-frame {
+    width: 130%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 700px) {
+  .plot-frame {
+    width: 132%;
+    border: none;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}

@@ -1,6 +1,6 @@
 all:
   hosts:
-    prod: 
+    prod:
       ansible_host: "pnbpreview.dieff.dev"
       ansible_user: "ubuntu"
   vars:

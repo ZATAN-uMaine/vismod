@@ -17,11 +17,11 @@ here is the full list of sensors (as of 3/3/24):
 import os
 import csv
 import logging
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
+import plotly.graph_objs as go  # type: ignore
+from plotly.subplots import make_subplots  # type: ignore
 from datetime import datetime
 from pathlib import Path
-from influxdb_client import InfluxDBClient, Dialect
+from influxdb_client import InfluxDBClient, Dialect  # type: ignore
 
 
 # Load database secrets
@@ -57,7 +57,7 @@ STRAIN_UNITS = {  # every stay gets the same unit
 }
 AUXILIARY_UNITS = {
     "_time": "UTC",
-    "External-Temperature": "degrees (F)",
+    "External-Temperature": "degrees (C)",
     "External-Wind-Direction": "angle (degrees)",
     "External-Wind-Speed": "feet/second",
 }
@@ -74,8 +74,11 @@ def generate_file_name(start, stop, file_type):
     The format for these times is RFC3339.
     """
     # Remove time-related characters from start and stop dates
-    fileStartDate = start[:10]  # Extract YYYY-MM-DD from start string
-    fileStopDate = stop[:10]  # Extract YYYY-MM-DD from stop string
+    start_dt = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S.%fZ")
+    stop_dt = datetime.strptime(stop, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    fileStartDate = start_dt.strftime("%Y-%m-%d")
+    fileStopDate = stop_dt.strftime("%Y-%m-%d")
 
     extension = {"Reading": "csv", "Plot": "html"}.get(file_type)
 
@@ -300,63 +303,6 @@ def query_all_sensors_for_CSV(start, stop):
     return write_to
 
 
-# DO NOT USE THIS, IT'S OLD
-def query_sensors_for_plot(start, stop, sensors):
-    """
-    This function is very similar to
-    query_sensors_for_CSV, but writes an HTML
-    as a string, containing a plotly plot.
-    This string gets passed to the front end
-    and written into an iframe.
-    """
-    formatted_sensors = format_sensor_list(sensors)
-
-    logging.info(
-        f"Querying sensors: {formatted_sensors} from {start} to {stop}"
-    )
-
-    with InfluxDBClient(url=link, token=ourToken, org=organization) as client:
-        plot_query = """
-                from(bucket: "{bucket_name}")
-                |> range(start: {start_time},
-                  stop: {stop_time})
-                |> filter(fn: (r) => r["_measurement"] == "NodeStrain")
-                |> filter(fn: (r) => r["_field"] == "_value")
-                |> filter(fn: (r) => {sensor_list})
-                |>pivot(rowKey:["_time"],
-                         columnKey: ["node"],
-                         valueColumn: "_value")
-                |> group()
-                |> drop(columns:
-                    ["result","_start","_stop","_measurement","_field"])
-            """.format(
-            bucket_name=str(zatan_bucket),
-            start_time=start,
-            stop_time=stop,
-            sensor_list=formatted_sensors,
-        )
-
-        result = client.query_api().query(plot_query, org=organization)
-        filtered_sensors = [
-            sensor for sensor in sensors if sensor in ALL_SENSORS
-        ]
-
-        results_dict = {  # _time join to the sensors, each key gets empty list
-            key: [] for key in ["_time"] + filtered_sensors
-        }
-
-        # this should be the _time column + sensors
-        column_keys = list(results_dict.keys())
-
-        for table in result:
-            for record in table.records:  # each row
-                for k in column_keys:
-                    results_dict[k].append(record[k])
-
-        plot_html = create_plot(results_dict, filtered_sensors)
-        return plot_html
-
-
 def query_all_sensors_for_plot(start, stop, sensors, aggregate=120):
     """
     This function is very similar to
@@ -427,6 +373,10 @@ def create_plot(results_dict, filtered_sensors):
             filtered_sensors=filtered_sensors
         )
     )
+
+    if not results_dict["_time"]:
+        return "None"
+
     fig = make_subplots(
         specs=[[{"secondary_y": True}]],
         rows=1,
@@ -441,30 +391,84 @@ def create_plot(results_dict, filtered_sensors):
     plot_title = "Stay {name} strain from {st} to {et}".format(
         name=filtered_sensors[0].split("-")[0], st=start_stamp, et=end_stamp
     )
+
+    textcolor = "#808080"  # Neutral gray color
+
     layout = go.Layout(
         title=plot_title,
-        template="plotly",
+        template="none",
         xaxis=dict(
             title="Time Stamp (UTC)",
             gridcolor="#C0C0C0",
             zerolinecolor="#B0B0B0",
+            titlefont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the x-axis title color to black
+            tickfont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the x-axis tick labels color to black
         ),
-        yaxis=dict(title="Strain (lbs)", gridcolor="#B0B0B0"),
+        yaxis=dict(
+            title="Strain (lbs)",
+            gridcolor="#B0B0B0",
+            titlefont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis title color to black
+            tickfont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis tick labels color to black
+        ),
         yaxis2=dict(
-            title="Temperature (F)",
+            title="Temperature (C)",
             overlaying="y",
             side="right",
             gridcolor="#B0B0B0",
             zerolinecolor="#B0B0B0",
+            titlefont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis2 title color to black
+            tickfont=dict(
+                color=textcolor, family="Arial Black"
+            ),  # Set the y-axis2 tick labels color to black
         ),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(
+            color=textcolor, family="Arial Black"
+        ),  # Set the font color for all text to black
     )
     weather_layout = go.Layout(
         title=plot_title,
         template="plotly",
-        xaxis=dict(title="Time Stamp (UTC)"),
-        yaxis=dict(title="Temperature (F)"),
-        yaxis2=dict(title="Feet per Second", overlaying="y", side="right"),
-        yaxis3=dict(title="Degrees", overlaying="y", side="right"),
+        xaxis=dict(
+            title="Time Stamp (UTC)",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        yaxis=dict(
+            title="Temperature (F)",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        yaxis2=dict(
+            title="Feet per Second",
+            overlaying="y",
+            side="right",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        yaxis3=dict(
+            title="Degrees",
+            overlaying="y",
+            side="right",
+            titlefont=dict(color=textcolor, family="Arial Black"),
+            tickfont=dict(color=textcolor, family="Arial Black"),
+        ),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(
+            color=textcolor, family="Arial Black"
+        ),  # Set the font color for all text to black
     )
 
     if filtered_sensors[0] not in AUXILIARY_SENSORS:
@@ -553,8 +557,8 @@ def create_plot(results_dict, filtered_sensors):
                 mode="lines+markers",
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[-1]],
-                name="External Temperature (F)",
-                marker=dict(color="lightblue", symbol="diamond", size=3),
+                name="External Temperature (C)",
+                marker=dict(color="darkgreen", symbol="diamond", size=3),
                 line=dict(dash="dash"),
                 visible="legendonly",
             ),
