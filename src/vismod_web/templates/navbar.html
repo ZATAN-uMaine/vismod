@@ -82,21 +82,23 @@
       .navigation-item a {
         color: white;
         text-decoration: none;
-        transition: color var(--transition-speed), transform var(--transition-speed);
+        transition: color var(--transition-speed), transform var(--transition-speed), background-color var(--transition-speed);
         position: relative;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
       }
 
       .navigation-item a::before {
         content: "";
         position: absolute;
-        width: 100%;
-        height: 2px;
-        bottom: -5px;
+        top: 0;
         left: 0;
-        background-color: white;
-        visibility: hidden;
-        transform: scaleX(0);
-        transition: all var(--transition-speed) ease-in-out;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        opacity: 0;
+        transition: opacity var(--transition-speed);
       }
 
       .navigation-item a:hover {
@@ -104,8 +106,7 @@
       }
 
       .navigation-item a:hover::before {
-        visibility: visible;
-        transform: scaleX(1);
+        opacity: 1;
       }
 
       #theme-toggle {
