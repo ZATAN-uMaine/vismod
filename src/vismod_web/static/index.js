@@ -57,9 +57,6 @@ function prettyPrintDate(date) {
 }
 
 
-/**
- * Handle the state of the sensor and time range select controls.
- */
 class SensorSelection {
     curSensors = [];
     // one week ago
@@ -85,26 +82,38 @@ class SensorSelection {
      * Run after DomContentLoaded.
      */
     createEventHandlers() {
-        // date picker
-        const startDaySelector = document.getElementById('startDate');
-        const endDaySelector = document.getElementById('endDate');
-        const startHourSelector = document.getElementById('startHour');
-        const endHourSelector = document.getElementById('endHour');
-        if (!startDaySelector || !endDaySelector || !startHourSelector || !endHourSelector) {
+        // date range picker
+        const dateRangeSelector = document.getElementById('dateRange');
+        if (!dateRangeSelector) {
             return;
         }
 
-        startDaySelector.addEventListener("change", this.updateSelectedDate);
-        endDaySelector.addEventListener("change", this.updateSelectedDate);
-        startHourSelector.addEventListener("change", this.updateSelectedDate);
-        endHourSelector.addEventListener("change", this.updateSelectedDate);
+        const dateRangeInfo = document.querySelector('p.available-dates').textContent;
 
-        startDaySelector.value = formatDate(this.startTime);
-        endDaySelector.value = formatDate(this.endTime);
-        startHourSelector.value = "00:00";
-        endHourSelector.value = formatTime(this.endTime);
-        endDaySelector.max = endDaySelector.value;
-        startDaySelector.max = endDaySelector.max;
+        let startDateString, endDateString;
+
+        // Extract available date range from the string written on the page
+
+        const dataStart = new Date(dateRangeInfo.split("from")[1].split("to")[0]);
+        const dataEnd = new Date(dateRangeInfo.split("to")[1].split(".")[0]);
+
+        $(dateRangeSelector).daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            startDate: this.startTime,
+            endDate: this.endTime,
+            opens: 'left',
+            locale: {
+                format: 'YYYY-MM-DD HH:mm'
+            },
+            minDate: dataStart, // Set the minimum date to the start date of the dataset
+            maxDate: dataEnd, // Set the maximum date to the end date of the dataset
+            isInvalidDate: function (date) {
+                // Check if the date is within the available data range
+                return date < dataStart || date > dataEnd;
+            }
+        }, this.updateSelectedDate);
+
         this.updateSelectedDate();
 
         // sensor points on diagram
@@ -118,16 +127,11 @@ class SensorSelection {
     /**
      * updates all dates in the date range from their `<input>`s
      */
-    updateSelectedDate() {
-        const startDaySelector = document.getElementById('startDate');
-        const startHourSelector = document.getElementById('startHour');
-        const startDateString = formatDateString(startDaySelector.value, startHourSelector.value);
-        this.startTime = new Date(startDateString);
-        const endDaySelector = document.getElementById('endDate');
-        const endHourSelector = document.getElementById('endHour');
-        const endDateString = formatDateString(endDaySelector.value, endHourSelector.value);
-        this.endTime = new Date(endDateString);
-        startDaySelector.max = endDaySelector.value;
+    updateSelectedDate(start, end) {
+        if (start && end) {
+            this.startTime = start.toDate();
+            this.endTime = end.toDate();
+        }
     }
 
     /**
