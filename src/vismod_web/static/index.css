@@ -1,177 +1,279 @@
-/* Data Selection Controls */
+/* General Styles */
+body {
+  font-family: "Roboto", sans-serif;
+  color: #333;
+  line-height: 1.6;
+  background-color: #f7f7f7;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  color: #222;
+}
+
+/* Date Range Box */
 #dateRangeBox {
   display: flex;
   flex-direction: column;
-  font-size: medium;
-  margin-bottom: 1rem;
-  gap: 0.25rem;
-  }
-
-  .dateSelectorBox {
-  display: flex;
   align-items: center;
-  margin-left: 1rem;
-  }
+  font-size: 16px;
+  margin: 0 auto 2rem; /* Center the box horizontally */
+  gap: 0.5rem;
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+  max-width: 400px;
+  width: 100%;
+  text-align: center; /* Center the text within the box */
+}
 
-  .dateSelectorBox label:first-child {
-  width: 30%;
-  }
+#dateRangeBox:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
 
-  .plot-button-box {
+#dateRangeBox mark {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.dateSelectorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.dateSelectorBox label {
+  margin-bottom: 0.5rem;
+}
+
+#dateRange {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+  width: 100%;
+  text-align: center; /* Center the text within the input */
+}
+
+#dateRange:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#dateRange:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+
+.plot-button-box {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  }
+}
 
-  #cur-sensor-info-panel {
+#cur-sensor-info-panel {
   min-height: 2em;
   margin-left: 1rem;
   font-style: italic;
-  }
+  color: #666;
+}
 
-  /* Bridge Diagram */
-  .sensor {
+/* Buttons */
+button,
+input[type="button"] {
+  background-color: #0077cc;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  }
+  transition: background-color 0.3s ease-in-out;
+}
 
-  .hl-sensor {
+button:hover,
+input[type="button"]:hover {
+  background-color: #005ca3;
+}
+
+/* Bridge Diagram */
+.sensor {
+  cursor: pointer;
+}
+
+.hl-sensor {
   display: none;
-  }
+}
 
-  [id="17B"]:hover #hl-17B,
-  [id="10B"]:hover #hl-10B,
-  [id="2B"]:hover #hl-2B,
-  [id="2A"]:hover #hl-2A,
-  [id="10A"]:hover #hl-10A,
-  [id="17A"]:hover #hl-17A {
+[id="17B"]:hover #hl-17B,
+[id="10B"]:hover #hl-10B,
+[id="2B"]:hover #hl-2B,
+[id="2A"]:hover #hl-2A,
+[id="10A"]:hover #hl-10A,
+[id="17A"]:hover #hl-17A {
   display: block;
-  }
+}
 
-  .bridge-area {
-  background-color: var(--bg-emph);
+.bridge-area {
+  background-color: #f0f0f0;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   margin: 1rem 0;
-  }
-
-  .bridge-area > caption {
   padding: 1rem;
-  }
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  /* Modal */
-  #modal {
+.bridge-area > caption {
+  padding: 1rem;
+  font-weight: 500;
+  color: #222;
+}
+
+/* Modal */
+#modal {
   position: fixed;
   z-index: 1;
   left: 0;
   top: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--overlay);
-  }
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  #modal-body {
-  background-color: var(--bg-emph-mild);
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid var(--border-secondary);
-  width: 80%;
-  color: var(--text-primary);
-  }
+#modal-body {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+}
 
-  .close {
-  color: var(--text-secondary);
+.close {
+  color: #888;
   float: right;
   font-size: 28px;
   font-weight: bold;
-  }
+}
 
-  .close:hover,
-  .close:focus {
-  color: black;
+.close:hover,
+.close:focus {
+  color: #333;
   text-decoration: none;
   cursor: pointer;
-  }
+}
 
-  .modal-content > div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  }
-
-  #data-info {
+/* Data Info and Loading Indicator */
+#data-info {
   display: flex;
   flex-direction: column;
-  }
+}
 
-  .load-indicator-text {
+.load-indicator-text {
   padding: 1rem;
   font-style: italic;
-  }
+  color: #666;
+}
 
-  /* Plotly */
-  .plot-frame {
+/* Plotly */
+.plot-frame {
   width: 100%;
   border: none;
   overflow: hidden;
   display: block;
-  }
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  .plot-remove-button {
+.plot-remove-button {
   position: absolute;
   margin: 0.5rem;
   opacity: 0.5;
-  }
+  transition: opacity 0.3s ease-in-out;
+}
 
-  /* Main Layout */
-  #selection-controls {
+.plot-remove-button:hover {
+  opacity: 1;
+}
+
+/* Main Layout */
+#selection-controls {
   display: flex;
-  }
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
 
-  @media (max-width: 800px) {
+@media (max-width: 800px) {
   #selection-controls {
-  flex-direction: column;
+    flex-direction: column;
   }
-  }
+}
 
-  #selection-controls > section {
+#selection-controls > section {
   flex: 1;
-  }
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  #selection-info {
+#selection-info {
+  justify-content: space-around;
+  margin: 1rem 0;
   padding: 1rem;
-  }
+}
 
-  figure {
+figure {
   margin: 0;
-  }
+}
 
-  figcaption {
+figcaption {
   margin: 0.5rem 1rem;
-  }
+  font-style: italic;
+  color: #666;
+}
 
-  mark {
-  text-decoration: underline;
-  background-color: inherit;
-  }
+mark {
+  background-color: #fff3cd;
+  padding: 0.2rem;
+  border-radius: 4px;
+}
 
- input[type="date"],
+input[type="date"],
 input[type="time"] {
-  border: none;
-  border-radius: 50px;
-  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
   margin: 0 0.2rem;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color var(--transition-speed),
-  transform var(--transition-speed), box-shadow var(--transition-speed);
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 input[type="time"]:hover,
 input[type="date"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 input[type="date"]:focus,

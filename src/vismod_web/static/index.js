@@ -94,7 +94,7 @@ class SensorSelection {
 
         const dataStart = new Date(dateRangeInfo.split("from")[1].split("to")[0]);
         const dataEnd = new Date(dateRangeInfo.split("to")[1].split(".")[0]);
-        dataEnd.setDate(dataEnd.getDate() + 1);
+        dataEnd.setDate(dataEnd.getDate());
 
         $(dateRangeSelector).daterangepicker({
             showDropdowns: true,
@@ -106,13 +106,13 @@ class SensorSelection {
             endDate: this.endTime,
             opens: 'left',
             locale: {
-            format: 'YYYY-MM-DD HH:mm'
+                format: 'MMMM D, YYYY'
             },
             minDate: dataStart, // Set the minimum date to the start date of the dataset
             maxDate: dataEnd, // Set the maximum date to the end date of the dataset
             isInvalidDate: function (date) {
-            // Check if the date is within the available data range
-            return date < dataStart || date > dataEnd;
+                // Check if the date is within the available data range
+                return date < dataStart || date > dataEnd;
             },
         }, this.updateSelectedDate);
 
@@ -133,6 +133,21 @@ class SensorSelection {
         if (start && end) {
             this.startTime = start.toDate();
             this.endTime = end.toDate();
+
+            const startDateString = this.startTime.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const endDateString = this.endTime.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const dateRangeSelector = document.getElementById('dateRange');
+            console.log(startDateString, endDateString)
+            dateRangeSelector.value = `${startDateString} - ${endDateString}`;
         }
     }
 
@@ -262,7 +277,7 @@ async function fetchPlot(sensors, start, end) {
         // create a smaller iframe or display a message
         plotIFrame.contentWindow.document.open();
         plotIFrame.contentWindow.document.write("<!DOCTYPE HTML>");
-        plotIFrame.contentWindow.document.write("<div style='padding: 2rem; font-style: italic;'>No data available for the selected date range.</div>");
+        plotIFrame.contentWindow.document.write("<div style='padding: 2.5rem; font-style: italic;'>No data available for the selected date range.</div>");
         plotIFrame.contentWindow.document.close();
 
         // adjust the height of the iframe

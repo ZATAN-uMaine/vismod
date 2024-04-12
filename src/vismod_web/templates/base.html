@@ -13,11 +13,15 @@
   <link rel="stylesheet" href="static/base.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <header id="navigation-bar">
     <div class="logo">
-      <a href="/">PNB<span class="sub-brand">Data Portal</span></a>
+      <a class="logomain" href="/">PNB<span class="sub-brand">Data Portal</span></a>
     </div>
+    <section>
+
+    </section>
     <nav>
       <ul class="navigation-items">
         <li class="navigation-item"><a href="/about-site.html">About This Site</a></li>
@@ -28,7 +32,8 @@
             <span class="btn-icon">
               <!-- SVG icon adjusted for simplicity -->
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
-                <path d="M12,2A10,10,0,1,0,22,12,10.011,10.011,0,0,0,12,2Zm0,18A8,8,0,1,1,20,12,8.009,8.009,0,0,1,12,20Z" />
+                <path
+                  d="M12,2A10,10,0,1,0,22,12,10.011,10.011,0,0,0,12,2Zm0,18A8,8,0,1,1,20,12,8.009,8.009,0,0,1,12,20Z" />
               </svg>
             </span>
           </button>
@@ -39,4 +44,5 @@
   {% block body %}
   {% endblock %}
 </body>
+
 </html>

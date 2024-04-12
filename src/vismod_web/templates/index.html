@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-  {% block body %}
+{% block body %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -16,7 +17,7 @@
     <section id="selection-info">
       <h3> Visualize or Download Sensor Data </h3>
       <p class="p-em">
-        The data available on this site do not reflect the structual integrity of the Penobscot Narrows
+        The data available on this site do not reflect the structural integrity of the Penobscot Narrows
         Bridge.
       </p>
       <p class="available-dates"> This dataset includes {{data.count}} readings,
@@ -24,9 +25,6 @@
         {{data.stop.strftime("%B %d, %Y")}}.
       </p>
       <div id="dateRangeBox">
-        <div>
-          <mark>Pick Date Range <strong>(UTC)</strong>:</mark>
-        </div>
         <div class="dateSelectorBox">
           <label for="dateRange">Date Range:</label>
           <input type="text" id="dateRange" name="daterange" />
