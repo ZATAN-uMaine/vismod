@@ -70,7 +70,7 @@ def validate_name(ctx, param, value):
 @click.option(
     "download_count",
     "--drive-download-count",
-    default=1,
+    default=5,
     help="How many TDMS files to attempt to download (in reverse order from most recent).",  # noqa
 )
 def main(drive_files, local_files, save_as, download_count):

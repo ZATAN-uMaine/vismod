@@ -1,10 +1,9 @@
 import os
 from datetime import datetime
 import logging
-
 import pandas as pd
-from influxdb_client import InfluxDBClient
-from influxdb_client.client.write_api import SYNCHRONOUS
+
+from vismod_processing.influx_cli import VismodInfluxBuilder
 
 """
     # Team ZATAN 2024
@@ -69,14 +68,7 @@ def upload_data_frame(data_frame: pd.DataFrame):
                     "External-Wind-Speed"
     """
     # Load database secrets
-    zatan_token = os.environ.get("INFLUXDB_V2_TOKEN")
-    organization = os.environ.get("INFLUXDB_V2_ORG")
-    link = os.environ.get("INFLUXDB_V2_URL")
     zatan_bucket = os.environ.get("INFLUXDB_V2_BUCKET")
-
-    if link is None:
-        logging.error("$INFLUXDB_V2_URL not found")
-        return
 
     # Initialize Database Client
     node_name = data_frame.iloc[0]["node"]
@@ -84,18 +76,14 @@ def upload_data_frame(data_frame: pd.DataFrame):
         f"=== Ingesting DataFrame for Node {node_name} batching API ==="
     )
     start_time = datetime.now()
-    with InfluxDBClient(url=link, token=zatan_token, org=organization) as cli:
-        # Use batching API
-        with cli.write_api(write_options=SYNCHRONOUS) as write_api:
-            write_api.write(
-                bucket=zatan_bucket,
-                record=data_frame,
-                # Fields are the columns that are not identified as tags.
-                data_frame_tag_columns=["node"],
-                data_frame_measurement_name="NodeStrain",
-            )
 
-            logging.debug("Waiting to finish ingesting DataFrame...")
-            InfluxDBClient.close(cli)
+    with VismodInfluxBuilder() as cli:
+        cli.write().write(
+            bucket=zatan_bucket,
+            record=data_frame,
+            # Fields are the columns that are not identified as tags.
+            data_frame_tag_columns=["node"],
+            data_frame_measurement_name="NodeStrain",
+        )
 
     logging.info(f"Import finished in: {datetime.now() - start_time}")

@@ -4,13 +4,19 @@ import random
 import time
 import re
 import logging
+import datetime
+import dateutil
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, HttpError
 
+from vismod_processing import influx_cli
+
 # Constants for the file paths and names
-LOCAL_PREVIOUS_DOWNLOADS_FILE = "/tmp/vismod_previous_downloads.txt"  # TODO: Change this to a more permanent location # noqa
+# temp storage for downloaded .tdms files
 LOCAL_TDMS_STORAGE_DIR = "/tmp/vismod_tdms_files"
+# the _measurement in influx used to record file downloads
+FILE_MEASUREMENT_NAME = "FileDownload"
 
 
 def clean_tmp_files():
@@ -52,25 +58,32 @@ def exponential_backoff_request(
     return None
 
 
-def fetch_previous_downloads_from_file():
+def check_for_download(google_id) -> datetime.datetime | None:
     """
-    Fetch the list of previously downloaded files from the local file
+    Checks if a file has been previously downloaded.
+    If it has, return the last modified timestamp
     """
-    if not os.path.exists(LOCAL_PREVIOUS_DOWNLOADS_FILE):
-        return []
-    with open(LOCAL_PREVIOUS_DOWNLOADS_FILE, "r") as file:
-        return file.read().splitlines()
+    with influx_cli.VismodInfluxBuilder() as conn:
+        res = conn.read_last_with_tag(
+            FILE_MEASUREMENT_NAME, "google_id", google_id
+        )
+        if res is not None:
+            return datetime.datetime.fromtimestamp(res["_value"])
 
 
-def update_downloads_file(filename):
+def record_download(name, google_id, last_modified):
     """
-    Update the local file with the name of the downloaded file
+    Store a record of this download in the DB
     """
-    with open(LOCAL_PREVIOUS_DOWNLOADS_FILE, "a") as file:
-        file.write(filename + "\n")
-    logging.debug(
-        f"Updated {LOCAL_PREVIOUS_DOWNLOADS_FILE} with download: {filename}"
-    )
+    timestamp = dateutil.parser.parse(last_modified)
+
+    with influx_cli.VismodInfluxBuilder() as conn:
+        conn.write_row(
+            {"name": name, "google_id": google_id},
+            {"creation": timestamp.timestamp()},
+            datetime.datetime.now(),
+            FILE_MEASUREMENT_NAME,
+        )
 
 
 def get_recent_tdms_file(service, count=1):
@@ -94,8 +107,8 @@ def get_recent_tdms_file(service, count=1):
         lambda: service.files().list(
             q=query,
             spaces="drive",
-            fields="files(id, name, createdTime)",
-            orderBy="createdTime desc",
+            fields="files(id, name, createdTime, modifiedTime)",
+            orderBy="modifiedTime desc",
             pageSize=count * 2 + 1,
             supportsAllDrives=True,
         )
@@ -136,8 +149,8 @@ def get_specified_tdms_file(service, file_name):
         lambda: service.files().list(
             q=query,
             spaces="drive",
-            fields="files(id, name, createdTime)",
-            pageSize=2,  # Request only the newest file
+            fields="files(id, name, createdTime, modifiedTime)",
+            pageSize=12,  # Request only the newest file
             supportsAllDrives=True,
         )
     )
@@ -158,8 +171,6 @@ def tdmsDownload(target_file=None, count=1) -> list[str]:
     if not GOOGLE_API_KEY or len(GOOGLE_API_KEY) < 5:
         logging.error("$GOOGLE_API_KEY not available from environment")
         return []
-
-    previous_downloads = fetch_previous_downloads_from_file()
     service = build("drive", "v3", developerKey=GOOGLE_API_KEY)
 
     data_file_list = []
@@ -168,56 +179,74 @@ def tdmsDownload(target_file=None, count=1) -> list[str]:
     else:
         data_file_list = get_recent_tdms_file(service, count=count)
 
-    # Create the local storage directory if it doesn't exist
-    if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):
-        os.makedirs(LOCAL_TDMS_STORAGE_DIR)
-
     if len(data_file_list) == 0:
         logging.warning("Found no data files to download in data_fetch")
         return []
 
+    # Create the local storage directory if it doesn't exist
+    if not os.path.exists(LOCAL_TDMS_STORAGE_DIR):
+        os.makedirs(LOCAL_TDMS_STORAGE_DIR)
+
     local_files = []
     # download our files
     for item in data_file_list:
-        if item["name"] not in previous_downloads:
-            logging.info(f"Downloading {item['name']}...")
-            file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
-            fh = io.FileIO(file_path, "wb")
-            media = service.files().get_media(fileId=item["id"])
-            downloader = MediaIoBaseDownload(fh, media)
-            done = False
+        logging.info(f"Downloading {item['name']}...")
+        # check if we have already downloaded a file with
+        # the same modification timestamp
+        other_last_modified = check_for_download(item["id"])
+        if other_last_modified is not None:
+            cur_last_modified = dateutil.parser.parse(
+                item["modifiedTime"]
+            ).replace(tzinfo=None)
+            diff = cur_last_modified - other_last_modified
+            logging.info(
+                f"Found previous download of {item['name']} that is {diff} older. Skipping download."  # noqa
+            )
+            # we will not download this file if it is < 10 seconds newer
+            # than the previous download
+            if diff.total_seconds() < 10:
+                continue
 
-            # Download the file
-            while not done:
-                try:
-                    status, done = downloader.next_chunk()
-                    logging.debug(
-                        f"Download {int(status.progress() * 100)}% complete."
-                    )  # noqa
+        file_path = os.path.join(LOCAL_TDMS_STORAGE_DIR, item["name"])
+        fh = io.FileIO(file_path, "wb")
+        media = service.files().get_media(fileId=item["id"])
+        downloader = MediaIoBaseDownload(fh, media)
 
-                # Catch API request errors
-                except HttpError as e:
-                    logging.warn(f"Failed to download {item['name']}: {e}")
-                    fh.close()
-                    os.remove(file_path)
-                    if e.resp.status == 403:
-                        logging.warning(
-                            "Google Drive API Timeout detected. Will not download more files."  # noqa
-                        )
-                        return local_files
-                    break
+        # Download the file
+        done = False
+        while not done:
+            try:
+                status, done = downloader.next_chunk()
+                logging.debug(
+                    f"Download {int(status.progress() * 100)}% complete."
+                )  # noqa
 
-            # If the download was successful, update the local file
-            if done:
-                update_downloads_file(item["name"])
-                local_files.append(file_path)
+            # Catch API request errors
+            except HttpError as e:
+                logging.warn(f"Failed to download {item['name']}: {e}")
+                fh.close()
+                os.remove(file_path)
+                if e.resp.status == 403:
+                    logging.warning(
+                        "Google Drive API Timeout detected. Will not download more files."  # noqa
+                    )
+                    return local_files
+                break
+
+        # If download successful, update the last-modified timestamp
+        if done:
+            record_download(item["name"], item["id"], item["modifiedTime"])
+            local_files.append(file_path)
 
     return local_files
 
 
 # Allow this file to be run standalone
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     load_dotenv()
-    new_files = tdmsDownload()
+    # Create the google api service
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+    new_files = tdmsDownload(target_file="040224.tdms")
     print(new_files)
