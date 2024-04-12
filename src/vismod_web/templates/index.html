@@ -1,11 +1,14 @@
-{% extends "base.html" %}
-{% block title %} Viewer {% endblock %}
-{% block body %}
+<!DOCTYPE html>
+<html lang="en">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-<script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<head>
+  {% extends "base.html" %}
+  {% block body %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+  <script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+</head>
 
 <main>
   <article id="selection-controls">
@@ -195,5 +198,5 @@
   </section>
 </main>
 
-
+</html>
 {% endblock %}

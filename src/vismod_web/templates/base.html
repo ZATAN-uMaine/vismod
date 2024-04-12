@@ -6,31 +6,30 @@
   <script type="text/javascript" src="static/theme.js"></script>
   <script type="text/javascript" src="static/index.js"></script>
   <script type="text/javascript" src="static/modal.js"></script>
-  <script>
-    const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
-    if (darkModeEnabled) {
-      DarkReader.enable({
-        brightness: 100,
-        contrast: 100,
-        sepia: 0
-      });
-    }
-  </script>
+  <script> const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; if (darkModeEnabled) { DarkReader.enable({ brightness: 100, contrast: 100, sepia: 0 }); } </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PNB Data Portal - {% block title %}{% endblock %}</title>
   <link rel="icon" href="static/favicon.svg">
   <link rel="stylesheet" href="static/base.css">
-  <link rel="stylesheet" href="static/layout.css">
-  <link rel="stylesheet" href="static/components.css">
-  <link rel="stylesheet" href="static/themes.css">
-  <link rel="stylesheet" href="static/media-queries.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
+<header id="navigation-bar">
+    <div class="logo"> <a href="/"> PNB<span class="sub-brand">Data Portal</span> </a> </div>
+    <nav>
+      <ul class="navigation-items">
+        <li class="navigation-item"><a href="/about-site.html">About This Site</a></li>
+        <li class="navigation-item"><a href="/about-pnb.html">About PNB</a></li>
+      </ul> <button id="theme-toggle" class="btn"> Toggle Theme <span class="btn-icon">
+          <!-- SVG icon adjusted for simplicity --> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+            width="18" height="18">
+            <path d="M12,2A10,10,0,1,0,22,12,10.011,10.011,0,0,0,12,2Zm0,18A8,8,0,1,1,20,12,8.009,8.009,0,0,1,12,20Z" />
+          </svg> </span> </button>
+    </nav>
+  </header>
 
 <body>
-  {% include 'navbar.html' %}
-  {% block body %} CHILD CONTENT HERE {% endblock %}
+  {% block body %}
+  {% endblock %}
 </body>
 
 </html>

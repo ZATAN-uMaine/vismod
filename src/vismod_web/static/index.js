@@ -94,22 +94,26 @@ class SensorSelection {
 
         const dataStart = new Date(dateRangeInfo.split("from")[1].split("to")[0]);
         const dataEnd = new Date(dateRangeInfo.split("to")[1].split(".")[0]);
+        dataEnd.setDate(dataEnd.getDate() + 1);
 
         $(dateRangeSelector).daterangepicker({
+            showDropdowns: true,
             timePicker: true,
             timePicker24Hour: true,
+            autoApply: true,
+            alwaysShowCalendars: true,
             startDate: this.startTime,
             endDate: this.endTime,
             opens: 'left',
             locale: {
-                format: 'YYYY-MM-DD HH:mm'
+            format: 'YYYY-MM-DD HH:mm'
             },
             minDate: dataStart, // Set the minimum date to the start date of the dataset
             maxDate: dataEnd, // Set the maximum date to the end date of the dataset
             isInvalidDate: function (date) {
-                // Check if the date is within the available data range
-                return date < dataStart || date > dataEnd;
-            }
+            // Check if the date is within the available data range
+            return date < dataStart || date > dataEnd;
+            },
         }, this.updateSelectedDate);
 
         this.updateSelectedDate();
