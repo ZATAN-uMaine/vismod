@@ -84,6 +84,7 @@ h6 {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center; /* Center the items horizontally */
 }
 
 #cur-sensor-info-panel {
@@ -223,7 +224,7 @@ input[type="button"]:hover {
   margin-bottom: 2rem;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1230px) {
   #selection-controls {
     flex-direction: column;
   }

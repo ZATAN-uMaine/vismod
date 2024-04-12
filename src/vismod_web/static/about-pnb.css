@@ -174,14 +174,18 @@ main {
 
 .info-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: flex-start;
   width: 100%;
 }
 
 .info-image {
-  width: 100%;
+  width: 40%;
+  max-width: 400px;
   overflow: hidden;
+  margin-right: 20px;
   margin-bottom: 20px;
   cursor: pointer;
   padding: 0 20px;
@@ -230,8 +234,8 @@ main {
 }
 
 .info-text {
-  width: 100%;
-  text-align: center;
+  width: 60%;
+  text-align: left;
 }
 
 .info-text h2 {
@@ -319,33 +323,25 @@ main {
   }
 }
 
-@media (min-width: 768px) {
+@media (max-width: 1230px) {
   .info-content {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
   }
 
-  .info-image {
-    width: 40%;
-    margin-right: 20px;
-    margin-bottom: 0;
-  }
+.info-image {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 20px; /* Center the image horizontally and add bottom margin */
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-speed);
+  box-sizing: border-box; /* Include padding in the width calculation */
+  padding: 0 20px; /* Add some horizontal padding */
+}
 
   .info-text {
-    width: 60%;
+    width: 100%;
     text-align: left;
-  }
-
-  .person-item {
-    padding: 10px;
-  }
-
-  .person-details h2 {
-    font-size: 20px;
-  }
-
-  .person-details p {
-    font-size: 14px;
   }
 }
 

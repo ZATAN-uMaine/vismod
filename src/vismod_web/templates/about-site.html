@@ -1,8 +1,69 @@
-{% extends "base.html" %}
-{% block body %}
+{% extends "base.html" %} {% block body %} <style> body { background-color: #000; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
 
+    .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    }
 
+    .text {
+    font-size: 4rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+    animation: glitch 2s infinite;
+    position: relative;
+    z-index: 1;
+    }
 
+    .glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+    animation: pulse 3s infinite;
+    z-index: 0;
+    }
 
+@keyframes glitch {
+    0% {
+        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
+    }
+    15% {
+        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
+    }
+    30% {
+        text-shadow: -0.05em 0 0 #00fffc, 0.025em 0.04em 0 #fc00ff, -0.03em -0.04em 0 #fffc00;
+    }
+    45% {
+        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
+    }
+    60% {
+        text-shadow: -0.05em 0 0 #00fffc, 0.025em 0.04em 0 #fc00ff, -0.03em -0.04em 0 #fffc00;
+    }
+    75% {
+        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
+    }
+    100% {
+        text-shadow: -0.05em 0 0 #00fffc, 0.025em 0.04em 0 #fc00ff, -0.03em -0.04em 0 #fffc00;
+    }
+}
 
-{% endblock %}
+    @keyframes pulse {
+    0% {
+    transform: scale(1);
+    opacity: 0.7;
+    }
+    50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+    }
+    100% {
+    transform: scale(1);
+    opacity: 0.7;
+    }
+    }
+    </style>
+    <div class="container"> <div class="text"> Coming Soon </div> <div class="glow"></div> </div> {% endblock %}
