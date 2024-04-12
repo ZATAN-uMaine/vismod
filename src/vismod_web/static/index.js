@@ -90,8 +90,6 @@ class SensorSelection {
 
         const dateRangeInfo = document.querySelector('p.available-dates').textContent;
 
-        let startDateString, endDateString;
-
         // Extract available date range from the string written on the page
 
         const dataStart = new Date(dateRangeInfo.split("from")[1].split("to")[0]);
