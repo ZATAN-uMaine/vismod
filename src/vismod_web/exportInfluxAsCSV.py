@@ -504,7 +504,7 @@ def create_plot(results_dict, filtered_sensors):
                 x=results_dict["_time"],
                 y=results_dict[filtered_sensors[-1]],
                 name="External Temperature (F)",
-                marker=dict(color="lightblue", symbol="diamond", size=3),
+                marker=dict(color="darkgreen", symbol="diamond", size=3),
                 line=dict(dash="dash"),
                 visible="legendonly",
             ),
