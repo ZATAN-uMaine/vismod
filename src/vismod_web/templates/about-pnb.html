@@ -10,20 +10,14 @@
 </head>
 
 <script> // Image Enlargement Script
-  document.addEventListener("DOMContentLoaded", function () {
-    const infoImages = document.querySelectorAll(".info-image");
-    infoImages.forEach((image) => {
-      image.addEventListener("click", () => {
-        const enlargedImage = document.createElement("div");
-        enlargedImage.classList.add("enlarged-image");
-        enlargedImage.innerHTML = `<img src="${image.querySelector("img").src}" alt="${image.querySelector("img").alt}">`;
-        document.body.appendChild(enlargedImage);
-        enlargedImage.addEventListener("click", () => {
-          document.body.removeChild(enlargedImage);
-        });
-      });
+document.addEventListener("DOMContentLoaded", function () {
+  const infoImages = document.querySelectorAll(".info-image img");
+  infoImages.forEach((image) => {
+    image.addEventListener("click", () => {
+      window.open(image.src, "_blank");
     });
-  }); </script>
+  });
+});</script>
 <main>
   <section name="Penobscot Narrows Bridge" class="info-section"> <!-- Begin PNB section -->
     <section class="info-item"> <!-- When the PNB was created... -->
@@ -31,6 +25,7 @@
         <div class="info-content">
           <div class="info-image"> <img src="static/about-pnb/pnb-construction.jpg"
               alt="Penobscot Narrows Bridge Overview" />
+              <div class="enlarge-message">Click to enlarge</div>
             <p class="image-caption">Image from Reed & Reed</p>
           </div>
           <div class="info-text">
@@ -92,6 +87,7 @@
           </div>
           <div class="info-image"> <img src="static/about-pnb/cradlesystem.png"
               alt="" />
+              <div class="enlarge-message">Click to enlarge</div>
             <p class="image-caption">Image from Lawrence Techincal University</p>
           </div>
         </div>
@@ -101,6 +97,7 @@
       <div class="info-box">
         <div class="info-content">
           <div class="info-image"> <img src="static/about-pnb/cablecombo.png" alt="" />
+            <div class="enlarge-message">Click to enlarge</div>
             <p class="image-caption">Top Image Lawrence Techincal University</p>
             <p class="image-caption">Bottom Image from University of Maine</p>
           </div>
@@ -158,7 +155,9 @@
             </p>
           </div>
           <div class="info-image"> <img src="static/about-pnb/DAQ.png"
-              alt="" /> </div>
+              alt="" />
+              <div class="enlarge-message">Click to enlarge</div>
+              <p class="image-caption">Image from inside PNB</p></div>
         </div>
       </div>
     </section>
@@ -168,6 +167,8 @@
         <div class="info-content">
           <div class="info-image">
             <img src="static/about-pnb/zatandrone.jpg" alt="Penobscot Narrows Bridge Overview" />
+            <div class="enlarge-message">Click to enlarge</div>
+            <p class="image-caption">Image taken by Team ZATAN</p>
           </div>
           <div class="info-text">
             <h2>Long Term Goal</h2>
