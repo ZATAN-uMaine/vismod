@@ -1,4 +1,4 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 {% block title %} PNB Data Portal - About This Portal {% endblock %}
 {% block body %} <style> body { background-color: #000; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
 
@@ -25,7 +25,6 @@
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
-    animation: pulse 3s infinite;
     z-index: 0;
     }
 
@@ -53,19 +52,5 @@
     }
 }
 
-    @keyframes pulse {
-    0% {
-    transform: scale(1);
-    opacity: 0.7;
-    }
-    50% {
-    transform: scale(1.2);
-    opacity: 0.3;
-    }
-    100% {
-    transform: scale(1);
-    opacity: 0.7;
-    }
-    }
     </style>
     <div class="container"> <div class="text"> Coming Soon </div> <div class="glow"></div> </div> {% endblock %}
