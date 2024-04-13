@@ -146,7 +146,6 @@ class SensorSelection {
             });
 
             const dateRangeSelector = document.getElementById('dateRange');
-            console.log(startDateString, endDateString)
             dateRangeSelector.value = `${startDateString} - ${endDateString}`;
         }
     }
