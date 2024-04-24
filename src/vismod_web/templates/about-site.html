@@ -1,56 +1,120 @@
 {% extends "base.html" %}
 {% block title %} PNB Data Portal - About This Portal {% endblock %}
-{% block body %} <style> body { background-color: #000; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; overflow: hidden; }
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="static/about-site.css">
+</head>
+<body>
+    <main>
+        <h1>Who is Team ZATAN?</h1>
+        <section class="people-section">
 
-    .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    position: relative;
-    }
+            <section class="person-item">
+                <div class="person-image">
+                    <img src="static/about-site/zach.jpg" alt="Zach" />
+                </div>
+                <div class="person-details">
+                    <h2>Zach</h2>
+                    <p class="role">Dev Manager, Peer Team Liaison, Frontend Dev</p>
+                    <span class="email-icon"><i class="fas fa-envelope"></i></span>
+                    <a href="mailto:zachary.scott@maine.edu" class="link">zachary.scott@maine.edu</a>
+                    <div class="contributions">
+                        <ul>
+                            <li>Created templated database queries and UI prototyping</li>
+                            <li>Created initial working prototype using Plotly library for embeddable, interactive
+                                scatter plots</li>
+                            <li>Contributed significantly to UML diagrams and mockups for design documents</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-    .text {
-    font-size: 4rem;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.2rem;
-    animation: glitch 2s infinite;
-    position: relative;
-    z-index: 1;
-    }
+            <section class="person-item">
+                <div class="person-image">
+                    <img src="static/about-site/alex.png" alt="Alex" />
+                </div>
+                <div class="person-details">
+                    <h2>Alex</h2>
+                    <p class="role">Quality Manager, Product Owner, Frontend Dev</p>
+                    <span class="email-icon"><i class="fas fa-envelope"></i></span>
+                    <a href="mailto:alexander.bourgoin@maine.edu" class="link">alexander.bourgoin@maine.edu</a>
+                    <div class="contributions">
+                        <ul>
+                            <li>Created the current frontend of the website, overhauling previous work done by Nick</li>
+                            <li>Created current format for configuration file and fetching script</li>
+                            <li>Created original script to fetch the data files using Google Drive API</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-    .glow {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
-    z-index: 0;
-    }
+            <section class="person-item">
+                <div class="person-image">
+                    <img src="static/about-site/tyler.jpg" alt="Tyler" />
+                </div>
+                <div class="person-details">
+                    <h2>Tyler</h2>
+                    <p class="role">Planning Manager, Backend Dev</p>
+                    <span class="email-icon"><i class="fas fa-envelope"></i></span>
+                    <a href="mailto:tyler.harwood@maine.edu" class="link">tyler.harwood@maine.edu</a>
+                    <div class="contributions">
+                        <ul>
+                            <li>Contributed to writing the pre-processing module</li>
+                            <li>Worked on unit testing and integration testing for the backend</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-@keyframes glitch {
-    0% {
-        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
-    }
-    15% {
-        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
-    }
-    30% {
-        text-shadow: -0.05em 0 0 #00fffc, 0.025em 0.04em 0 #fc00ff, -0.03em -0.04em 0 #fffc00;
-    }
-    45% {
-        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
-    }
-    60% {
-        text-shadow: -0.05em 0 0 #00fffc, 0.025em 0.04em 0 #fc00ff, -0.03em -0.04em 0 #fffc00;
-    }
-    75% {
-        text-shadow: 0.05em 0 0 #00fffc, -0.03em -0.04em 0 #fc00ff, 0.025em 0.04em 0 #fffc00;
-    }
-    100% {
-        text-shadow: -0.05em 0 0 #00fffc, 0.025em 0.04em 0 #fc00ff, -0.03em -0.04em 0 #fffc00;
-    }
-}
+            <section class="person-item">
+                <div class="person-image">
+                    <img src="static/about-site/andres.jpg" alt="Andres" />
+                </div>
+                <div class="person-details">
+                    <h2>Andres</h2>
+                    <p class="role">Team Lead, Scrum Master, Backend Dev</p>
+                    <span class="email-icon"><i class="fas fa-envelope"></i></span>
+                    <a href="mailto:andres.e.vargas@maine.edu" class="link">andres.e.vargas@maine.edu</a>
+                    <div class="contributions">
+                        <ul>
+                            <li>Worked on the database, including importing data, querying, and generating output .csv
+                                files</li>
+                            <li>Provided functionality to plot different sensors with distinguishable colors on the same
+                                legend</li>
+                            <li>Made minor contributions to the frontend</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-    </style>
-    <div class="container"> <div class="text"> Coming Soon </div> <div class="glow"></div> </div> {% endblock %}
+            <section class="person-item">
+                <div class="person-image">
+                    <img src="static/about-site/nick.png" alt="Nick" />
+                </div>
+                <div class="person-details">
+                    <h2>Nick</h2>
+                    <p class="role">Support Manager, System Administrator</p>
+                    <span class="email-icon"><i class="fas fa-envelope"></i></span>
+                    <a href="mailto:nicholas.dieffenbacherkrall@maine.edu" class="link">nicholas.dieffenbacherkrall@maine.edu</a>
+                    <div class="contributions">
+                        <ul>
+                            <li>Created CI/CD pipelines for the web portal</li>
+                            <li>Worked on solution for the team's local development environment</li>
+                            <li>Administrator of initial demonstration version of the website</li>
+                            <li>Made contributions to the server backend</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </section>
+    </main>
+</body>
+{% endblock %}
+
+</html>

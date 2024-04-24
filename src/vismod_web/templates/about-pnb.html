@@ -5,29 +5,26 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <link rel="stylesheet" href="static/about-pnb.css">
 </head>
 
 <script> // Image Enlargement Script
-document.addEventListener("DOMContentLoaded", function () {
-  const infoImages = document.querySelectorAll(".info-image img");
-  infoImages.forEach((image) => {
-    image.addEventListener("click", () => {
-      window.open(image.src, "_blank");
+  document.addEventListener("DOMContentLoaded", function () {
+    const infoImages = document.querySelectorAll(".info-image img");
+    infoImages.forEach((image) => {
+      image.addEventListener("click", () => {
+        window.open(image.src, "_blank");
+      });
     });
-  });
-});</script>
+  });</script>
 <main>
   <section name="Penobscot Narrows Bridge" class="info-section"> <!-- Begin PNB section -->
     <section class="info-item"> <!-- When the PNB was created... -->
       <div class="info-box">
         <div class="info-content">
-          <div class="info-image"> <img src="static/about-pnb/pnb-construction.jpg"
-              alt="Penobscot Narrows Bridge Overview" />
-              <div class="enlarge-message">Click to enlarge</div>
-            <p class="image-caption">Image from Reed & Reed</p>
-          </div>
           <div class="info-text">
             <h2>The Tallest Public Bridge Observatory in the World</h2>
             <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The Penobscot Narrows Bridge is a cable-stayed bridge
@@ -42,12 +39,21 @@ document.addEventListener("DOMContentLoaded", function () {
               Penobscot River and the beautiful Maine landscape. Visitors can enjoy the stunning scenery from the
               observatory's glass-walled elevator or the outdoor observation deck. </p>
           </div>
+          <div class="info-image"> <img src="static/about-pnb/pnb-construction.jpg"
+              alt="Penobscot Narrows Bridge Overview" />
+            <div class="enlarge-message">Click to enlarge</div>
+            <p class="image-caption">Image from Reed & Reed</p>
+          </div>
         </div>
       </div>
     </section>
     <section class="info-item"> <!-- Experimental Cables -->
       <div class="info-box">
         <div class="info-content">
+          <div class="info-image"> <img src="static/about-pnb/cradlesystem.png" alt="" />
+            <div class="enlarge-message">Click to enlarge</div>
+            <p class="image-caption">Image from Lawrence Techincal University</p>
+          </div>
           <div class="info-text">
             <h2>Figg Cable-Stay Cradle System</h2>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The Penobscot Narrows Bridge features a unique cable
@@ -85,30 +91,20 @@ document.addEventListener("DOMContentLoaded", function () {
               measure CFCS strand force, changes in strain, load-chair deflections, and temperature at the anchorage
               locations and exterior. </p>
           </div>
-          <div class="info-image"> <img src="static/about-pnb/cradlesystem.png"
-              alt="" />
-              <div class="enlarge-message">Click to enlarge</div>
-            <p class="image-caption">Image from Lawrence Techincal University</p>
-          </div>
         </div>
       </div>
     </section>
     <section class="info-item"> <!-- Purpose of the cables -->
       <div class="info-box">
         <div class="info-content">
-          <div class="info-image"> <img src="static/about-pnb/cablecombo.png" alt="" />
-            <div class="enlarge-message">Click to enlarge</div>
-            <p class="image-caption">Top Image Lawrence Techincal University</p>
-            <p class="image-caption">Bottom Image from University of Maine</p>
-          </div>
-
           <div class="info-text">
             <h2> The Purpose of the CFCS
             </h2>
             <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The reasoning behind the installation of the CFCS was to
               study the long-term behavior and durability of
               CFCS in a
-              real-world cable-stayed bridge application. The Penobscot Narrows Bridge serves as a safe place to gather real world data on the CFCS. </p>
+              real-world cable-stayed bridge application. The Penobscot Narrows Bridge serves as a safe place to gather
+              real world data on the CFCS. </p>
             </p>
             <p>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The Carbon Fiber Composite Strands are manufactured by
@@ -128,12 +124,21 @@ document.addEventListener("DOMContentLoaded", function () {
               money can be saved. </p>
             </p>
           </div>
+          <div class="info-image"> <img src="static/about-pnb/cablecombo.png" alt="" />
+            <div class="enlarge-message">Click to enlarge</div>
+            <p class="image-caption">Top Image Lawrence Techincal University</p>
+            <p class="image-caption">Bottom Image from University of Maine</p>
+          </div>
         </div>
       </div>
     </section>
     <section class="info-item"> <!-- Puasdapikas-->
       <div class="info-box">
         <div class="info-content">
+          <div class="info-image"> <img src="static/about-pnb/DAQ.png" alt="" />
+            <div class="enlarge-message">Click to enlarge</div>
+            <p class="image-caption">Image from inside PNB</p>
+          </div>
           <div class="info-text">
             <h2>Structural Health Monitoring System</h2>
             <p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A structural health monitoring system was implemented to
@@ -154,10 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
               transmission. Data is then transitted from the Data Acquisition System to a Google Drive.
             </p>
           </div>
-          <div class="info-image"> <img src="static/about-pnb/DAQ.png"
-              alt="" />
-              <div class="enlarge-message">Click to enlarge</div>
-              <p class="image-caption">Image from inside PNB</p></div>
         </div>
       </div>
     </section>
@@ -165,26 +166,28 @@ document.addEventListener("DOMContentLoaded", function () {
       <!-- Long term goal -->
       <div class="info-box">
         <div class="info-content">
-          <div class="info-image">
-            <img src="static/about-pnb/zatandrone.jpg" alt="Penobscot Narrows Bridge Overview" />
-            <div class="enlarge-message">Click to enlarge</div>
-            <p class="image-caption">Image taken by Team ZATAN</p>
-          </div>
           <div class="info-text">
             <h2>Long Term Goal</h2>
             <p>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The long-term plan is to continue monitoring the CFCS strands to
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The long-term plan is to continue monitoring the CFCS
+              strands to
               assess their performance and durability over time. Recommendations
               include transitioning to a continuous online monitoring system for
               both the CFCS and steel strands.
             </p>
             <p>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In summary, the Penobscot Narrows Bridge is serving as a "living
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In summary, the Penobscot Narrows Bridge is serving as a
+              "living
               laboratory" to study the long-term behavior and durability of CFCS in
               a real-world cable-stayed bridge application, enabled by the unique cable system and the
               comprehensive structural health monitoring system that has been
               implemented.
             </p>
+          </div>
+          <div class="info-image">
+            <img src="static/about-pnb/zatandrone.jpg" alt="Penobscot Narrows Bridge Overview" />
+            <div class="enlarge-message">Click to enlarge</div>
+            <p class="image-caption">Image taken by Team ZATAN</p>
           </div>
         </div>
       </div>
