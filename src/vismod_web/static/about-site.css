@@ -92,9 +92,9 @@ body {
   }
 
   .link {
-    color: #333;
+    color: var(--primary);
     text-decoration: none;
-    transition: color 0.3s ease-in-out;
+    transition: color var(--transition-speed);
     position: relative;
   }
 
