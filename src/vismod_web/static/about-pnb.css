@@ -98,11 +98,6 @@ main {
   transform: scale(1.2);
 }
 
-.email-icon,
-.website-icon {
-  color: var(--secondary);
-}
-
 .link {
   color: var(--primary);
   text-decoration: none;
