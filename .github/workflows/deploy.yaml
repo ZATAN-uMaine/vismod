@@ -25,7 +25,7 @@ jobs:
             host_key_checking = False
           inventory: |
             [prod]
-            ${{secrets.PROD_SERVER_HOSTNAME}} ansible_user=ubuntu
+            ${{secrets.PROD_SERVER_HOSTNAME}} ansible_user=${{secrets.PROD_SERVER_KEY}}
           key: ${{secrets.PROD_SERVER_KEY}}
           options: |
             --extra-vars www_location=${{secrets.PROD_SERVER_HOSTNAME}} 
