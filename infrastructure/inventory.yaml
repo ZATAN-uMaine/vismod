@@ -1,8 +1,8 @@
 all:
   hosts:
     prod:
-      ansible_host: "pnbpreview.dieff.dev"
-      ansible_user: "ubuntu"
+      ansible_host: "acg-floating-204-197-5-94.acg.maine.edu"
+      ansible_user: "ansible-controller"
   vars:
-    www_location: "pnbpreview.dieff.dev"
+    www_location: "acg-floating-204-197-5-94.acg.maine.edu"
     get_https_cert: true
